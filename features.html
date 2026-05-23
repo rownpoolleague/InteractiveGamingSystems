@@ -1,0 +1,278 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    
+    <!-- SEO Meta Tags -->
+    <title>Features | Interactive Gaming Systems</title>
+    <meta name="description" content="Explore the full features of our custom league web apps. Mobile-optimized for live tracking, player stats, team data, and multi-division leagues.">
+    <meta name="keywords" content="league app features, mobile league app, live sports tracking, player stats app, team tournament software, division manager">
+    <meta name="robots" content="index, follow">
+    <link rel="canonical" href="https://yourdomain.com/features.html">
+
+    <style>
+        :root {
+            --bg-primary: #121212;
+            --bg-surface: #1e1e1e;
+            --text-primary: #ffffff;
+            --text-secondary: #aaaaaa;
+            --accent: #2563eb;
+            --accent-hover: #3b82f6;
+            --border: #333333;
+            --font: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, sans-serif;
+        }
+
+        * {
+            box-sizing: border-box;
+            margin: 0;
+            padding: 0;
+        }
+
+        body {
+            background-color: var(--bg-primary);
+            color: var(--text-primary);
+            font-family: var(--font);
+            line-height: 1.6;
+            padding-bottom: 60px;
+        }
+
+        header {
+            border-bottom: 1px solid var(--border);
+            background-color: var(--bg-surface);
+            position: sticky;
+            top: 0;
+            z-index: 100;
+        }
+
+        .nav-container {
+            max-width: 1000px;
+            margin: 0 auto;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            padding: 16px 20px;
+        }
+
+        .logo {
+            font-size: 1.2rem;
+            font-weight: 700;
+            letter-spacing: -0.5px;
+        }
+
+        nav a {
+            color: var(--text-secondary);
+            text-decoration: none;
+            margin-left: 20px;
+            font-size: 0.95rem;
+            font-weight: 500;
+        }
+
+        nav a:hover, nav a.active {
+            color: var(--text-primary);
+        }
+
+        .container {
+            max-width: 900px;
+            margin: 0 auto;
+            padding: 60px 20px;
+        }
+
+        .page-title {
+            font-size: 2.5rem;
+            font-weight: 800;
+            margin-bottom: 12px;
+            letter-spacing: -1px;
+        }
+
+        .page-subtitle {
+            font-size: 1.2rem;
+            color: var(--text-secondary);
+            margin-bottom: 40px;
+            max-width: 700px;
+        }
+
+        /* Product Identity Callout Box (Cleaned up - No color shading) */
+        .product-identity-box {
+            border: 1px dashed var(--border);
+            padding: 24px;
+            border-radius: 8px;
+            margin-bottom: 48px;
+        }
+
+        .product-identity-box h2 {
+            font-size: 1.2rem;
+            font-weight: 700;
+            margin-bottom: 8px;
+            color: #ffffff;
+        }
+
+        .product-identity-box p {
+            font-size: 0.95rem;
+            color: var(--text-secondary);
+        }
+
+        /* Features Layout Grid */
+        .features-grid {
+            display: grid;
+            grid-template-columns: 1fr 1fr;
+            gap: 32px;
+        }
+
+        .feature-card {
+            background-color: var(--bg-surface);
+            border: 1px solid var(--border);
+            padding: 32px;
+            border-radius: 8px;
+        }
+
+        /* Span full width if it's the last odd card in a 2-column layout */
+        .feature-card.full-width {
+            grid-column: span 2;
+        }
+
+        .feature-card h2 {
+            font-size: 1.4rem;
+            font-weight: 700;
+            margin-bottom: 16px;
+            display: flex;
+            align-items: center;
+            gap: 10px;
+        }
+
+        .feature-card p {
+            color: var(--text-secondary);
+            margin-bottom: 20px;
+            font-size: 0.95rem;
+        }
+
+        .feature-list {
+            list-style: none;
+        }
+
+        .feature-list li {
+            position: relative;
+            padding-left: 20px;
+            margin-bottom: 12px;
+            font-size: 0.95rem;
+        }
+
+        .feature-list li::before {
+            content: "•";
+            position: absolute;
+            left: 0;
+            color: var(--accent);
+            font-weight: bold;
+            font-size: 1.2rem;
+            line-height: 1;
+        }
+
+        /* Status Badges */
+        .badge {
+            background-color: rgba(37, 99, 235, 0.15);
+            color: var(--accent-hover);
+            font-size: 0.75rem;
+            padding: 2px 8px;
+            border-radius: 4px;
+            font-weight: 600;
+            text-transform: uppercase;
+            border: 1px solid var(--accent);
+        }
+
+        @media (max-width: 768px) {
+            .features-grid {
+                grid-template-columns: 1fr;
+            }
+            .feature-card.full-width {
+                grid-column: span 1;
+            }
+            .page-title { font-size: 2rem; }
+        }
+    </style>
+</head>
+<body>
+
+    <header>
+        <div class="nav-container">
+            <div class="logo">Interactive Gaming Systems</div>
+            <nav>
+                <a href="index.html">Home</a>
+                <a href="demo.html">Demo's</a>
+                <a href="rates.html">Purchase</a>
+                <a href="contact.html">Contact</a>
+            </nav>
+        </div>
+    </header>
+
+    <main class="container">
+        <h1 class="page-title">What the Apps Can Do</h1>
+        <p class="page-subtitle">From simple casual meetups to massive multi-tiered organizations, your app handles the calculations, tracking, and player engagement automatically.</p>
+
+        <!-- Product Identity Section -->
+        <section class="product-identity-box">
+            <h2>Mobile-First Custom Web Applications</h2>
+            <p>Every product is built as a dedicated web app optimized specifically for mobile phones. Players open the link directly on their smartphones at the venue to track matches, view live standings, and check schedules in real time. It is fully accessible via laptop or desktop as well, making home viewing and backend administration seamless across any device.</p>
+        </section>
+
+        <div class="features-grid">
+            
+            <!-- Deep Statistical Tracking -->
+            <div class="feature-card">
+                <h2>Stats Engine <span class="badge">Included</span></h2>
+                <p>Go far beyond simple win/loss tracking. Your custom app records comprehensive historical data points across every layer of your league.</p>
+                <ul class="feature-list">
+                    <li><strong>Player Stats:</strong> Tracks individual win percentages, form trends, specific match points, and active rating or handicap shifts.</li>
+                    <li><strong>Team Records:</strong> Aggregates individual scores into team point standings, game point differentials, and match histories.</li>
+                    <li><strong>League Data:</strong> Maintains long-term records so you can look back at past seasons and overall club milestones.</li>
+                </ul>
+            </div>
+
+            <!-- Rules & Integrations -->
+            <div class="feature-card">
+                <h2>Custom Rules & Sheets <span class="badge">Included</span></h2>
+                <p>You don't have to alter how your club runs. The software adapts directly to your established local rules and scoring methods.</p>
+                <ul class="feature-list">
+                    <li><strong>Bespoke Calculations:</strong> Built-in logic parses exact handicap algorithms, sub-point rules, and tie-breakers.</li>
+                    <li><strong>Google Sheets Sync:</strong> Fully integrates with your current spreadsheets to read rosters or output results automatically.</li>
+                    <li><strong>Turnkey Backend:</strong> Access an editable administration screen to fix score entry errors or manually tweak listings instantly from a phone or laptop.</li>
+                </ul>
+            </div>
+
+            <!-- Live Tracking & Pairings -->
+            <div class="feature-card">
+                <h2>Live Tracking & Formats <span class="badge">Included</span></h2>
+                <p>Keep players updated in real-time on tournament nights right on their phones, without making them crowd around a paper sheet or wall bracket.</p>
+                <ul class="feature-list">
+                    <li><strong>Live Standings:</strong> Leaderboards update the second a match score is submitted and saved by an admin.</li>
+                    <li><strong>Multi-Division Control:</strong> Run completely separate competitive tiers or weeknight brackets using one master member list.</li>
+                    <li><strong>Match Formats:</strong> Configurable to manage standard individual brackets, multi-board team matchups, or casual round-robins.</li>
+                </ul>
+            </div>
+
+            <!-- Live Shouts & Engagement -->
+            <div class="feature-card">
+                <h2>Live Shouts & Engagement <span class="badge">Included</span></h2>
+                <p>Take player interaction to the next level with dynamic communication and engagement tools built directly into the app view.</p>
+                <ul class="feature-list">
+                    <li><strong>Live Shout Box:</strong> A real-time message feed where players can post announcements, banter, or congratulations directly inside the mobile screen.</li>
+                    <li><strong>Match Alerts:</strong> Alerting capability to notify players when their board, table, or specific round pairing is live.</li>
+                    <li><strong>Deep Head-to-Head Analytics:</strong> Pulls historic records between any two specific players to show past rivalries before they match up.</li>
+                </ul>
+            </div>
+
+            <!-- Custom Flexibility & Sheet Actions -->
+            <div class="feature-card full-width">
+                <h2>Tailored & Custom Built <span class="badge">Included</span></h2>
+                <p>You aren't locked into a rigid, pre-made template. Because every app is built custom, the interface and data flows can be engineered to match your league's exact administrative workflow.</p>
+                <ul class="feature-list">
+                    <li><strong>Two-Way Sheet Pipeline:</strong> Send dynamic text or direct player alerts straight from the mobile app view directly into dedicated columns in your Google Sheets.</li>
+                    <li><strong>Flexible Layout Choices:</strong> Add specific content blocks, customized sign-up fields, or unique visual components that matter to your venue.</li>
+                    <li><strong>Endless Feature Architecture:</strong> If your tournament format shifts or you need a new structural formula calculated next season, the core logic can be updated without breaking existing player histories.</li>
+                </ul>
+            </div>
+
+        </div>
+    </main>
+
+</body>
+</html>
