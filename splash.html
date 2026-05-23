@@ -1,0 +1,214 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    
+    <!-- SEO Meta Tags -->
+    <title>League Engine | Custom League & Tournament App</title>
+    <meta name="description" content="Custom tournament web app for competitive and recreational leagues. Manage divisions, team matchups, and custom rules easily.">
+    <meta name="keywords" content="league app, tournament software, chess tournament app, pool league tracker, division manager">
+    <meta name="robots" content="index, follow">
+    <link rel="canonical" href="https://yourdomain.com/">
+
+    <style>
+        :root {
+            --bg-primary: #121212;
+            --bg-surface: #1e1e1e;
+            --text-primary: #ffffff;
+            --text-secondary: #aaaaaa;
+            --accent: #2563eb;
+            --accent-hover: #3b82f6;
+            --border: #333333;
+            --font: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, sans-serif;
+        }
+
+        * {
+            box-sizing: border-box;
+            margin: 0;
+            padding: 0;
+        }
+
+        body {
+            background-color: var(--bg-primary);
+            color: var(--text-primary);
+            font-family: var(--font);
+            line-height: 1.6;
+            padding-bottom: 40px;
+        }
+
+        header {
+            border-bottom: 1px solid var(--border);
+            background-color: var(--bg-surface);
+            position: sticky;
+            top: 0;
+            z-index: 100;
+        }
+
+        .nav-container {
+            max-width: 1000px;
+            margin: 0 auto;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            padding: 16px 20px;
+        }
+
+        .logo {
+            font-size: 1.2rem;
+            font-weight: 700;
+            letter-spacing: -0.5px;
+        }
+
+        nav a {
+            color: var(--text-secondary);
+            text-decoration: none;
+            margin-left: 20px;
+            font-size: 0.95rem;
+            font-weight: 500;
+        }
+
+        nav a:hover, nav a.active {
+            color: var(--text-primary);
+        }
+
+        .container {
+            max-width: 1000px;
+            margin: 0 auto;
+            padding: 0 20px;
+        }
+
+        .hero {
+            text-align: center;
+            padding: 80px 0 60px 0;
+        }
+
+        .hero h1 {
+            font-size: 2.8rem;
+            font-weight: 800;
+            line-height: 1.2;
+            margin-bottom: 16px;
+            letter-spacing: -1px;
+        }
+
+        .hero p {
+            font-size: 1.2rem;
+            color: var(--text-secondary);
+            max-width: 650px;
+            margin: 0 auto 32px auto;
+        }
+
+        .cta-group {
+            display: flex;
+            gap: 16px;
+            justify-content: center;
+            flex-wrap: wrap;
+        }
+
+        .btn {
+            display: inline-block;
+            padding: 12px 24px;
+            font-size: 1rem;
+            font-weight: 600;
+            text-decoration: none;
+            border-radius: 6px;
+            transition: background 0.2s;
+        }
+
+        .btn-primary {
+            background-color: var(--accent);
+            color: #ffffff;
+        }
+
+        .btn-primary:hover {
+            background-color: var(--accent-hover);
+        }
+
+        .btn-secondary {
+            background-color: var(--bg-surface);
+            color: var(--text-primary);
+            border: 1px solid var(--border);
+        }
+
+        .btn-secondary:hover {
+            background-color: #252525;
+        }
+
+        .pillars-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(280px, 1fr));
+            gap: 24px;
+            margin-top: 40px;
+        }
+
+        .pillar-card {
+            background-color: var(--bg-surface);
+            border: 1px solid var(--border);
+            padding: 28px;
+            border-radius: 8px;
+        }
+
+        .pillar-card h2 {
+            font-size: 1.3rem;
+            margin-bottom: 12px;
+            font-weight: 700;
+        }
+
+        .pillar-card p {
+            color: var(--text-secondary);
+            font-size: 0.95rem;
+        }
+
+        @media (max-width: 600px) {
+            .hero h1 { font-size: 2rem; }
+            .hero p { font-size: 1rem; }
+            .cta-group { flex-direction: column; width: 100%; }
+            .btn { text-align: center; width: 100%; }
+        }
+    </style>
+</head>
+<body>
+
+    <header>
+        <div class="nav-container">
+            <div class="logo">Interactive Gaming Systems</div>
+            <nav>
+                <a href="features.html">Features</a>
+                <a href="demo.html">Demo's</a>
+                <a href="rates.html" class="Rates">Purchase</a>
+                <a href="contact.html">Contact</a>
+            </nav>
+        </div>
+    </header>
+
+    <main class="container">
+        <section class="hero">
+            <h1>Custom Built Apps For Any Size League or Club</h1>
+            <p>Web apps personally built to your specific needs/ruleset, keep player stats, track standings, run tournaments and so much more.</p>
+            <div class="cta-group">
+                <a href="features.html" class="btn btn-secondary">See Features &rarr;</a>
+            </div>
+        </section>
+
+        <section class="pillars-grid">
+            <div class="pillar-card">
+                <h2>Your Custom Rules</h2>
+                <p>We build your unique scoring rules, point systems, and handicap calculations directly into your specific app setup.</p>
+            </div>
+            <div class="pillar-card">
+                <h2>Player Buzz & Growth</h2>
+                <p>Give players instant access to live leaderboards, deep stats, and dynamic tournament pairing/tracking. Adding a professional digital edge drives friendly rivalry, brings in new signups, and keeps members coming back night after night.</p>
+            </div>
+            <div class="pillar-card">
+                <h2>Turn Key</h2>
+                <p>All in 1 Solution for small to large leagues alike. Creates an Editable backend so you have full control. Fully integrates with your existing Google Sheets or it is created for you.</p>
+            </div>
+            <div class="pillar-card">
+                <h2>Ongoing Support</h2>
+                <p>Your subscription keeps your app hosted online and includes regular maintenance, active troubleshooting, and support whenever you need it.</p>
+            </div>
+        </section>
+    </main>
+
+</body>
+</html>
