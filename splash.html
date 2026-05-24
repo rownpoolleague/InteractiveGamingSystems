@@ -136,17 +136,76 @@
             border: 1px solid var(--border);
             padding: 28px;
             border-radius: 8px;
+            position: relative;
         }
 
         .pillar-card h2 {
             font-size: 1.3rem;
             margin-bottom: 12px;
             font-weight: 700;
+            padding-right: 24px;
         }
 
         .pillar-card p {
             color: var(--text-secondary);
             font-size: 0.95rem;
+        }
+
+        /* Tooltip Trigger Styles */
+        .info-trigger {
+            position: absolute;
+            top: 24px;
+            right: 24px;
+            width: 20px;
+            height: 20px;
+            background-color: #2c2c2c;
+            border: 1px solid var(--border);
+            color: var(--text-secondary);
+            border-radius: 50%;
+            text-align: center;
+            font-size: 0.85rem;
+            font-weight: 700;
+            line-height: 18px;
+            cursor: pointer;
+            user-select: none;
+            transition: all 0.2s;
+        }
+
+        .info-trigger:hover, .info-trigger.active {
+            background-color: var(--accent);
+            color: #ffffff;
+            border-color: var(--accent);
+        }
+
+        /* Tooltip Popup Box */
+        .tooltip-box {
+            display: none;
+            position: absolute;
+            bottom: calc(100% + 10px);
+            right: 0;
+            width: 240px;
+            background-color: #252525;
+            color: var(--text-primary);
+            border: 1px solid var(--border);
+            padding: 12px;
+            border-radius: 6px;
+            font-size: 0.85rem;
+            line-height: 1.4;
+            font-weight: 400;
+            z-index: 10;
+            box-shadow: 0 4px 12px rgba(0, 0, 0, 0.5);
+        }
+
+        /* Show on desktop hover */
+        @media (min-width: 1025px) {
+            .info-trigger:hover .tooltip-box {
+                display: block;
+            }
+        }
+
+        /* Show when active (for mobile clicks) */
+        .info-trigger.active .tooltip-box {
+            display: block;
         }
 
         @media (max-width: 600px) {
@@ -164,7 +223,7 @@
             <div class="logo">Interactive Gaming Systems</div>
             <nav>
                 <a href="features.html">Features</a>
-                <a href="demo.html">Demo's</a>
+                <a href="demo.html">Demos</a>
                 <a href="rates.html">Purchase</a>
                 <a href="contact.html">Contact</a>
             </nav>
@@ -173,32 +232,91 @@
 
     <main class="container">
         <section class="hero">
-            <h1>Custom League Web Apps Built for Your Rules</h1>
-            <p>We build a mobile-first custom league web app engineered to match your specific tournament structures, player tracking needs, and local rulesets perfectly.</p>
+            <h1>Branded Custom League Web Apps Tailored Exactly For Your Needs.</h1>
+            <p>We build a mobile-first custom league web apps engineered to match your specific tournament structures, player tracking needs, and local rulesets perfectly.</p>
             <div class="cta-group">
                 <a href="features.html" class="btn btn-secondary">See Features &rarr;</a>
             </div>
         </section>
 
         <section class="pillars-grid">
+            <!-- Card 1 -->
             <div class="pillar-card">
+                <div class="info-trigger">?
+                    <div class="tooltip-box">On initial set up Developer works hand in hand with operators.</div>
+                </div>
                 <h2>Your Custom Rules Built-In</h2>
                 <p>We program your exact scoring formulas, tie-breakers, and handicap calculations directly into your software configuration so you never have to alter how your organization operates.</p>
             </div>
+
+            <!-- Card 2 -->
             <div class="pillar-card">
+                <div class="info-trigger">?
+                    <div class="tooltip-box">Brings flow and organization on league nights that players love.</div>
+                </div>
                 <h2>Mobile Stats & Player Buzz</h2>
-                <p>Give members real-time phone access to live leaderboards, schedules, and active pairings on game night. Providing a clean digital experience drives friendly rivalry and boosts engagement.</p>
+                <p>Give members real-time phone access to leaderboards, schedules, and active pairings on game night. Providing a clean digital experience drives friendly rivalry and boosts engagement.</p>
             </div>
+
+            <!-- Card 3 -->
             <div class="pillar-card">
-                <h2>Flexible Sheet Integration</h2>
-                <p>Get a turnkey system complete with an editable administration panel. Your app securely syncs with Google Sheets, allowing you to pass alerts or log records instantly into your existing workflows.</p>
+                <div class="info-trigger">?
+                    <div class="tooltip-box">Integration into current databases leaves almost no learning curve.</div>
+                </div>
+                <h2>Say Goodbye to Manual Data Entry</h2>
+                <p>Get a turnkey system complete with an editable administration panel. Your app securely syncs with your existing Sheets or Excel files eliminating the need for lengthy manual entry.</p>
             </div>
+
+            <!-- Card 4 -->
             <div class="pillar-card">
+                <div class="info-trigger">?
+                    <div class="tooltip-box">As leagues grow and adapt so do your rules, future add ons are by request and billed by complexity.</div>
+                </div>
+                <h2>Flat-Fee Future Features</h2>
+                <p>As your organization grows, your software can too. Any secondary feature expansions, new tournament layouts, or structural logic updates requested down the road are billed under simple, upfront flat-fee rates with zero recurring hidden costs.</p>
+            </div>
+
+            <!-- Card 5 -->
+            <div class="pillar-card">
+                <div class="info-trigger">?
+                    <div class="tooltip-box">No hidden fees, only get charged more for additional requests after set up is complete.</div>
+                </div>
                 <h2>All-Inclusive Support</h2>
-                <p>Your flat-rate pricing covers complete system hosting, ongoing database maintenance, secure updates, and direct technical support whenever you add or modify a tournament format.</p>
+                <p>Your flat-rate pricing covers complete system set up, hosting, ongoing database maintenance, secure updates, and direct technical support whenever you add or modify a tournament format.</p>
+            </div>
+
+            <!-- Card 6 -->
+            <div class="pillar-card">
+                <div class="info-trigger">?
+                    <div class="tooltip-box">Perfect for growing organizations—pay only for the tier that fits your active roster size.</div>
+                </div>
+                <h2>Scalable Tiered Pricing</h2>
+                <p>Whether you manage a single local tavern layout or an expansive multi-division tournament network, our rates balance perfectly against the active member size of your entire organization.</p>
             </div>
         </section>
     </main>
+
+    <script>
+        // Handle mobile touch interaction for tooltips
+        document.querySelectorAll('.info-trigger').forEach(trigger => {
+            trigger.addEventListener('click', (e) => {
+                e.stopPropagation(); // Prevents immediate close from body listener
+                
+                // Toggle active state on current trigger, remove from others
+                const wasActive = trigger.classList.contains('active');
+                document.querySelectorAll('.info-trigger').forEach(t => t.classList.remove('active'));
+                
+                if (!wasActive) {
+                    trigger.classList.add('active');
+                }
+            });
+        });
+
+        // Close tooltip if clicking anywhere else on screen
+        document.body.addEventListener('click', () => {
+            document.querySelectorAll('.info-trigger').forEach(t => t.classList.remove('active'));
+        });
+    </script>
 
 </body>
 </html>
