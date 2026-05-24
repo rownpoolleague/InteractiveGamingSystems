@@ -13,14 +13,17 @@
 
     <style>
         :root {
-            --bg-primary: #121212;
-            --bg-surface: #1e1e1e;
+            --bg-primary: #000000;
+            --bg-surface: #121212;
             --text-primary: #ffffff;
             --text-secondary: #aaaaaa;
-            --accent: #2563eb;
-            --accent-hover: #3b82f6;
-            --border: #333333;
+            --border: #222222;
             --font: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, sans-serif;
+            
+            /* Cyber Electric Identity Colors */
+            --cyan-glow: #00f2ff;
+            --blue-glow: #0066ff;
+            --gradient-electric: linear-gradient(135deg, #0066ff 0%, #00f2ff 100%);
         }
 
         * {
@@ -39,7 +42,7 @@
 
         header {
             border-bottom: 1px solid var(--border);
-            background-color: var(--bg-surface);
+            background-color: var(--bg-primary);
             position: sticky;
             top: 0;
             z-index: 100;
@@ -54,10 +57,26 @@
             padding: 16px 20px;
         }
 
-        .logo {
+        /* Logo Brand Container with Inline Vector Icon */
+        .logo-container {
+            display: flex;
+            align-items: center;
+            gap: 10px;
+        }
+
+        .logo-icon {
+            width: 24px;
+            height: 24px;
+            display: block;
+        }
+
+        .logo-text {
             font-size: 1.2rem;
             font-weight: 700;
             letter-spacing: -0.5px;
+            background: var(--gradient-electric);
+            -webkit-background-clip: text;
+            -webkit-text-fill-color: transparent;
         }
 
         nav a {
@@ -66,10 +85,11 @@
             margin-left: 20px;
             font-size: 0.95rem;
             font-weight: 500;
+            transition: color 0.2s ease;
         }
 
         nav a:hover, nav a.active {
-            color: var(--text-primary);
+            color: #00f2ff;
         }
 
         .container {
@@ -92,9 +112,9 @@
             max-width: 700px;
         }
 
-        /* Product Identity Callout Box (Cleaned up - No color shading) */
+        /* Product Identity Callout Box (Cleaned up - Linear border theme) */
         .product-identity-box {
-            border: 1px dashed var(--border);
+            border: 1px dashed #333333;
             padding: 24px;
             border-radius: 8px;
             margin-bottom: 48px;
@@ -126,7 +146,6 @@
             border-radius: 8px;
         }
 
-        /* Span full width if it's the last odd card in a 2-column layout */
         .feature-card.full-width {
             grid-column: span 2;
         }
@@ -137,6 +156,7 @@
             margin-bottom: 16px;
             display: flex;
             align-items: center;
+            justify-content: space-between;
             gap: 10px;
         }
 
@@ -157,26 +177,28 @@
             font-size: 0.95rem;
         }
 
+        /* Custom Cyan list bullets */
         .feature-list li::before {
             content: "•";
             position: absolute;
             left: 0;
-            color: var(--accent);
+            color: var(--cyan-glow);
             font-weight: bold;
             font-size: 1.2rem;
             line-height: 1;
         }
 
-        /* Status Badges */
+        /* High contrast Badge Styling using identity gradient borders */
         .badge {
-            background-color: rgba(37, 99, 235, 0.15);
-            color: var(--accent-hover);
-            font-size: 0.75rem;
-            padding: 2px 8px;
+            background-color: rgba(0, 102, 255, 0.1);
+            color: var(--cyan-glow);
+            font-size: 0.72rem;
+            padding: 3px 10px;
             border-radius: 4px;
             font-weight: 600;
             text-transform: uppercase;
-            border: 1px solid var(--accent);
+            border: 1px solid rgba(0, 242, 255, 0.4);
+            letter-spacing: 0.5px;
         }
 
         @media (max-width: 768px) {
@@ -187,6 +209,13 @@
                 grid-column: span 1;
             }
             .page-title { font-size: 2rem; }
+            .nav-container {
+                flex-direction: column;
+                gap: 12px;
+            }
+            nav a {
+                margin: 0 10px;
+            }
         }
     </style>
 </head>
@@ -194,24 +223,39 @@
 
     <header>
         <div class="nav-container">
-            <div class="logo">Interactive Gaming Systems</div>
+            <div class="logo-container">
+                <!-- Inline Vector Geometric Logo Icon -->
+                <svg class="logo-icon" viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg">
+                    <defs>
+                        <linearGradient id="logo-grad" x1="0%" y1="100%" x2="100%" y2="0%">
+                            <stop offset="0%" stop-color="#0066ff" />
+                            <stop offset="100%" stop-color="#00f2ff" />
+                        </linearGradient>
+                    </defs>
+                    <!-- Interlocking IGS geometric paths -->
+                    <path d="M2 2H6V22H2V2Z" fill="url(#logo-grad)"/>
+                    <path d="M9 2H22V6H9V2ZM9 10H18V14H9V10ZM9 18H22V22H9V18Z" fill="url(#logo-grad)"/>
+                    <path d="M22 2V14H18V6H14V22H22Z" fill="url(#logo-grad)" opacity="0.85"/>
+                </svg>
+                <div class="logo-text">Interactive Gaming Systems</div>
+            </div>
             <nav>
                 <a href="index.html">Home</a>
                 <a href="demo.html">Demo's</a>
                 <a href="rates.html">Purchase</a>
-                <a href="contact.html">Contact</a>
+                <a href="contact.html" class="active">Contact</a>
             </nav>
         </div>
     </header>
 
     <main class="container">
-        <h1 class="page-title">What the Apps Can Do</h1>
+        <h1 class="page-title">What Our Apps Can Do</h1>
         <p class="page-subtitle">From simple casual meetups to massive multi-tiered organizations, your app handles the calculations, tracking, and player engagement automatically.</p>
 
         <!-- Product Identity Section -->
         <section class="product-identity-box">
             <h2>Mobile-First Custom Web Applications</h2>
-            <p>Every product is built as a dedicated web app optimized specifically for mobile phones. Players open the link directly on their smartphones at the venue to track matches, view live standings, and check schedules in real time. It is fully accessible via laptop or desktop as well, making home viewing and backend administration seamless across any device.</p>
+            <p>Every product is built as a dedicated web app optimized specifically for mobile phones. Players can open the link directly on their smartphones or install as an app to track matches, view live standings, and check schedules in real time. It is fully accessible via laptop or desktop as well, making home viewing and backend administration seamless across any device.</p>
         </section>
 
         <div class="features-grid">
@@ -230,9 +274,9 @@
             <!-- Rules & Integrations -->
             <div class="feature-card">
                 <h2>Custom Rules & Sheets <span class="badge">Included</span></h2>
-                <p>You don't have to alter how your club runs. The software adapts directly to your established local rules and scoring methods.</p>
+                <p>You don't have to alter how your club runs. The software is built directly to your established local rules and scoring and record keeping methods.</p>
                 <ul class="feature-list">
-                    <li><strong>Bespoke Calculations:</strong> Built-in logic parses exact handicap algorithms, sub-point rules, and tie-breakers.</li>
+                    <li><strong>Bespoke Calculations:</strong> Built-in logic parses exact handicap algorithms, sub-point rules, and tie-breakers if applicable.</li>
                     <li><strong>Google Sheets Sync:</strong> Fully integrates with your current spreadsheets to read rosters or output results automatically.</li>
                     <li><strong>Turnkey Backend:</strong> Access an editable administration screen to fix score entry errors or manually tweak listings instantly from a phone or laptop.</li>
                 </ul>
@@ -243,7 +287,7 @@
                 <h2>Live Tracking & Formats <span class="badge">Included</span></h2>
                 <p>Keep players updated in real-time on tournament nights right on their phones, without making them crowd around a paper sheet or wall bracket.</p>
                 <ul class="feature-list">
-                    <li><strong>Live Standings:</strong> Leaderboards update the second a match score is submitted and saved by an admin.</li>
+                    <li><strong>Live Standings:</strong> Leaderboards and pairings update when match scores are submitted and saved by an admin.</li>
                     <li><strong>Multi-Division Control:</strong> Run completely separate competitive tiers or weeknight brackets using one master member list.</li>
                     <li><strong>Match Formats:</strong> Configurable to manage standard individual brackets, multi-board team matchups, or casual round-robins.</li>
                 </ul>
