@@ -1,0 +1,413 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+
+    <!-- Modern, Clean SEO Meta Tags -->
+    <title>Pricing & Value | Interactive Gaming Systems</title>
+    <meta name="description" content="Custom web applications built entirely around your league's rulebook. Predictable, scaled pricing engineered for startup loops and massive tournament circuits alike.">
+    <meta name="robots" content="index, follow">
+    <link rel="canonical" href="https://yourdomain.com/rates.html">
+
+    <style>
+        :root {
+            --bg-primary: #000000;
+            --bg-surface: #121212;
+            --text-primary: #ffffff;
+            --text-secondary: #aaaaaa;
+            --border: #222222;
+            --font: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, sans-serif;
+
+            /* Cyber Electric Identity Colors */
+            --cyan-glow: #00f2ff;
+            --blue-glow: #0066ff;
+            --gradient-electric: linear-gradient(135deg, #0066ff 0%, #00f2ff 100%);
+        }
+
+        * {
+            box-sizing: border-box;
+            margin: 0;
+            padding: 0;
+        }
+
+        body {
+            background-color: var(--bg-primary);
+            color: var(--text-primary);
+            font-family: var(--font);
+            line-height: 1.6;
+            padding-bottom: 60px;
+        }
+
+        header {
+            border-bottom: 1px solid var(--border);
+            background-color: var(--bg-primary);
+            position: sticky;
+            top: 0;
+            z-index: 100;
+        }
+
+        .nav-container {
+            max-width: 1000px;
+            margin: 0 auto;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            padding: 16px 20px;
+        }
+
+        .logo-container {
+            display: flex;
+            align-items: center;
+            gap: 10px;
+        }
+
+        .logo-icon {
+            width: 24px;
+            height: 24px;
+            display: block;
+        }
+
+        .logo-text {
+            font-size: 1.2rem;
+            font-weight: 700;
+            letter-spacing: -0.5px;
+            background: var(--gradient-electric);
+            -webkit-background-clip: text;
+            -webkit-text-fill-color: transparent;
+        }
+
+        nav a {
+            color: var(--text-secondary);
+            text-decoration: none;
+            margin-left: 20px;
+            font-size: 0.95rem;
+            font-weight: 500;
+            transition: color 0.2s ease;
+        }
+
+        nav a:hover,
+        nav a.active {
+            color: #00f2ff;
+        }
+
+        .container {
+            max-width: 800px;
+            margin: 0 auto;
+            padding: 40px 20px;
+        }
+
+        .pricing-header h1 {
+            font-size: 2.5rem;
+            font-weight: 800;
+            line-height: 1.2;
+            margin-bottom: 16px;
+            letter-spacing: -1px;
+        }
+
+        .pricing-header p {
+            font-size: 1.2rem;
+            color: var(--text-secondary);
+            margin-bottom: 40px;
+        }
+
+        /* Pillars of Value Section */
+        .value-pillars {
+            display: grid;
+            grid-template-columns: 1fr 1fr;
+            gap: 24px;
+            margin-bottom: 48px;
+        }
+
+        .pillar {
+            background-color: var(--bg-surface);
+            border: 1px solid var(--border);
+            padding: 24px;
+            border-radius: 8px;
+        }
+
+        .pillar h2 {
+            font-size: 1.25rem;
+            color: var(--cyan-glow);
+            margin-bottom: 12px;
+            font-weight: 700;
+        }
+
+        .pillar p {
+            font-size: 0.95rem;
+            color: var(--text-secondary);
+        }
+
+        /* Interactive Cost Recovery Tool */
+        .calculator-box {
+            background-color: var(--bg-surface);
+            border: 1px solid var(--border);
+            padding: 32px;
+            border-radius: 8px;
+            margin: 48px 0;
+        }
+
+        .calculator-box h3 {
+            font-size: 1.4rem;
+            margin-bottom: 8px;
+            font-weight: 700;
+        }
+
+        .calculator-box .subtitle {
+            font-size: 0.95rem;
+            color: var(--text-secondary);
+            margin-bottom: 24px;
+        }
+
+        .calc-group {
+            margin-bottom: 20px;
+        }
+
+        .calc-group label {
+            display: block;
+            font-size: 0.9rem;
+            font-weight: 600;
+            margin-bottom: 8px;
+            color: var(--text-secondary);
+        }
+
+        .calc-input-wrapper {
+            display: flex;
+            align-items: center;
+            gap: 12px;
+        }
+
+        .calc-slider {
+            flex: 1;
+            -webkit-appearance: none;
+            appearance: none;
+            height: 6px;
+            background: #222;
+            border-radius: 3px;
+            outline: none;
+        }
+
+        .calc-slider::-webkit-slider-thumb {
+            -webkit-appearance: none;
+            appearance: none;
+            width: 18px;
+            height: 18px;
+            border-radius: 50%;
+            background: #00f2ff;
+            cursor: pointer;
+        }
+
+        .calc-slider::-moz-range-thumb {
+            width: 18px;
+            height: 18px;
+            border-radius: 50%;
+            background: #00f2ff;
+            cursor: pointer;
+            border: none;
+        }
+
+        .calc-val {
+            font-size: 1.1rem;
+            font-weight: 700;
+            width: 60px;
+            text-align: right;
+        }
+
+        .calc-output {
+            margin-top: 32px;
+            padding-top: 24px;
+            border-top: 1px solid var(--border);
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+        }
+
+        .calc-output-label {
+            font-size: 1rem;
+            font-weight: 600;
+        }
+
+        .calc-total {
+            font-size: 1.8rem;
+            font-weight: 800;
+            color: #00f2ff;
+        }
+
+        /* Call To Action Box */
+        .cta-box {
+            text-align: center;
+            padding: 40px 20px;
+            border: 1px solid var(--border);
+            border-radius: 8px;
+            background: linear-gradient(180deg, #121212 0%, #000000 100%);
+        }
+
+        .cta-box h3 {
+            font-size: 1.6rem;
+            margin-bottom: 12px;
+            font-weight: 700;
+        }
+
+        .cta-box p {
+            color: var(--text-secondary);
+            max-width: 500px;
+            margin: 0 auto 24px auto;
+            font-size: 1rem;
+        }
+
+        .cta-button {
+            display: inline-block;
+            background: var(--gradient-electric);
+            color: var(--text-primary);
+            text-decoration: none;
+            padding: 14px 32px;
+            font-weight: 700;
+            border-radius: 6px;
+            font-size: 1rem;
+            transition: transform 0.2s ease, opacity 0.2s ease;
+        }
+
+        .cta-button:hover {
+            transform: translateY(-1px);
+            opacity: 0.95;
+        }
+
+        @media (max-width: 768px) {
+            .nav-container {
+                flex-direction: column;
+                gap: 12px;
+            }
+
+            nav a {
+                margin: 0 10px;
+            }
+
+            .value-pillars {
+                grid-template-columns: 1fr;
+            }
+        }
+
+        @media (max-width: 600px) {
+            .pricing-header h1 {
+                font-size: 2rem;
+            }
+
+            .pricing-header p {
+                font-size: 1rem;
+            }
+
+            .calculator-box {
+                padding: 20px;
+            }
+
+            .calc-total {
+                font-size: 1.5rem;
+            }
+        }
+    </style>
+</head>
+
+<body>
+
+    <header>
+        <div class="nav-container">
+            <div class="logo-container">
+                <svg class="logo-icon" viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg">
+                    <defs>
+                        <linearGradient id="logo-grad" x1="0%" y1="100%" x2="100%" y2="0%">
+                            <stop offset="0%" stop-color="#0066ff" />
+                            <stop offset="100%" stop-color="#00f2ff" />
+                        </linearGradient>
+                    </defs>
+                    <path d="M2 2H10V5H5V9H14V2H22V5H17V9H22V15H14V12H19V11H14V15H10V11H5V19H14V16H22V22H14V19H9V22H2V2Z" fill="url(#logo-grad)" />
+                    <path d="M2 11H10V14H5V15H2V11Z" fill="url(#logo-grad)" opacity="0.9" />
+                    <path d="M14 19H22V22H14V19Z" fill="url(#logo-grad)" opacity="0.8" />
+                </svg>
+                <div class="logo-text">Interactive Gaming Systems</div>
+            </div>
+            <nav>
+                <a href="features.html">Features</a>
+                <a href="demo.html">Demos</a>
+                <a href="rates.html" class="active">Purchase</a>
+                <a href="contact.html">Contact</a>
+            </nav>
+        </div>
+    </header>
+
+    <main class="container">
+        <section class="pricing-header">
+            <h1>Tailored Implementation. Scaled Packages.</h1>
+            <p>We do not sell rigid, cookie-cutter subscription software that forces your local league to rewrite itself. We deliver an engineered, custom-branded platform matched exactly to your dynamics.</p>
+        </section>
+
+        <section class="value-pillars">
+            <div class="pillar">
+                <h2>1. One-Time Setup Fee</h2>
+                <p>Covers full visual integration of your league branding, deployment of your unique local rules and integration into your existing database or one is created for you (League in a Box). Fee's are impacted by the amount and complexity of your needs, i.e. Startup will be much cheaper than integration into existing systems.</p>
+            </div>
+            <div class="pillar">
+                <h2>2. Scaled Annual Tiers</h2>
+                <p>We protect startup and small operators. Our ongoing software tiers are strictly scaled to your active player slots. You never pay corporate platform rates for a local loop.</p>
+            </div>
+        </section>
+
+        <!-- Interactive Budget Recovery Tool -->
+        <section class="calculator-box">
+            <h3>Cost Proportionality Modeler</h3>
+            <p class="subtitle">See how simple it is to completely pass platform costs straight into standard player dues.</p>
+
+            <div class="calc-group">
+                <label for="players-range">Estimated Active Roster (Total Players)</label>
+                <div class="calc-input-wrapper">
+                    <input type="range" id="players-range" class="calc-slider" min="16" max="300" value="40" step="4">
+                    <div id="players-val" class="calc-val">40</div>
+                </div>
+            </div>
+
+            <div class="calc-group">
+                <label for="dues-range">Allocated Platform Contribution (Per Player, Per Year)</label>
+                <div class="calc-input-wrapper">
+                    <input type="range" id="dues-range" class="calc-slider" min="1" max="10" value="4" step="1">
+                    <div id="dues-val" class="calc-val">$4</div>
+                </div>
+            </div>
+
+            <div class="calc-output">
+                <div class="calc-output-label">Generated Session Revenue Baseline:</div>
+                <div id="calc-total" class="calc-total">$160</div>
+            </div>
+        </section>
+
+        <section class="cta-box">
+            <h3>Let's Review Your Rulebook</h3>
+            <p>Every loop and tavern network operates differently. Contact us today for a direct, plain-English quote configured completely around your active roster size and logic needs.</p>
+            <a href="contact.html" class="cta-button">Request a Custom Quote</a>
+        </section>
+    </main>
+
+    <script>
+        const playersRange = document.getElementById('players-range');
+        const playersVal = document.getElementById('players-val');
+        const duesRange = document.getElementById('dues-range');
+        const duesVal = document.getElementById('dues-val');
+        const calcTotal = document.getElementById('calc-total');
+
+        function updateCalculations() {
+            const players = parseInt(playersRange.value);
+            const dues = parseInt(duesRange.value);
+
+            playersVal.textContent = players;
+            duesVal.textContent = '$' + dues;
+
+            const total = players * dues;
+            calcTotal.textContent = '$' + total;
+        }
+
+        playersRange.addEventListener('input', updateCalculations);
+        duesRange.addEventListener('input', updateCalculations);
+    </script>
+
+</body>
+
+</html>
