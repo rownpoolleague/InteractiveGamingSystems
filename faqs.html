@@ -12,13 +12,17 @@
 
     <style>
         :root {
-            --bg-primary: #121212;
-            --bg-surface: #1e1e1e;
+            --bg-primary: #000000;
+            --bg-surface: #121212;
             --text-primary: #ffffff;
             --text-secondary: #aaaaaa;
-            --accent: #2563eb;
-            --border: #333333;
+            --border: #222222;
             --font: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, sans-serif;
+            
+            /* Cyber Electric Identity Colors */
+            --cyan-glow: #00f2ff;
+            --blue-glow: #0066ff;
+            --gradient-electric: linear-gradient(135deg, #0066ff 0%, #00f2ff 100%);
         }
 
         * {
@@ -37,7 +41,7 @@
 
         header {
             border-bottom: 1px solid var(--border);
-            background-color: var(--bg-surface);
+            background-color: var(--bg-primary);
             position: sticky;
             top: 0;
             z-index: 100;
@@ -52,10 +56,26 @@
             padding: 16px 20px;
         }
 
-        .logo {
+        /* Logo Brand Container with Inline Vector Icon */
+        .logo-container {
+            display: flex;
+            align-items: center;
+            gap: 10px;
+        }
+
+        .logo-icon {
+            width: 24px;
+            height: 24px;
+            display: block;
+        }
+
+        .logo-text {
             font-size: 1.2rem;
             font-weight: 700;
             letter-spacing: -0.5px;
+            background: var(--gradient-electric);
+            -webkit-background-clip: text;
+            -webkit-text-fill-color: transparent;
         }
 
         nav a {
@@ -64,10 +84,11 @@
             margin-left: 20px;
             font-size: 0.95rem;
             font-weight: 500;
+            transition: color 0.2s ease;
         }
 
         nav a:hover, nav a.active {
-            color: var(--text-primary);
+            color: #00f2ff;
         }
 
         .container {
@@ -113,7 +134,7 @@
 
         .faq-item h2::before {
             content: "Q:";
-            color: var(--accent);
+            color: var(--cyan-glow);
             margin-right: 8px;
             font-weight: 800;
         }
@@ -128,6 +149,16 @@
             color: var(--text-primary);
         }
 
+        @media (max-width: 768px) {
+            .nav-container {
+                flex-direction: column;
+                gap: 12px;
+            }
+            nav a {
+                margin: 0 10px;
+            }
+        }
+
         @media (max-width: 600px) {
             h1 { font-size: 2rem; }
             .faq-item h2 { font-size: 1.1rem; }
@@ -139,7 +170,22 @@
 
     <header>
         <div class="nav-container">
-            <div class="logo">Interactive Gaming Systems</div>
+            <div class="logo-container">
+                <!-- Inline Vector Geometric Logo Icon -->
+                <svg class="logo-icon" viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg">
+                    <defs>
+                        <linearGradient id="logo-grad" x1="0%" y1="100%" x2="100%" y2="0%">
+                            <stop offset="0%" stop-color="#0066ff" />
+                            <stop offset="100%" stop-color="#00f2ff" />
+                        </linearGradient>
+                    </defs>
+                    <!-- Interlocking IGS geometric paths -->
+                    <path d="M2 2H6V22H2V2Z" fill="url(#logo-grad)"/>
+                    <path d="M9 2H22V6H9V2ZM9 10H18V14H9V10ZM9 18H22V22H9V18Z" fill="url(#logo-grad)"/>
+                    <path d="M22 2V14H18V6H14V22H22Z" fill="url(#logo-grad)" opacity="0.85"/>
+                </svg>
+                <div class="logo-text">Interactive Gaming Systems</div>
+            </div>
             <nav>
                 <a href="features.html">Features</a>
                 <a href="demo.html">Demos</a>
@@ -157,7 +203,7 @@
         <section class="faq-group">
             <div class="faq-item">
     <h2>Can the software be customized with our league's unique branding and logos?</h2>
-    <p><strong>Yes, completely.</strong> We don't hide your identity behind our corporate branding. Your custom web app will feature your league's official logos, preferred color schemes, and tournament graphics. To your players and venue sponsors, it will look and feel like a proprietary digital platform built exclusively for your organization.</p>
+    <p><strong>Yes, completely.</strong> Your custom web app will feature your league's official graphics, team colors, and local imagery. To your players and venue sponsors, it functions entirely as your own dedicated digital platform, anchored cleanly by a minimal, high-contrast Interactive Gaming Systems credit mark integrated directly into the layout, visible only on the landing page.</p>
 </div>
             
             <div class="faq-item">
@@ -167,27 +213,27 @@
 
             <div class="faq-item">
                 <h2>Our league uses highly unique handicap and scoring formulas. Can your system handle that?</h2>
-                <p><strong>Yes, absolutely.</strong> Unlike rigid corporate platforms that force you to adapt to their cookie-cutter setups, we specialize in hard-coding your specific mathematical logic. Whether your scoring relies on performance-based adjustments, lag win qualifiers, or complex historical stat weighting, the software adapts entirely to your rulebook.</p>
+                <p><strong>Yes, absolutely.</strong> Unlike rigid corporate platforms that force you to adapt to their cookie-cutter setups, we specialize in hard-coding your specific mathematical logic. Whether your scoring relies on performance-based adjustments, qualifiers, or complex historical stat weighting, the software adapts entirely to your rulebook.</p>
             </div>
 
             <div class="faq-item">
                 <h2>How does the data connect to our existing records? Can we still use Excel?</h2>
-                <p>We build our pipelines to seamlessly sync directly back into consumer spreadsheet tools like <strong>Google Sheets or Microsoft Excel</strong>. Your players submit data via a clean mobile interface on game night, and the data automatically updates your master back-end records. You retain full ownership and control of your files without a learning curve.</p>
+                <p>We build our pipelines to seamlessly sync directly back into consumer spreadsheet tools like <strong>Google Sheets or Microsoft Excel</strong>. Your players submit data via a clean mobile interface on game night, and the data automatically updates your master back-end records. You retain ownership of your operational data without a steep learning curve.</p>
             </div>
 
             <div class="faq-item">
                 <h2>What happens if a player makes a data entry error or scores a match incorrectly?</h2>
-                <p>You retain full control of your existing records and can still adjust as needed. If building from the ground up you will have full edit access to your newly created database.</p>
+                <p>Because your system syncs right back to your spreadsheet backend, league administrators retain full access to easily correct data entry mistakes inside your database.</p>
             </div>
 
             <div class="faq-item">
-                <h2>Do you charge per player or per team? How does pricing work?</h2>
-                <p>We do not believe in sneaky corporate subscription models that penalize you for growing your league. We charge a transparent, competitive flat fee tailored to the initial build out and specific integrations your venue needs. Once your system is up, you don't get nickel-and-dimed for adding teams.</p>
+                <h2>How does pricing work for custom setups and data tiers?</h2>
+                <p>Because every league has completely different scoring rules, integrations, and operational demands, a consultation is required to scope the project. We charge a setup fee based on your specific rule complexity, paired with predictable tier-based support and database pricing calculated by player slots (e.g., up to 25 players, up to 50 players, etc.). This ensures you only pay for the capacity and support your venue actually uses.</p>
             </div>
 
             <div class="faq-item">
                 <h2>How do we get started if we want a custom system built?</h2>
-                <p>The process is simple: drop us a line through our contact page. We will schedule a quick conversation to look over your current rulebooks, sheets, or layout ideas. From there, we build a working prototype so you can see exactly how it functions on a phone before making any commitments.</p>
+                <p>The process starts by contacting us. We will set up a brief free consultation to review your needs and current setup (if any), rulebooks, and overall workflow. Once the scope is clear, we offer a structured development phase to build out your core logic into a working, high-performance web model so you can test it on your devices before live implementation.</p>
             </div>
 
         </section>
