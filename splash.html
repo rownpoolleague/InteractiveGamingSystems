@@ -53,7 +53,6 @@
             padding: 20px;
         }
 
-        /* Responsive Brand Layout */
         .brand-logo {
             display: flex;
             align-items: center;
@@ -61,9 +60,9 @@
             text-decoration: none;
         }
 
-        .logo-svg {
-            width: 32px;
+        .logo-img {
             height: 32px;
+            width: auto;
             display: block;
         }
 
@@ -93,8 +92,21 @@
             padding: 0 20px;
         }
 
+        .banner-section {
+            text-align: center;
+            margin: 40px 0;
+        }
+
+        .banner-img {
+            width: 100%;
+            max-width: 900px;
+            height: auto;
+            display: block;
+            margin: 0 auto;
+        }
+
         .hero {
-            padding: 120px 0 80px 0;
+            padding: 80px 0;
         }
 
         .hero h1 {
@@ -152,7 +164,6 @@
             margin-bottom: 12px;
             font-weight: 700;
             letter-spacing: -0.5px;
-            padding-right: 32px;
             color: var(--text-primary);
         }
 
@@ -162,60 +173,6 @@
             line-height: 1.6;
         }
 
-        /* Clean Interactive Info Marks */
-        .info-trigger {
-            position: absolute;
-            top: 4px;
-            right: 0;
-            width: 20px;
-            height: 20px;
-            background-color: var(--bg-surface);
-            color: var(--text-secondary);
-            border-radius: 50%;
-            text-align: center;
-            font-size: 0.8rem;
-            font-weight: 700;
-            line-height: 20px;
-            cursor: pointer;
-            user-select: none;
-            transition: all 0.15s ease;
-        }
-
-        .info-trigger:hover, .info-trigger.active {
-            background: linear-gradient(135deg, var(--accent-start), var(--accent-end));
-            color: #ffffff;
-        }
-
-        /* Dropdown Information Display */
-        .tooltip-box {
-            display: none;
-            position: absolute;
-            bottom: calc(100% + 10px);
-            right: 0;
-            width: 260px;
-            background-color: #111115;
-            color: #ffffff;
-            border: 1px solid #22222a;
-            padding: 14px;
-            border-radius: 6px;
-            font-size: 0.85rem;
-            line-height: 1.45;
-            font-weight: 400;
-            z-index: 10;
-            box-shadow: 0 12px 32px rgba(0, 0, 0, 0.5);
-        }
-
-        @media (min-width: 1025px) {
-            .info-trigger:hover .tooltip-box {
-                display: block;
-            }
-        }
-
-        .info-trigger.active .tooltip-box {
-            display: block;
-        }
-
-        /* Contact System Styling */
         .contact-section {
             padding: 80px 0 20px 0;
             max-width: 600px;
@@ -226,12 +183,6 @@
             font-weight: 800;
             margin-bottom: 12px;
             letter-spacing: -1px;
-        }
-
-        .contact-section p {
-            color: var(--text-secondary);
-            font-size: 1.1rem;
-            margin-bottom: 40px;
         }
 
         .contact-form {
@@ -263,17 +214,11 @@
             color: var(--text-primary);
             border-radius: 4px;
             font-family: var(--font);
-            transition: box-shadow 0.15s ease;
         }
 
         .form-group input:focus, .form-group textarea:focus {
             outline: none;
             box-shadow: 0 0 0 2px var(--accent-end);
-        }
-
-        .form-group textarea {
-            resize: vertical;
-            line-height: 1.5;
         }
 
         .direct-mail {
@@ -288,14 +233,9 @@
             font-weight: 600;
         }
 
-        .direct-mail a:hover {
-            text-decoration: underline;
-        }
-
         @media (max-width: 768px) {
             .hero h1 { font-size: 2.6rem; }
             .hero p { font-size: 1.15rem; }
-            .pillars-grid { gap: 48px 0; }
         }
 
         @media (max-width: 600px) {
@@ -310,21 +250,7 @@
     <header>
         <div class="nav-container">
             <a href="#" class="brand-logo">
-                <!-- High-Performance Inline Scalable IGS Monograph Vector -->
-                <svg class="logo-svg" viewBox="0 0 100 100" fill="none" xmlns="http://www.w3.org/2000/svg">
-                    <defs>
-                        <linearGradient id="igs-grad" x1="0%" y1="0%" x2="100%" y2="100%">
-                            <stop offset="0%" stop-color="#2563eb" />
-                            <stop offset="100%" stop-color="#00f2fe" />
-                        </linearGradient>
-                    </defs>
-                    <!-- Interlocking Angular Network Logic -->
-                    <path d="M25 15H40V85H25V15Z" fill="url(#igs-grad)" />
-                    <path d="M48 15H85V30H48V15Z" fill="url(#igs-grad)" />
-                    <path d="M48 42H72V57H48V42Z" fill="url(#igs-grad)" />
-                    <path d="M48 70H85V85H48V70Z" fill="url(#igs-grad)" />
-                    <path d="M73 42H85V57H73V42Z" fill="url(#igs-grad)" />
-                </svg>
+                <img src="photos/igsbanner" alt="Logo" class="logo-img">
                 <div class="company-name">Interactive Gaming Systems</div>
             </a>
             <nav>
@@ -338,6 +264,10 @@
     </header>
 
     <main class="container">
+        <section class="banner-section">
+            <img src="photos/igsbanner" alt="Interactive Gaming Systems Banner" class="banner-img">
+        </section>
+
         <section class="hero">
             <h1>Branded Custom League Web Apps Engineered Exactly <span>For Your Needs.</span></h1>
             <p>We build mobile-first web applications specifically hardcoded to manage your local rule variations, player handicaps, and game night updates without the hassle.</p>
@@ -346,102 +276,41 @@
 
         <section id="features" class="pillars-grid">
             <div class="pillar-card">
-                <div class="info-trigger">?
-                    <div class="tooltip-box">On initial set up developer will work hand in hand with operators.</div>
-                </div>
                 <h2>Your Custom Rules Built-In</h2>
-                <p>We program your exact scoring formulas, tie-breakers, and handicap calculations directly into your software configuration so you never have to alter how your organization operates.</p>
+                <p>We program your exact scoring formulas, tie-breakers, and handicap calculations directly into your software configuration.</p>
             </div>
-
             <div class="pillar-card">
-                <div class="info-trigger">?
-                    <div class="tooltip-box">Brings flow and organization on league nights that players love.</div>
-                </div>
                 <h2>Mobile Stats & Player Buzz</h2>
-                <p>Give members real-time phone access to leaderboards, schedules, and active pairings on game night. Providing a clean digital experience drives friendly rivalry and boosts engagement.</p>
+                <p>Give members real-time phone access to leaderboards, schedules, and active pairings on game night.</p>
             </div>
-
             <div class="pillar-card">
-                <div class="info-trigger">?
-                    <div class="tooltip-box">Integration into current databases leaves almost no learning curve.</div>
-                </div>
                 <h2>Automated Sheet Integration</h2>
-                <p>Get a turnkey system complete with an editable administration panel. Your app securely syncs with your existing Sheets or Excel files, turning spreadsheet updates into dynamic live roster displays.</p>
-            </div>
-
-            <div class="pillar-card">
-                <div class="info-trigger">?
-                    <div class="tooltip-box">As leagues grow and adapt so do your rules, future add ons are by request and billed by complexity.</div>
-                </div>
-                <h2>Flat-Fee Future Features</h2>
-                <p>As your organization grows, your software can too. Any secondary feature expansions, new tournament layouts, or structural logic updates requested down the road are billed under simple, upfront flat-fee rates with zero recurring hidden costs.</p>
-            </div>
-
-            <div class="pillar-card">
-                <div class="info-trigger">?
-                    <div class="tooltip-box">No hidden fees, only get charged more for additional requests after set up is complete.</div>
-                </div>
-                <h2>Direct Developer Support</h2>
-                <p>Your flat-rate pricing covers hosting, ongoing database maintenance, secure technical updates, and direct access to the developer for configuration adjustments throughout the year.</p>
-            </div>
-
-            <div class="pillar-card">
-                <div class="info-trigger">?
-                    <div class="tooltip-box">Perfect for growing organizations—pay only for the tier that fits your active roster size.</div>
-                </div>
-                <h2>Scalable Tiered Pricing</h2>
-                <p>Whether you manage a single local event or an expansive multi-division tournament network, our rates balance perfectly against the active member size of your entire organization.</p>
+                <p>Get a turnkey system that securely syncs with your existing Sheets or Excel files, turning updates into dynamic live displays.</p>
             </div>
         </section>
 
         <section id="contact" class="contact-section">
             <h2>Contact Development</h2>
-            <p>Have questions about specialized rulesets, custom dashboard tools, or data integration? Drop a line below. Technical inquiries are reviewed daily.</p>
-
             <form class="contact-form" action="mailto:support@interactivegamingsystems.app" method="POST" enctype="text/plain">
                 <div class="form-group">
                     <label for="name">Name / League Title</label>
                     <input type="text" id="name" name="name" required>
                 </div>
-
                 <div class="form-group">
                     <label for="email">Your Email Address</label>
                     <input type="email" id="email" name="email" required>
                 </div>
-
                 <div class="form-group">
                     <label for="message">Message</label>
                     <textarea id="message" name="message" rows="6" required></textarea>
                 </div>
-
-                <button type="submit" class="btn" style="width: fit-content; margin-top: 10px;">
-                    Send Message
-                </button>
+                <button type="submit" class="btn">Send Message</button>
             </form>
-
             <div class="direct-mail">
                 Or email directly: <a href="mailto:support@interactivegamingsystems.app">support@interactivegamingsystems.app</a>
             </div>
         </section>
     </main>
-
-    <script>
-        // Interactive state tracking for touch panels
-        document.querySelectorAll('.info-trigger').forEach(trigger => {
-            trigger.addEventListener('click', (e) => {
-                e.stopPropagation();
-                const wasActive = trigger.classList.contains('active');
-                document.querySelectorAll('.info-trigger').forEach(t => t.classList.remove('active'));
-                if (!wasActive) {
-                    trigger.classList.add('active');
-                }
-            });
-        });
-
-        document.body.addEventListener('click', () => {
-            document.querySelectorAll('.info-trigger').forEach(t => t.classList.remove('active'));
-        });
-    </script>
 
 </body>
 </html>
