@@ -120,10 +120,9 @@ footer {
         if (sessionStorage.getItem("adminAuth") !== "ok") {
             window.location.href = "index.html";
         }
-        function sendTest() {
+function sendTest() {
   fetch("https://script.google.com/macros/s/AKfycbwj4uh1qDTvq3JDOE7PEVgbke0h4LPbJ7IhLUe6-P44Qb6r1u4lMrtElJfe7t-QlA3u/exec", {
     method: "POST",
-    headers: { "Content-Type": "application/json" },
     body: JSON.stringify({
       title: "Test Notification",
       body: "If you see this, everything works.",
@@ -134,6 +133,7 @@ footer {
   .then(t => console.log("Server response:", t))
   .catch(err => console.error("Error:", err));
 }
+
     </script>
 </body>
 </html>
