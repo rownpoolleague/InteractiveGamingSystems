@@ -112,7 +112,6 @@
                 const swReg = await navigator.serviceWorker.ready;
 
                 const token = await getToken(messaging, {
-                    vapidKey: 'BAvXMdABPFn8frEfnMHIN00x5VImnSdUK4YTKUqc_V5ffdl-kDjisn_n1ePSzl_HP2H1KxJs6O7KnwbFPoiy03Y',
                     serviceWorkerRegistration: swReg
                 });
 
@@ -122,18 +121,10 @@
                 }
 
                 // Save token to Apps Script
-                await fetch("https://script.google.com/macros/s/AKfycbxtJIpGdp9rPOt-YgTbS4dnswR2heLhreZdpK7eo6TDhjizZShmoMgsw2ww1G8pvRiz/exec", {
+                await fetch("https://script.google.com/macros/s/AKfycbzvM--51qqqRFp25PgGungrTmtmraz5GoS1qyPSs5sjBaJHhQgwKor9ZE-3msuqvROB/exec", {
                     method: "POST",
                     headers: { "Content-Type": "text/plain" },
                     body: JSON.stringify({ action: "saveToken", token })
-                });
-
-                // Subscribe to /topics/all
-                await fetch("https://iid.googleapis.com/iid/v1/" + token + "/rel/topics/all", {
-                    method: "POST",
-                    headers: {
-                        "Authorization": "key=0f358ec0c7c5e96b8110006ce670a1f168d7b48d"
-                    }
                 });
 
                 alert("Notifications Enabled!");
@@ -167,7 +158,7 @@
             if (!pass) return;
 
             try {
-                const resp = await fetch("https://script.google.com/macros/s/AKfycbxtJIpGdp9rPOt-YgTbS4dnswR2heLhreZdpK7eo6TDhjizZShmoMgsw2ww1G8pvRiz/exec", {
+                const resp = await fetch("https://script.google.com/macros/s/AKfycbzvM--51qqqRFp25PgGungrTmtmraz5GoS1qyPSs5sjBaJHhQgwKor9ZE-3msuqvROB/exec", {
                     method: "POST",
                     body: JSON.stringify({ action: "checkAdminPassword", password: pass })
                 });
