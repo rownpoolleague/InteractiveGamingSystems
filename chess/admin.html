@@ -107,6 +107,7 @@ footer {
                <a class="menu-button" href="addplayer.html">Add Player</a>
                 <a class="menu-button" href="tournament.html">Start Tournament</a>
                 <a class="menu-button" href="index.html">Main Menu</a>
+                <button onclick="sendTest()">Send Test Notification</button>
             </div>
         </div>
         <footer>
@@ -119,6 +120,20 @@ footer {
         if (sessionStorage.getItem("adminAuth") !== "ok") {
             window.location.href = "index.html";
         }
+        function sendTest() {
+  fetch("https://script.google.com/macros/s/AKfycbxtJIpGdp9rPOt-YgTbS4dnswR2heLhreZdpK7eo6TDhjizZShmoMgsw2ww1G8pvRiz/exec", {
+    method: "POST",
+    headers: { "Content-Type": "application/json" },
+    body: JSON.stringify({
+      title: "Test Notification",
+      body: "If you see this, everything works.",
+      topic: "all"
+    })
+  })
+  .then(r => r.text())
+  .then(t => console.log("Server response:", t))
+  .catch(err => console.error("Error:", err));
+}
     </script>
 </body>
 </html>
