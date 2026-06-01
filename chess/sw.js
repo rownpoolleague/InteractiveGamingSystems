@@ -10,7 +10,8 @@ firebase.initializeApp({
 
 const messaging = firebase.messaging();
 
-messaging.onBackgroundMessage((payload) => {
+// REQUIRED for Firebase v8 background messages
+messaging.setBackgroundMessageHandler(function(payload) {
   const notificationTitle = payload.notification.title;
   const notificationOptions = {
     body: payload.notification.body,
@@ -18,9 +19,10 @@ messaging.onBackgroundMessage((payload) => {
     data: { url: payload.data?.url || "" }
   };
 
-  self.registration.showNotification(notificationTitle, notificationOptions);
+  return self.registration.showNotification(notificationTitle, notificationOptions);
 });
 
+// Notification click → open URL
 self.addEventListener('notificationclick', (event) => {
   event.notification.close();
   const url = event.notification.data.url;
