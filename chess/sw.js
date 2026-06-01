@@ -1,5 +1,5 @@
-importScripts('https://www.gstatic.com/firebasejs/12.14.0/firebase-app.js');
-importScripts('https://www.gstatic.com/firebasejs/12.14.0/firebase-messaging-sw.js');
+importScripts('https://www.gstatic.com/firebasejs/8.10.1/firebase-app.js');
+importScripts('https://www.gstatic.com/firebasejs/8.10.1/firebase-messaging.js');
 
 firebase.initializeApp({
   apiKey: "AIzaSyBek60G1Ns_PVhODcp02H0S2jryhdUKFuQ",
@@ -10,7 +10,6 @@ firebase.initializeApp({
 
 const messaging = firebase.messaging();
 
-// Background notifications
 messaging.onBackgroundMessage((payload) => {
   const notificationTitle = payload.notification.title;
   const notificationOptions = {
@@ -22,7 +21,6 @@ messaging.onBackgroundMessage((payload) => {
   self.registration.showNotification(notificationTitle, notificationOptions);
 });
 
-// Click → open URL
 self.addEventListener('notificationclick', (event) => {
   event.notification.close();
   const url = event.notification.data.url;
