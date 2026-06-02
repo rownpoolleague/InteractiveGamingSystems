@@ -121,7 +121,7 @@
                 }
 
                 // Save token to Apps Script
-                await fetch("https://script.google.com/macros/s/AKfycby2F_AnXYXURzCc8Zv15Xba2Jyp7EWeO0ryoaOqsPfk24DXDqdjYECeqLo4Do4r_JQ/exec", {
+                await fetch("https://script.google.com/macros/s/AKfycbx2nJF88gZh3HvNO5ahEBB-jQpv_K7hxrg4Qf1HlM31PFoKpxvAbpvAmrkdMnm_3HGK/exec", {
                     method: "POST",
                     headers: { "Content-Type": "text/plain" },
                     body: JSON.stringify({ action: "saveToken", token })
@@ -158,7 +158,7 @@
             if (!pass) return;
 
             try {
-                const resp = await fetch("https://script.google.com/macros/s/AKfycby2F_AnXYXURzCc8Zv15Xba2Jyp7EWeO0ryoaOqsPfk24DXDqdjYECeqLo4Do4r_JQ/exec", {
+                const resp = await fetch("https://script.google.com/macros/s/AKfycbx2nJF88gZh3HvNO5ahEBB-jQpv_K7hxrg4Qf1HlM31PFoKpxvAbpvAmrkdMnm_3HGK/exec", {
                     method: "POST",
                     body: JSON.stringify({ action: "checkAdminPassword", password: pass })
                 });
