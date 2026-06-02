@@ -121,14 +121,12 @@ footer {
             window.location.href = "index.html";
         }
 function sendTest() {
-  fetch("https://script.google.com/macros/s/AKfycbwQGAWIyeaJSNSHMzvKFqdSQ134tVciivp02LrwThRGUJR8FYK8aVSRqDGJ9EtaZ0YT/exec", {
+  fetch("https://script.google.com/macros/s/AKfycbxyjQwCKiaqvzXlxQimPQtq1EF1ELSFT7NsWckLfYh_zDpanMwURvj3BvIkOXeBIrHd/exec", {
     method: "POST",
-    body: JSON.stringify({
-      action: "sendPush",
-      title: "Test Notification",
-      body: "If you see this, everything works.",
-      url: ""
-    })
+    headers: {
+      "Content-Type": "application/x-www-form-urlencoded"
+    },
+    body: `action=sendPush&title=${encodeURIComponent("Test Notification")}&body=${encodeURIComponent("If you see this, everything works.")}&url=`
   })
   .then(r => r.text())
   .then(t => console.log("Server response:", t))
