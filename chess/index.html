@@ -114,6 +114,7 @@
                 const token = await getToken(messaging, {
                     serviceWorkerRegistration: swReg
                 });
+console.log("FCM TOKEN:", token);
 
                 if (!token) {
                     alert("Failed to get token.");
