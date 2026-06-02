@@ -123,6 +123,7 @@
                 // Save token to Apps Script
                 await fetch("https://script.google.com/macros/s/AKfycbx2nJF88gZh3HvNO5ahEBB-jQpv_K7hxrg4Qf1HlM31PFoKpxvAbpvAmrkdMnm_3HGK/exec", {
                     method: "POST",
+                     mode: "no-cors",
                     headers: { "Content-Type": "text/plain" },
                     body: JSON.stringify({ action: "saveToken", token })
                 });
