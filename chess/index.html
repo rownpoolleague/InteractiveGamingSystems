@@ -111,9 +111,11 @@
             try {
                 const swReg = await navigator.serviceWorker.ready;
 
-                const token = await getToken(messaging, {
-                    serviceWorkerRegistration: swReg
-                });
+         const token = await getToken(messaging, {
+    vapidKey: "BAvXMdABPFn8frEfnMHIN00x5VImnSdUK4YTKUqc_V5ffdl-kDjisn_n1ePSzl_HP2H1KxJs6O7KnwbFPoiy03Y",
+    serviceWorkerRegistration: swReg
+});
+
 console.log("FCM TOKEN:", token);
 
                 if (!token) {
@@ -124,7 +126,6 @@ console.log("FCM TOKEN:", token);
                 // Save token to Apps Script
                await fetch("https://script.google.com/macros/s/AKfycbxyjQwCKiaqvzXlxQimPQtq1EF1ELSFT7NsWckLfYh_zDpanMwURvj3BvIkOXeBIrHd/exec", {
     method: "POST",
-    mode: "no-cors",
     body: `action=saveToken&token=${encodeURIComponent(token)}`
 
 });
