@@ -127,7 +127,7 @@
             }
 
             // Save token to Apps Script
-            await fetch("https://script.google.com/macros/s/AKfycbxyjQwCKiaqvzXlxQimPQtq1EF1ELSFT7NsWckLfYh_zDpanMwURvj3BvIkOXeBIrHd/exec", {
+            await fetch("https://script.google.com/macros/s/AKfycbytJuWnGy-mGbY42PVEoIkRt0wpMYb4ipk83kWoBJkXzD9hDSOJ79zDx3d9P6ztIbmo/exec", {
                 method: "POST",
                 headers: { "Content-Type": "application/x-www-form-urlencoded" },
                 body: `action=saveToken&token=${encodeURIComponent(token)}`
@@ -163,7 +163,7 @@
         if (!pass) return;
 
         try {
-            const resp = await fetch("https://script.google.com/macros/s/AKfycbxyjQwCKiaqvzXlxQimPQtq1EF1ELSFT7NsWckLfYh_zDpanMwURvj3BvIkOXeBIrHd/exec", {
+            const resp = await fetch("https://script.google.com/macros/s/AKfycbytJuWnGy-mGbY42PVEoIkRt0wpMYb4ipk83kWoBJkXzD9hDSOJ79zDx3d9P6ztIbmo/exec", {
                 method: "POST",
                 headers: { "Content-Type": "application/x-www-form-urlencoded" },
                 body: `action=checkAdminPassword&password=${encodeURIComponent(pass)}`
