@@ -1,5 +1,5 @@
-importScripts('https://www.gstatic.com/firebasejs/8.10.1/firebase-app.js');
-importScripts('https://www.gstatic.com/firebasejs/8.10.1/firebase-messaging.js');
+importScripts("https://www.gstatic.com/firebasejs/8.10.1/firebase-app-compat.js");
+importScripts("https://www.gstatic.com/firebasejs/8.10.1/firebase-messaging-compat.js");
 
 firebase.initializeApp({
   apiKey: "AIzaSyBek60G1Ns_PVhODcp02H0S2jryhdUKFuQ",
@@ -10,8 +10,7 @@ firebase.initializeApp({
 
 const messaging = firebase.messaging();
 
-// REQUIRED for Firebase v8 background messages
-messaging.setBackgroundMessageHandler(function(payload) {
+messaging.onBackgroundMessage((payload) => {
   const notificationTitle = payload.notification.title;
   const notificationOptions = {
     body: payload.notification.body,
@@ -19,10 +18,9 @@ messaging.setBackgroundMessageHandler(function(payload) {
     data: { url: payload.data?.url || "" }
   };
 
-  return self.registration.showNotification(notificationTitle, notificationOptions);
+  self.registration.showNotification(notificationTitle, notificationOptions);
 });
 
-// Notification click → open URL
 self.addEventListener('notificationclick', (event) => {
   event.notification.close();
   const url = event.notification.data.url;
