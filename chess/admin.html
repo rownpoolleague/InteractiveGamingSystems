@@ -7,173 +7,79 @@
 <link rel="manifest" href="manifest.json">
 
 <style>
-* {
-    box-sizing: border-box;
-}
-
+* { box-sizing: border-box; }
 html, body {
-    margin: 0;
-    padding: 0;
-    width: 100%;
-    height: 100dvh;
-    background-color: #000;
-    overflow: hidden;
+    margin: 0; padding: 0; width: 100%; height: 100dvh;
+    background-color: #000; overflow: hidden;
     font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, sans-serif;
 }
-
-<!DOCTYPE html>
-<html lang="en">
-<head>
-<meta charset="UTF-8">
-<meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no, viewport-fit=cover">
-<title>Club Main Menu</title>
-<link rel="manifest" href="manifest.json">
-<style>
- * {
-   box-sizing: border-box;
-   }
-html, body {
-margin: 0;
-padding: 0;
-width: 100%;
-height: 100dvh;
-background-color: #000;
-overflow: hidden;
-font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, sans-serif;
-}
 .form-wrapper {
-position: fixed;
-top: 0;
-left: 0;
-right: 0;
-bottom: 0;
-height: 100dvh;
-background-color: #000;
-border: 4px solid #1e90ff;
-border-radius: 12px;
-background-clip: padding-box;
-display: flex;
-flex-direction: column;
-padding-top: env(safe-area-inset-top, 12px);
-padding-bottom: env(safe-area-inset-bottom, 12px);
-padding-left: env(safe-area-inset-left, 4px);
-padding-right: env(safe-area-inset-right, 4px);
+    position: fixed; top: 0; left: 0; right: 0; bottom: 0;
+    height: 100dvh; background-color: #000; border: 4px solid #1e90ff;
+    border-radius: 12px; background-clip: padding-box;
+    display: flex; flex-direction: column;
+    padding: 12px;
 }
-.overlay {
-flex: 1;
-display: flex;
-flex-direction: column;
-justify-content: center;
-padding: 20px 10px;
-}
-h1 {
-text-align: center;
-color: white;
-margin-top: 0;
-margin-bottom: 20px;
-font-size: 32px;
-}
-.menu-container {
-max-width: 500px;
-margin: 0 auto;
-width: 100%;
-display: flex;
-flex-direction: column;
-gap: 20px;
-}
+.overlay { flex: 1; display: flex; flex-direction: column; justify-content: center; }
+h1 { text-align: center; color: white; margin-top: 0; margin-bottom: 20px; font-size: 32px; }
+.menu-container { max-width: 500px; margin: 0 auto; width: 100%; display: flex; flex-direction: column; gap: 10px; }
 .menu-button {
-display: block;
-margin-left: auto;
-margin-right: auto;
-text-align: center;
-padding: 4px;
-background: #1e90ff;
-color: white;
-text-decoration: none;
-font-size: 24px;
-border-radius: 8px;
-font-weight: bold;
-height: 36px;
-line-height: 28px;
-width: 250px;
-cursor: pointer;
+    display: block; margin: 0 auto; text-align: center; padding: 4px;
+    background: #1e90ff; color: white; text-decoration: none;
+    font-size: 24px; border-radius: 8px; font-weight: bold;
+    height: 36px; line-height: 28px; width: 250px;
 }
-.notification-section {
-display: flex;
-flex-direction: column;
-gap: 10px;
-align-items: center;
-margin-top: 10px;
-}
-input[type="text"] {
-width: 250px;
-padding: 10px;
-border-radius: 8px;
-border: none;
-}
-.send-btn {
-width: 250px;
-padding: 10px;
-background: #28a745;
-color: white;
-border: none;
-border-radius: 8px;
-font-weight: bold;
-cursor: pointer;
-}
-footer {
-text-align: center;
-padding: 10px 20px 20px 20px;
-margin-top: auto;
-}
-.footer-logo {
-max-width: 200px;
-max-height: 10dvh;
-height: auto;
-width: auto;
-}
+.notification-section { display: flex; flex-direction: column; gap: 8px; align-items: center; margin-top: 10px; }
+input { width: 250px; padding: 10px; border-radius: 8px; border: none; }
+.send-btn { width: 250px; padding: 10px; background: #28a745; color: white; border: none; border-radius: 8px; font-weight: bold; cursor: pointer; }
+footer { text-align: center; padding: 10px; margin-top: auto; }
+.footer-logo { max-width: 200px; max-height: 10dvh; height: auto; }
 </style>
 </head>
 <body>
-<div class="form-wrapper">
-<div class="overlay">
-<h1>Tournament Menu</h1>
-<div class="menu-container">
-<a class="menu-button" href="addplayer.html">Add Player</a>
-<a class="menu-button" href="tournament.html">Start Tournament</a>
-<a class="menu-button" href="index.html">Main Menu</a>
-<div class="notification-section">
-<input type="text" id="notifMessage" placeholder="Enter notification message...">
-<button class="send-btn" onclick="sendNotification()">Send Notification</button>
-</div>
-</div>
-</div>
-<footer>
-<img src="iconking.png" alt="Club Logo" class="footer-logo">
-</footer>
-</div>
-<script>
-if (sessionStorage.getItem("adminAuth") !== "ok") {
-window.location.href = "index.html";
-}
-function sendNotification() {
-const message = document.getElementById("notifMessage").value;
-if (!message) return alert("Please enter a message");
-fetch("https://script.google.com/macros/s/AKfycbyYoNPnldbTbvP3Qdlr5hZUrFK2opVtf3aZxuDcZzwun64Rhlc54MnYHxLmcq3kNCk/exec", {
-method: "POST",
-headers: {
-"Content-Type": "application/x-www-form-urlencoded"
-},
-body: action=sendPush&title=${encodeURIComponent("Club Update")}&body=${encodeURIComponent(message)}&url=
-})
-.then(r => r.text())
-.then(t => {
-console.log("Server response:", t);
-alert("Notification sent!");
-document.getElementById("notifMessage").value = "";
-})
-.catch(err => console.error("Error:", err));
-}
-</script>
+    <div class="form-wrapper">
+        <div class="overlay">
+            <h1>Tournament Menu</h1>
+            <div class="menu-container">                
+                <a class="menu-button" href="addplayer.html">Add Player</a>
+                <a class="menu-button" href="tournament.html">Start Tournament</a>
+                <a class="menu-button" href="index.html">Main Menu</a>
+                
+                <div class="notification-section">
+                    <input type="text" id="notifTitle" placeholder="Title">
+                    <input type="text" id="notifBody" placeholder="Message">
+                    <input type="text" id="notifUrl" placeholder="URL (optional)">
+                    <button class="send-btn" onclick="sendNotification()">Send Notification</button>
+                </div>
+            </div>
+        </div>
+        <footer><img src="iconking.png" alt="Club Logo" class="footer-logo"></footer>
+    </div>
+
+    <script>
+        if (sessionStorage.getItem("adminAuth") !== "ok") window.location.href = "index.html";
+
+        function sendNotification() {
+            const title = document.getElementById("notifTitle").value;
+            const body = document.getElementById("notifBody").value;
+            const url = document.getElementById("notifUrl").value;
+
+            if (!title || !body) return alert("Title and Message are required");
+
+            fetch("https://script.google.com/macros/s/AKfycbyYoNPnldbTbvP3Qdlr5hZUrFK2opVtf3aZxuDcZzwun64Rhlc54MnYHxLmcq3kNCk/exec", {
+                method: "POST",
+                headers: { "Content-Type": "application/x-www-form-urlencoded" },
+                body: `action=sendPush&title=${encodeURIComponent(title)}&body=${encodeURIComponent(body)}&url=${encodeURIComponent(url)}`
+            })
+            .then(r => r.text())
+            .then(t => {
+                alert("Notification sent!");
+                document.getElementById("notifTitle").value = "";
+                document.getElementById("notifBody").value = "";
+                document.getElementById("notifUrl").value = "";
+            })
+            .catch(err => console.error("Error:", err));
+        }
+    </script>
 </body>
 </html>
