@@ -1,8 +1,6 @@
 importScripts('https://www.gstatic.com/firebasejs/8.10.1/firebase-app.js');
 importScripts('https://www.gstatic.com/firebasejs/8.10.1/firebase-messaging.js');
 
-
-
 firebase.initializeApp({
   apiKey: "AIzaSyBek60G1Ns_PVhODcp02H0S2jryhdUKFuQ",
   projectId: "sscc-push",
@@ -12,17 +10,23 @@ firebase.initializeApp({
 
 const messaging = firebase.messaging();
 
+// FIXED: handles data-only payloads safely
 messaging.onBackgroundMessage((payload) => {
-  const notificationTitle = payload.notification.title;
+  const title = payload.data?.title || "Notification";
+  const body = payload.data?.body || "";
+  const icon = payload.data?.icon || "/chess/iconking.png";
+  const url = payload.data?.url || "";
+
   const notificationOptions = {
-    body: payload.notification.body,
-    icon: '/chess/iconking.png',
-    data: { url: payload.data?.url || "" }
+    body: body,
+    icon: icon,
+    data: { url: url }
   };
 
-  self.registration.showNotification(notificationTitle, notificationOptions);
+  self.registration.showNotification(title, notificationOptions);
 });
 
+// Click → open URL
 self.addEventListener('notificationclick', (event) => {
   event.notification.close();
   const url = event.notification.data.url;
