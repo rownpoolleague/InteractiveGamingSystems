@@ -103,7 +103,7 @@
 firebase.initializeApp(firebaseConfig);
 
 // ONE messaging instance
-const messaging = firebase.messaging();
+
 
 // Register service worker FIRST
 navigator.serviceWorker.register('sw.js')
@@ -149,7 +149,7 @@ window.enableNotifications = async () => {
         console.error(err);
     }
 };
-
+const messaging = firebase.messaging();
     /* ADMIN + NAVIGATION */
     function goTo(event, url, isAdmin = false) {
         event.preventDefault();
