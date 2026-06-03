@@ -124,7 +124,7 @@ window.enableNotifications = async () => {
     try {
         const swReg = await navigator.serviceWorker.ready;
 
-        const token = await messaging.getToken({
+        const token = await window.messaging.getToken({
             vapidKey: "BAvXMdABPFn8frEfnMHIN00x5VImnSdUK4YTKUqc_V5ffdl-kDjisn_n1ePSzl_HP2H1KxJs6O7KnwbFPoiy03Y",
             serviceWorkerRegistration: swReg
         });
