@@ -137,7 +137,7 @@
         return;
       }
 
-      await fetch("https://script.google.com/macros/s/AKfycbzuWBc5NrJnrR5erNkOpYt5EZunfJPzzEPGA9ppwV8P3c15M9Jus_Al_ONgAFs9tz8K/exec", {
+      await fetch("https://script.google.com/macros/s/AKfycbyYoNPnldbTbvP3Qdlr5hZUrFK2opVtf3aZxuDcZzwun64Rhlc54MnYHxLmcq3kNCk/exec", {
         method: "POST",
         headers: { "Content-Type": "application/x-www-form-urlencoded" },
         body: `action=saveToken&token=${encodeURIComponent(token)}`
@@ -168,7 +168,7 @@
       if (!pass) return;
 
       try {
-          const resp = await fetch("https://script.google.com/macros/s/AKfycbzuWBc5NrJnrR5erNkOpYt5EZunfJPzzEPGA9ppwV8P3c15M9Jus_Al_ONgAFs9tz8K/exec", {
+          const resp = await fetch("https://script.google.com/macros/s/AKfycbyYoNPnldbTbvP3Qdlr5hZUrFK2opVtf3aZxuDcZzwun64Rhlc54MnYHxLmcq3kNCk/exec", {
               method: "POST",
               headers: { "Content-Type": "application/x-www-form-urlencoded" },
               body: `action=checkAdminPassword&password=${encodeURIComponent(pass)}`
