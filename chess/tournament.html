@@ -2,6 +2,7 @@
 <html lang="en">
 
 <head>
+        <script src="asfa.js"></script>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no, viewport-fit=cover">
     <title>TOURNAMENT ENGINE</title>
@@ -209,7 +210,7 @@
     <script>
       
 
-        const SCRIPT_URL = 'https://script.google.com/macros/s/AKfycbz4FYG8bdsYf1k4YCTZUZ00Rg9vR3MhN04asHhtWpPK3aWAfarD2rfSbWz4dlAstRRI3Q/exec';
+       
         let masterRoster = [],
             players = [],
             pairings = [],
@@ -225,7 +226,7 @@
 
         async function load() {
             try {
-                const response = await fetch(SCRIPT_URL);
+                const response = await fetch(APP_CONFIG.APPSCRIPT_URL);
                 const data = await response.json();
 
                 masterRoster = data.map(p => {
@@ -834,7 +835,7 @@ function processRound() {
 
     // 2. Send to the script
     try {
-        const response = await fetch(SCRIPT_URL, {
+        const response = await fetch(APP_CONFIG.APPSCRIPT_URL, {
             method: 'POST',
             body: JSON.stringify(payload)
         });
