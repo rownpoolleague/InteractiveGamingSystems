@@ -105,25 +105,14 @@
 <script>
 async function loadTournamentData() {
     try {
-        const resp = await fetch(APP_CONFIG.APPSCRIPT_URL + "?action=tournament", {
-            method: "GET",
-            mode: "cors",
-            cache: "no-store",
-            signal: AbortSignal.timeout(2500)
-        });
-
-        const text = await resp.text();
-
-        // Detect HTML or empty response
-        if (!text.trim() || text.trim().startsWith("<")) {
-            throw new Error("Invalid response from Apps Script");
-        }
-
-        const data = JSON.parse(text);
-
+        const resp = await fetch(APP_CONFIG.APPSCRIPT_URL + "?action=tournament");
+        if (!resp.ok) throw new Error("Server error");
+        
+        const data = await resp.json();
+        
+        // Check if data or rounds array exists and has length
         if (!data.rounds || data.rounds.length === 0) {
-            document.getElementById("content").innerHTML =
-                "<div style='text-align:center; margin-top:50px;'>Tournament details will be posted here soon. Please check back later.</div>";
+            document.getElementById("content").innerHTML = "<div style='text-align:center; margin-top:50px;'>Tournament details will be posted here soon. Please check back later.</div>";
             return;
         }
 
@@ -140,8 +129,6 @@ async function loadTournamentData() {
 
     } catch (err) {
         console.error("Fetch failed:", err);
-        document.getElementById("content").innerHTML =
-            "<div style='text-align:center; margin-top:50px; color:#ef4444;'>Failed to load tournament data.</div>";
     }
 }
 
