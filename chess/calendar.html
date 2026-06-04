@@ -40,14 +40,21 @@
             padding-bottom: 40px;
         }
 
-        /* Loading animation style */
-        .loading {
+        /* Loading container with fixed word and animated dots */
+        .loading-container {
             text-align: center;
             margin-top: 50px;
             font-size: 24px;
+            display: flex;
+            justify-content: center;
         }
 
-        .loading:after {
+        .dots {
+            width: 30px;
+            text-align: left;
+        }
+
+        .dots:after {
             content: '.';
             animation: dots 1.5s steps(5, end) infinite;
         }
@@ -119,7 +126,12 @@
 
 <h1>Tournament Viewer</h1>
 
-<div id="content"><div class="loading">Loading</div></div>
+<div id="content">
+    <div class="loading-container">
+        <div>Loading</div>
+        <div class="dots"></div>
+    </div>
+</div>
 
 <script>
 async function loadTournamentData() {
