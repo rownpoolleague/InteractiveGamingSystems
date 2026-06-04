@@ -24,7 +24,6 @@
             height: 100%;
             overflow-y: auto;
             overscroll-behavior-y: none;
-            /* Removed padding-top safe-area calculation to stop the gap */
             padding-top: 20px; 
         }
 
@@ -68,13 +67,24 @@
 
         .pairing {
             text-align: center;
-            padding: 18px 0;
+            padding: 15px 0;
             border-bottom: 1px solid #222;
-            font-size: 20px;
+        }
+
+        .board-num {
+            font-size: 18px;
+            color: #1e90ff;
+            font-weight: bold;
+            display: block;
+            margin-bottom: 5px;
+        }
+
+        .names {
+            font-size: 18px;
         }
 
         .score-row {
-            text-align: center;
+            text-align: left;
             padding: 12px 0;
             border-bottom: 1px solid #222;
             font-size: 20px;
@@ -99,6 +109,13 @@ async function loadTournamentData() {
         if (!resp.ok) throw new Error("Server error");
         
         const data = await resp.json();
+        
+        // Check if data or rounds array exists and has length
+        if (!data.rounds || data.rounds.length === 0) {
+            document.getElementById("content").innerHTML = "<div style='text-align:center; margin-top:50px;'>Tournament details will be posted here soon. Please check back later.</div>";
+            return;
+        }
+
         const rows = data.rounds;
         const last = rows[rows.length - 1];
 
@@ -111,7 +128,7 @@ async function loadTournamentData() {
         renderTournament(rounds);
 
     } catch (err) {
-        console.error("Fetch failed, keeping current view:", err);
+        console.error("Fetch failed:", err);
     }
 }
 
@@ -126,10 +143,22 @@ function renderTournament(rounds) {
         div.innerHTML = `<h2>Round ${r.round}</h2>`;
 
         div.innerHTML += `<div class="section-title">Pairings</div>`;
-        r.pairings.forEach(p => {
+        
+        const sortedPairings = [...r.pairings].sort((a, b) => {
+            const aIsBye = a.black === "BYE";
+            const bIsBye = b.black === "BYE";
+            if (aIsBye && !bIsBye) return 1;
+            if (!aIsBye && bIsBye) return -1;
+            return 0;
+        });
+
+        let boardCount = 1;
+        sortedPairings.forEach(p => {
+            const isBye = p.black === "BYE";
             div.innerHTML += `
                 <div class="pairing">
-                    <strong>${p.white}</strong> vs <strong>${p.black}</strong>
+                    ${isBye ? "" : `<span class="board-num">Board ${boardCount++}</span>`}
+                    <span class="names"><strong>${p.white}</strong> ${isBye ? "" : "vs"} <strong>${p.black}</strong></span>
                     <br><span style="color:#888; font-size: 0.85em;">Result: ${p.result === null ? "—" : p.result}</span>
                 </div>
             `;
