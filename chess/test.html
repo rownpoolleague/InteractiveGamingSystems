@@ -1,190 +1,86 @@
 <!DOCTYPE html>
-<html lang="en">
+<html>
 <head>
-    <script src="asfa.js"></script>
-    <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
-    <title>Tournament Viewer</title>
+  <meta charset="UTF-8">
+  <title>Chess Viewer</title>
 
-    <style>
-        html {
-            background-color: #000;
-            margin: 0;
-            padding: 0;
-            height: 100%;
-            overflow: hidden;
-        }
+  <script src="https://dia.chessbase.com/Dia.js"></script>
 
-        body {
-            background-color: #000;
-            color: #eee;
-            font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, sans-serif;
-            margin: 0;
-            padding: 20px;
-            height: 100%;
-            overflow-y: auto;
-            overscroll-behavior-y: none;
-            padding-top: 20px; 
-        }
+  <style>
+    body {
+      margin: 0;
+      padding: 0;
+      background: #111;
+      color: #eee;
+      font-family: Arial, sans-serif;
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+    }
 
-        h1 {
-            text-align: center;
-            margin: 10px 0 20px 0;
-            font-size: 32px;
-            font-weight: bold;
-        }
+    #viewer {
+      width: 100%;
+      max-width: 600px;
+      margin-top: 20px;
+    }
 
-        #content {
-            width: 100%;
-            margin: auto;
-            padding-bottom: 40px;
-        }
+    #uploadBtn {
+      margin-top: 15px;
+      padding: 10px 20px;
+      background: #444;
+      color: #fff;
+      border: none;
+      border-radius: 6px;
+      font-size: 16px;
+    }
 
-        .round {
-            background: #111;
-            padding: 25px;
-            border-radius: 12px;
-            border: 1px solid #333;
-        }
-
-        .round h2 {
-            margin-top: 0;
-            color: #1e90ff;
-            font-size: 28px;
-            margin-bottom: 25px;
-            text-align: center;
-        }
-
-        .section-title {
-            text-align: center;
-            font-size: 22px;
-            margin: 25px 0 15px 0;
-            color: #f7d14f;
-            font-weight: bold;
-            padding-bottom: 10px;
-            border-bottom: 1px solid #444;
-        }
-
-        .pairing {
-            text-align: center;
-            padding: 15px 0;
-            border-bottom: 1px solid #222;
-        }
-
-        .board-num {
-            font-size: 18px;
-            color: #1e90ff;
-            font-weight: bold;
-            display: block;
-            margin-bottom: 5px;
-        }
-
-        .names {
-            font-size: 18px;
-        }
-
-        .score-row {
-            text-align: left;
-            padding: 12px 0;
-            border-bottom: 1px solid #222;
-            font-size: 20px;
-        }
-
-        .score-row:last-child {
-            border-bottom: none;
-        }
-    </style>
+    #uploadBtn:active {
+      background: #666;
+    }
+  </style>
 </head>
 
 <body>
 
-<h1>Tournament Viewer</h1>
+  <button id="uploadBtn">Load PGN</button>
+  <input type="file" id="fileInput" accept=".pgn" style="display:none">
 
-<div id="content">Loading tournament data…</div>
+  <div id="viewer"></div>
 
-<script>
-async function loadTournamentData() {
-    try {
-        const resp = await fetch(APP_CONFIG.APPSCRIPT_URL + "?action=tournament");
-        if (!resp.ok) throw new Error("Server error");
-        
-        const data = await resp.json();
-        
-        // Check if data or rounds array exists and has length
-        if (!data.rounds || data.rounds.length === 0) {
-            document.getElementById("content").innerHTML = "<div style='text-align:center; margin-top:50px;'>Tournament details will be posted here soon. Please check back later.</div>";
-            return;
-        }
+  <script>
+    let viewer = null;
 
-        const rows = data.rounds;
-        const last = rows[rows.length - 1];
-
-        const rounds = [{
-            round: last.round,
-            pairings: JSON.parse(last.white),
-            scores: JSON.parse(last.black)
-        }];
-
-        renderTournament(rounds);
-
-    } catch (err) {
-        console.error("Fetch failed:", err);
+    function loadPGN(pgnText) {
+      viewer = CB.PgnViewer({
+        id: "viewer",
+        layout: "left",
+        movesWidth: 220,
+        engine: true,
+        pieceStyle: "cb",
+        pgn: pgnText
+      });
     }
-}
 
-function renderTournament(rounds) {
-    const container = document.getElementById("content");
-    container.innerHTML = "";
+    // Default empty viewer
+    loadPGN("[Event \"PGN Viewer\"] *");
 
-    rounds.forEach(r => {
-        const div = document.createElement("div");
-        div.className = "round";
+    // Button triggers file picker
+    document.getElementById("uploadBtn").onclick = () => {
+      document.getElementById("fileInput").click();
+    };
 
-        div.innerHTML = `<h2>Round ${r.round}</h2>`;
+    // Load PGN from phone
+    document.getElementById("fileInput").addEventListener("change", function() {
+      const file = this.files[0];
+      if (!file) return;
 
-        div.innerHTML += `<div class="section-title">Pairings</div>`;
-        
-        const sortedPairings = [...r.pairings].sort((a, b) => {
-            const aIsBye = a.black === "BYE";
-            const bIsBye = b.black === "BYE";
-            if (aIsBye && !bIsBye) return 1;
-            if (!aIsBye && bIsBye) return -1;
-            return 0;
-        });
-
-        let boardCount = 1;
-        sortedPairings.forEach(p => {
-            const isBye = p.black === "BYE";
-            div.innerHTML += `
-                <div class="pairing">
-                    ${isBye ? "" : `<span class="board-num">Board ${boardCount++}</span>`}
-                    <span class="names"><strong>${p.white}</strong> ${isBye ? "" : "vs"} <strong>${p.black}</strong></span>
-                    <br><span style="color:#888; font-size: 0.85em;">Result: ${p.result === null ? "—" : p.result}</span>
-                </div>
-            `;
-        });
-
-        div.innerHTML += `<div class="section-title">Standings</div>`;
-        div.innerHTML += `<div class="scores"></div>`;
-        const scoreBox = div.querySelector(".scores");
-
-        const sortedStandings = [...r.scores].sort((a, b) => b.score - a.score);
-
-        sortedStandings.forEach((s, i) => {
-            scoreBox.innerHTML += `
-                <div class="score-row">
-                    ${i + 1}. ${s.name}: <strong>${s.score}</strong>
-                </div>
-            `;
-        });
-
-        container.appendChild(div);
+      const reader = new FileReader();
+      reader.onload = function(e) {
+        loadPGN(e.target.result);
+      };
+      reader.readAsText(file);
     });
-}
-
-loadTournamentData();
-setInterval(loadTournamentData, 10000); 
-</script>
+  </script>
 
 </body>
 </html>
