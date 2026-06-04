@@ -177,11 +177,36 @@ let currentMatches = [];
 let currentPlayer = "";
 
 async function fetchMatches() {
+    // If you want caching, keep this line — but only AFTER a clean fetch succeeds
     if (allMatchesCache) return allMatchesCache;
-    const resp = await fetch(APP_CONFIG.APPSCRIPT_URL + "?action=matches");
-    allMatchesCache = await resp.json();
-    return allMatchesCache;
+
+    try {
+        const resp = await fetch(APP_CONFIG.APPSCRIPT_URL + "?action=matches", {
+            method: "GET",
+            mode: "cors",
+            cache: "no-store",
+            signal: AbortSignal.timeout(2500)
+        });
+
+        const text = await resp.text();
+
+        // Detect HTML (Google error page, login page, rate limit page)
+        if (!text.trim() || text.trim().startsWith("<")) {
+            throw new Error("Invalid response from Apps Script");
+        }
+
+        const data = JSON.parse(text);
+
+        // Only cache AFTER successful parse
+        allMatchesCache = data;
+        return data;
+
+    } catch (err) {
+        console.error("fetchMatches error:", err);
+        return null;
+    }
 }
+
 
 async function showProfile(name, reg, quick, blitz) {
     currentPlayer = name;
@@ -253,10 +278,24 @@ function closeModal() { document.getElementById('profile-modal').style.display =
 
 async function loadPlayers() {
     const container = document.getElementById('player-list-container');
+
     try {
-        const resp = await fetch(APP_CONFIG.APPSCRIPT_URL, { method: 'GET', mode: 'cors' });
-        if (!resp.ok) throw new Error();
-        const allPlayers = await resp.json();
+        const resp = await fetch(APP_CONFIG.APPSCRIPT_URL, {
+            method: 'GET',
+            mode: 'cors',
+            cache: 'no-store',
+            signal: AbortSignal.timeout(2500)
+        });
+
+        const text = await resp.text();
+        console.log("Players raw response:", text.slice(0, 200));
+
+        // If Apps Script ever returns HTML or an empty string, bail out
+        if (!text.trim() || text.trim().startsWith("<")) {
+            throw new Error("Non-JSON or empty response from Apps Script");
+        }
+
+        const allPlayers = JSON.parse(text);
 
         container.innerHTML = allPlayers
             .filter(p => p && p[0] && p[0].trim() !== '')
@@ -274,7 +313,9 @@ async function loadPlayers() {
                     ${stats.length ? `<div class="player-stats">${stats.join(' | ')}</div>` : ''}
                 </div>`;
             }).join('');
+
     } catch (e) {
+        console.error("loadPlayers error:", e);
         container.innerHTML = '<div class="loading-container" style="color:#ef4444;">Failed to load. Check connection.</div>';
     }
 }
