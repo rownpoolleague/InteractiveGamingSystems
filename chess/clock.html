@@ -1,3 +1,93 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no, viewport-fit=cover">
+    <title>CHESS CLOCK</title>
+    <style>
+        :root { --bg: #000; --accent: #3b82f6; --text: #eee; --go: #22c55e; --stop: #ef4444; }
+        body { font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, sans-serif; background: var(--bg); color: var(--text); margin: 0; overflow: hidden; height: 100dvh; touch-action: manipulation; }
+        
+        #view-clock { padding: 0; position: relative; overflow: hidden; height: 100dvh; width: 100vw; background: #000; }
+        
+        .clock-top-settings { 
+            display: grid; 
+            grid-template-columns: 1fr 1fr 1fr; 
+            background: #000; 
+            padding-top: calc(5px + env(safe-area-inset-top, 0px)); 
+            padding-bottom: 5px;
+            padding-left: 5px;
+            padding-right: 5px;
+            border-bottom: 1px solid #222; 
+            position: relative; 
+            z-index: 10; 
+        }
+        .clock-top-settings div { font-size: 0.6rem; color: #888; text-align: center; }
+        .clock-top-settings input { width: 80%; background: #111; border: 1px solid #333; color: #fff; text-align: center; font-size: 0.8rem; padding: 5px; }
+
+        .clock-main { display: flex; flex-direction: column; height: 100%; width: 100%; }
+        .clock-face { flex: 1; display: flex; flex-direction: column; align-items: center; justify-content: center; background: #050505; border: 1px solid #111; transition: background 0.1s; -webkit-tap-highlight-color: transparent; }
+        .time-stack { display: flex; flex-direction: column; align-items: center; transform: rotate(90deg); }
+        
+        .delay-display { font-size: 1.8rem; color: var(--accent); font-weight: bold; height: 2rem; visibility: hidden; }
+        .delay-active { visibility: visible; }
+        
+        .time-container { display: flex; align-items: center; justify-content: center; font-size: 6rem; font-family: monospace; color: #333; line-height: 1; }
+        .time-field { outline: none; -webkit-user-select: text; user-select: text; pointer-events: auto; min-width: 2ch; text-align: center; }
+        .colon-separator { pointer-events: none; user-select: none; padding: 0 5px; }
+        
+        .clock-face.active .time-container { color: #fff; }
+        .clock-face.timed-out { background: var(--stop) !important; }
+        .clock-face.timed-out .time-container { color: #fff !important; }
+
+        #clock-overlay { position: absolute; bottom: calc(80px + env(safe-area-inset-bottom, 0px)); right: 5px; width: 70px; display: flex; flex-direction: column; gap: 8px; z-index: 30; }
+        .side-btn, .menu-btn { height: 60px; width: 100%; border: none; color: white; font-weight: bold; border-radius: 8px; cursor: pointer; display: flex; align-items: center; justify-content: center; font-size: 0.8rem; }
+      .side-btn { background-color: #ff0000; }
+        .menu-btn { background: #1e90ff; text-decoration: none; }
+        #pause-btn { background: var(--go); }
+        
+        .unlock-zone { position: absolute; top: 0; bottom: 0; right: 0; width: 60px; z-index: 20; }
+        .hidden-ui { display: none !important; }
+    </style>
+</head>
+<body>
+
+<div id="view-clock">
+    <div id="top-bar" class="clock-top-settings">
+        <div>MINUTES<br><input type="number" id="cfg-time" value="5"></div>
+        <div>INCREMENT<br><input type="number" id="cfg-inc" value="0"></div>
+        <div>DELAY<br><input type="number" id="cfg-delay" value="0"></div>
+    </div>
+    <div class="clock-main">
+       <div id="black-timer" class="clock-face" onpointerdown="switchClock('white', event)">
+            <div class="time-stack">
+                <div id="black-delay" class="delay-display">0</div>
+                <div class="time-container">
+                    <div id="black-min" class="time-field" contenteditable="true" oninput="handleTimeInput('black')" onclick="event.stopPropagation()" onfocus="this.innerText=''">05</div>
+                    <div class="colon-separator">:</div>
+                    <div id="black-sec" class="time-field" contenteditable="true" oninput="handleTimeInput('black')" onclick="event.stopPropagation()" onfocus="this.innerText=''">00</div>
+                </div>
+            </div>
+       </div>
+       <div id="white-timer" class="clock-face active" onpointerdown="switchClock('black', event)">
+            <div class="time-stack">
+                <div id="white-delay" class="delay-display">0</div>
+                <div class="time-container">
+                    <div id="white-min" class="time-field" contenteditable="true" oninput="handleTimeInput('white')" onclick="event.stopPropagation()" onfocus="this.innerText=''">05</div>
+                    <div class="colon-separator">:</div>
+                    <div id="white-sec" class="time-field" contenteditable="true" oninput="handleTimeInput('white')" onclick="event.stopPropagation()" onfocus="this.innerText=''">00</div>
+                </div>
+            </div>
+       </div>
+    </div>
+    <div id="unlock-trigger" class="unlock-zone" onmousedown="startHold()" onmouseup="endHold()" ontouchstart="startHold()" ontouchend="endHold()"></div>
+    <div id="clock-overlay">
+        <button class="side-btn" onclick="resetClock()">SET</button>
+        <button id="pause-btn" class="side-btn" onclick="armClock()">START</button>
+        <a class="menu-btn" href="index.html">Menu</a>
+    </div>
+</div>
+
 <script>
     let timers = { white: 300, black: 300 }, active = null, ticker = null, delayLeft = 0;
     let isArmed = false, holdTimer;
@@ -5,17 +95,14 @@
     function handleTimeInput(player) {
         const minText = document.getElementById(`${player}-min`).innerText.trim().replace(/[^0-9]/g, '');
         const secText = document.getElementById(`${player}-sec`).innerText.trim().replace(/[^0-9]/g, '');
-        
         const mins = parseInt(minText, 10) || 0;
         const secs = parseInt(secText, 10) || 0;
-        
         timers[player] = (mins * 60) + secs;
     }
 
-    // New helper to toggle editability
-    function setEditable(bool) {
+    function toggleEditability(enable) {
         document.querySelectorAll('.time-field').forEach(el => {
-            if(bool) el.setAttribute('contenteditable', 'true');
+            if (enable) el.setAttribute('contenteditable', 'true');
             else el.removeAttribute('contenteditable');
         });
     }
@@ -23,21 +110,16 @@
     function armClock() {
         isArmed = true; 
         active = null;
-        setEditable(false);
+        toggleEditability(false);
         document.getElementById('clock-overlay').classList.add('hidden-ui');
         document.getElementById('top-bar').classList.add('hidden-ui');
-
         const elem = document.documentElement;
-        if (elem.requestFullscreen) {
-            elem.requestFullscreen().catch(() => {});
-        }
+        if (elem.requestFullscreen) elem.requestFullscreen().catch(() => {});
     }
 
     function switchClock(nextPlayer, e) {
         if (e) { e.preventDefault(); e.stopPropagation(); }
-        // Block switching if the menu is open (UI is visible)
         if (!document.getElementById('clock-overlay').classList.contains('hidden-ui')) return;
-        
         if (active && timers[active] <= 0) return;
         
         if (!ticker) { 
@@ -75,7 +157,6 @@
     function updateClock() {
         ['white','black'].forEach(p => {
             const m = Math.floor(timers[p]/60), s = timers[p]%60;
-            // Only update if not currently being typed in by the user
             if (document.activeElement !== document.getElementById(`${p}-min`)) {
                 document.getElementById(`${p}-min`).innerText = m.toString().padStart(2, '0');
             }
@@ -89,8 +170,7 @@
         clearInterval(ticker); ticker = null; active = null; isArmed = false;
         const base = (parseInt(document.getElementById('cfg-time').value) || 5) * 60;
         timers = { white: base, black: base };
-        
-        setEditable(true);
+        toggleEditability(true);
         document.getElementById('clock-overlay').classList.remove('hidden-ui');
         document.getElementById('top-bar').classList.remove('hidden-ui');
         document.querySelectorAll('.clock-face').forEach(c => { c.classList.remove('timed-out', 'active'); });
@@ -102,21 +182,20 @@
         holdTimer = setTimeout(() => { 
             const overlay = document.getElementById('clock-overlay');
             const isHidden = overlay.classList.contains('hidden-ui');
-            
             if (isHidden) {
-                // Opening menu: Pause game and allow editing
                 if (ticker) { clearInterval(ticker); ticker = null; }
                 overlay.classList.remove('hidden-ui');
                 document.getElementById('top-bar').classList.remove('hidden-ui');
-                setEditable(true);
+                toggleEditability(true);
             } else {
-                // Closing menu: Resume state
                 overlay.classList.add('hidden-ui');
                 document.getElementById('top-bar').classList.add('hidden-ui');
-                setEditable(false);
-                if (active && timers[active] > 0) startTicker();
+                toggleEditability(false);
+                if (isArmed && active && timers[active] > 0) startTicker();
             }
         }, 1500); 
     }
     function endHold() { clearTimeout(holdTimer); }
 </script>
+</body>
+</html>
