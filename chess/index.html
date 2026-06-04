@@ -85,9 +85,11 @@
     <!-- ADMIN MODAL -->
     <div id="adminModal" style="position:fixed; top:0; left:0; right:0; bottom:0; background:rgba(0,0,0,0.85); display:none; justify-content:center; align-items:center; z-index:9999;">
         <div style="background:#111; padding:30px; border-radius:10px; width:300px; border:2px solid #1e90ff; text-align:center;">
+            <button onclick="closeAdminModal()" style="position:absolute; top:10px; right:10px; background:none; border:none; color:white; font-size:22px; cursor:pointer;">✕</button>
             <h2 style="color:white; margin-top:0;">Admin Login</h2>
             <input id="adminPass" type="password" placeholder="Password" style="width:100%; padding:10px; font-size:18px; margin-bottom:20px;">
-            <button onclick="submitAdminPassword()" style="width:100%; padding:10px; font-size:20px; background:#1e90ff; color:white; border:none; border-radius:6px;">Enter</button>
+           <button id="adminEnterBtn" onclick="submitAdminPassword()" style="width:100%; padding:10px; font-size:20px; background:#1e90ff; color:white; border:none; border-radius:6px;">Enter</button>
+
         </div>
     </div>
 
@@ -228,7 +230,19 @@ window.enableNotifications = async () => {
 
  async function submitAdminPassword() {
     const pass = document.getElementById("adminPass").value.trim();
-    if (!pass) return;
+    const btn = document.getElementById("adminEnterBtn");
+    if (!pass || !btn) return;
+
+    // Prevent spam
+    if (btn.disabled) return;
+
+    // Lock button + spinner
+    btn.disabled = true;
+    const originalText = btn.textContent;
+    btn.textContent = "Checking...";
+    const spinner = document.createElement("span");
+    spinner.className = "spinner";
+    btn.appendChild(spinner);
 
     try {
         const resp = await fetch(
@@ -245,7 +259,6 @@ window.enableNotifications = async () => {
 
         const text = await resp.text();
 
-        // Detect HTML or empty response (Apps Script error page)
         if (!text.trim() || text.trim().startsWith("<")) {
             throw new Error("Invalid response from Apps Script");
         }
@@ -263,8 +276,20 @@ window.enableNotifications = async () => {
     } catch (err) {
         console.error("Admin password error:", err);
         alert("Error checking password. Try again.");
+    } finally {
+        // Restore button ONLY if login failed
+        if (btn.textContent.startsWith("Checking")) {
+            btn.textContent = originalText;
+            btn.disabled = false;
+        }
     }
 }
+
+    function closeAdminModal() {
+    const modal = document.getElementById("adminModal");
+    modal.style.display = "none";
+}
+
 
 </script>
 
