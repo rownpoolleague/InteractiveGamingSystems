@@ -37,10 +37,7 @@
 </head>
 <body>
 
-    <div class="upload-section">
-        <label for="pgnFile">Select PGN File:</label>
-        <input type="file" id="pgnFile" accept=".pgn,.txt">
-    </div>
+    
 
     <div class="viewer-container">
         <iframe name="cwvif_tfvswf" style='width:100%;height:100%;border:0'></iframe>
@@ -48,7 +45,10 @@
             <input id="cwvip_tfvswf" name="edat" type="hidden">
         </form>
     </div>
-
+<div class="upload-section">
+        <label for="pgnFile">Select PGN File:</label>
+        <input type="file" id="pgnFile" accept=".pgn,.txt">
+    </div>
     <script>
         document.getElementById('pgnFile').addEventListener('change', function(e) {
             const file = e.target.files[0];
