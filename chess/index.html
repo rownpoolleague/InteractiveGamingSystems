@@ -147,19 +147,26 @@
         return;
       }
 
-      await fetch("https://script.google.com/macros/s/AKfycbyYoNPnldbTbvP3Qdlr5hZUrFK2opVtf3aZxuDcZzwun64Rhlc54MnYHxLmcq3kNCk/exec", {
-        method: "POST",
-        headers: { "Content-Type": "application/x-www-form-urlencoded" },
-        body: `action=saveToken&token=${encodeURIComponent(token)}`
-      });
-
-      alert("Notifications Enabled!");
-
-    } catch (err) {
-      alert("Token error: " + err);
-      console.error(err);
+  await fetch("https://script.google.com/macros/s/AKfycbyYoNPnldbTbvP3Qdlr5hZUrFK2opVtf3aZxuDcZzwun64Rhlc54MnYHxLmcq3kNCk/exec", {
+    method: "POST",
+    mode: "cors",
+    cache: "no-store",
+    headers: { "Content-Type": "application/x-www-form-urlencoded" },
+    signal: AbortSignal.timeout(2500),
+    body: `action=saveToken&token=${encodeURIComponent(token)}`
+})
+.then(r => r.text())
+.then(t => {
+    if (!t.trim() || t.trim().startsWith("<")) {
+        throw new Error("Invalid response from Apps Script");
     }
-  };
+    alert("Notifications Enabled!");
+})
+.catch(err => {
+    alert("Token error: " + err);
+    console.error(err);
+});
+
 
   /* ADMIN + NAVIGATION */
   function goTo(event, url, isAdmin = false) {
@@ -173,27 +180,46 @@
       window.location.href = url;
   }
 
-  async function submitAdminPassword() {
-      const pass = document.getElementById("adminPass").value.trim();
-      if (!pass) return;
+ async function submitAdminPassword() {
+    const pass = document.getElementById("adminPass").value.trim();
+    if (!pass) return;
 
-      try {
-          const resp = await fetch("https://script.google.com/macros/s/AKfycbyYoNPnldbTbvP3Qdlr5hZUrFK2opVtf3aZxuDcZzwun64Rhlc54MnYHxLmcq3kNCk/exec", {
-              method: "POST",
-              headers: { "Content-Type": "application/x-www-form-urlencoded" },
-              body: `action=checkAdminPassword&password=${encodeURIComponent(pass)}`
-          });
+    try {
+        const resp = await fetch(
+            "https://script.google.com/macros/s/AKfycbyYoNPnldbTbvP3Qdlr5hZUrFK2opVtf3aZxuDcZzwun64Rhlc54MnYHxLmcq3kNCk/exec",
+            {
+                method: "POST",
+                mode: "cors",
+                cache: "no-store",
+                signal: AbortSignal.timeout(2500),
+                headers: { "Content-Type": "application/x-www-form-urlencoded" },
+                body: `action=checkAdminPassword&password=${encodeURIComponent(pass)}`
+            }
+        );
 
-          const data = await resp.json();
-          if (!data.ok) { alert("Incorrect password."); return; }
+        const text = await resp.text();
 
-          sessionStorage.setItem("adminAuth", "ok");
-          window.location.href = document.getElementById("adminModal").dataset.url;
+        // Detect HTML or empty response (Apps Script error page)
+        if (!text.trim() || text.trim().startsWith("<")) {
+            throw new Error("Invalid response from Apps Script");
+        }
 
-      } catch (err) {
-          console.error(err);
-      }
-  }
+        const data = JSON.parse(text);
+
+        if (!data.ok) {
+            alert("Incorrect password.");
+            return;
+        }
+
+        sessionStorage.setItem("adminAuth", "ok");
+        window.location.href = document.getElementById("adminModal").dataset.url;
+
+    } catch (err) {
+        console.error("Admin password error:", err);
+        alert("Error checking password. Try again.");
+    }
+}
+
 </script>
 
 </body>
