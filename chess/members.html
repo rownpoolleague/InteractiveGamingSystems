@@ -95,7 +95,32 @@
 
         .player-stats { font-size: 0.75rem; color: #888; text-align: right; margin-left: auto; }
 
-        .loading { text-align: center; color: #555; margin-top: 20px; }
+        /* Loading animation style */
+        .loading-container {
+            text-align: center;
+            margin-top: 50px;
+            font-size: 24px;
+            display: flex;
+            justify-content: center;
+            color: #555;
+        }
+
+        .dots {
+            width: 30px;
+            text-align: left;
+        }
+
+        .dots:after {
+            content: '.';
+            animation: dots 1.5s steps(5, end) infinite;
+        }
+
+        @keyframes dots {
+            0%, 20% { content: '.'; }
+            40% { content: '..'; }
+            60% { content: '...'; }
+            80%, 100% { content: ''; }
+        }
     </style>
 </head>
 
@@ -128,7 +153,10 @@
             <a class="nav-button" href="index.html" onclick="goTo(event, this.href)">Main Menu</a>
         </header>
         <div id="player-list-container">
-            <div class="loading">Loading members...</div>
+            <div class="loading-container">
+                <div>Loading</div>
+                <div class="dots"></div>
+            </div>
         </div>
     </div>
 </div>
@@ -139,7 +167,6 @@ function goTo(event, url) {
     window.location.href = url;
 }
 
-// Strips the comma so "Smith, John" becomes "Smith John" for filename matching
 function getPhotoPath(name) {
     const cleanName = name.replace(',', '');
     return `photos/${cleanName}.jpg`;
@@ -248,7 +275,7 @@ async function loadPlayers() {
                 </div>`;
             }).join('');
     } catch (e) {
-        container.innerHTML = '<div class="loading" style="color:#ef4444;">Failed to load. Check connection.</div>';
+        container.innerHTML = '<div class="loading-container" style="color:#ef4444;">Failed to load. Check connection.</div>';
     }
 }
 
