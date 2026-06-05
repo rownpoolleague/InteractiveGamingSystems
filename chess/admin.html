@@ -32,6 +32,7 @@ h1 { text-align: center; color: white; margin-top: 0; margin-bottom: 20px; font-
 .notification-section { display: flex; flex-direction: column; gap: 8px; align-items: center; margin-top: 10px; }
 input { width: 250px; padding: 10px; border-radius: 8px; border: none; }
 .send-btn { width: 250px; padding: 10px; background: #28a745; color: white; border: none; border-radius: 8px; font-weight: bold; cursor: pointer; }
+.send-btn:disabled { background: #555; cursor: not-allowed; }
 footer { text-align: center; padding: 10px; margin-top: auto; }
 .footer-logo { max-width: 200px; max-height: 10dvh; height: auto; }
 </style>
@@ -49,7 +50,7 @@ footer { text-align: center; padding: 10px; margin-top: auto; }
                     <input type="text" id="notifTitle" placeholder="Title">
                     <input type="text" id="notifBody" placeholder="Message">
                     <input type="text" id="notifUrl" placeholder="URL (optional)">
-                    <button class="send-btn" onclick="sendNotification()">Send Notification</button>
+                    <button class="send-btn" id="sendBtn" onclick="sendNotification()">Send Notification</button>
                 </div>
             </div>
         </div>
@@ -63,8 +64,12 @@ footer { text-align: center; padding: 10px; margin-top: auto; }
             const title = document.getElementById("notifTitle").value;
             const body = document.getElementById("notifBody").value;
             const url = document.getElementById("notifUrl").value;
+            const btn = document.getElementById("sendBtn");
 
             if (!title || !body) return alert("Title and Message are required");
+
+            btn.disabled = true;
+            btn.innerText = "Sending...";
 
             fetch("https://script.google.com/macros/s/AKfycbyYoNPnldbTbvP3Qdlr5hZUrFK2opVtf3aZxuDcZzwun64Rhlc54MnYHxLmcq3kNCk/exec", {
                 method: "POST",
@@ -78,7 +83,11 @@ footer { text-align: center; padding: 10px; margin-top: auto; }
                 document.getElementById("notifBody").value = "";
                 document.getElementById("notifUrl").value = "";
             })
-            .catch(err => console.error("Error:", err));
+            .catch(err => console.error("Error:", err))
+            .finally(() => {
+                btn.disabled = false;
+                btn.innerText = "Send Notification";
+            });
         }
     </script>
 </body>
