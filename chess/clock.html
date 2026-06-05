@@ -20,7 +20,16 @@
         .clock-main { display: flex; flex-direction: column; height: 100%; width: 100%; position: absolute; top: 0; left: 0; z-index: 5; }
         .clock-face { flex: 1; display: flex; flex-direction: column; align-items: center; justify-content: center; background: #050505; border: 1px solid #111; transition: background 0.1s; }
         .time-stack { display: flex; flex-direction: column; align-items: center; transform: rotate(90deg); }
-        
+        /* Remove arrows from number inputs */
+input::-webkit-outer-spin-button,
+input::-webkit-inner-spin-button {
+  -webkit-appearance: none;
+  margin: 0;
+}
+
+input[type=number] {
+  -moz-appearance: textfield;
+}
         .delay-display { font-size: 1.8rem; color: var(--accent); font-weight: bold; height: 2rem; visibility: hidden; }
         .delay-active { visibility: visible; }
         
