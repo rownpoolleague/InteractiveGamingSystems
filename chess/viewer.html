@@ -1,94 +1,14 @@
 <!DOCTYPE html>
-<html lang="en">
-<head>
-    <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>PGN File Viewer - Dark Theme</title>
-    <style>
-        body { 
-            font-family: sans-serif; 
-            padding: 15px; 
-            display: flex; 
-            flex-direction: column; 
-            align-items: center; 
-            background-color: #1a1a1a; 
-            color: #ffffff; 
-        }
-
-        .upload-section { margin-bottom: 20px; }
-
-        .viewer-container { 
-            width: 100%; 
-            max-width: 400px; 
-            aspect-ratio: 0.575; 
-            border: 2px solid #444; 
-            background-color: #000000; 
-            padding: 5px; 
-            display: flex;
-            flex-direction: column;
-        }
-
-        iframe { 
-            width: 100%; 
-            flex-grow: 1;
-            border: 0; 
-        }
-
-        .controls {
-            margin-top: 10px;
-            display: flex;
-            justify-content: center;
-        }
-
-        button {
-            padding: 8px 16px;
-            background-color: #444;
-            color: white;
-            border: none;
-            cursor: pointer;
-            border-radius: 4px;
-        }
-
-        button:hover {
-            background-color: #666;
-        }
-    </style>
-</head>
+<html>
 <body>
 
-    <div class="viewer-container">
-        <iframe name="cwvif_tfvswf"></iframe>
-        <div class="controls">
-            <!-- Replace 'menu.html' with your desired path -->
-            
-        </div>
-        <form id="cwvfm_tfvswf" method="post" action='https://caissa.com/bin/gameview' target="cwvif_tfvswf">
-            <input id="cwvip_tfvswf" name="edat" type="hidden">
-        </form>
-    </div>
+    <iframe src="https://lichess.org/embed/analysis" 
+            style="width: 100%; aspect-ratio: 4/3;" 
+            frameborder="0">
+    </iframe>
 
-    <div class="upload-section">
-        <label for="pgnFile">Select PGN File:</label>
-        <input type="file" id="pgnFile" accept=".pgn,.txt">
-    </div>
-<button onclick="window.location.href='index.html'">Menu</button>
-    <script>
-        const defaultPGN = "[Event \"Empty Board\"]\n[Site \"?\"]\n[Date \"?\"]\n[Round \"?\"]\n[White \"?\"]\n[Black \"?\"]\n[Result \"*\"]\n\n*";
-
-        function loadPGN(pgnData) {
-            document.getElementById('cwvip_tfvswf').value = pgnData;
-            document.getElementById('cwvfm_tfvswf').submit();
-        }
-
-        window.onload = function() {
-            loadPGN(defaultPGN);
-        };
-
-        document.getElementById('pgnFile').addEventListener('change', function(e) {
-            const file = e.target.files[0];
-            if (!file) return;
-
-            const reader = new FileReader();
+</body>
+</html>            const reader = new FileReader();
             reader.onload = function(event) {
                 loadPGN(event.target.result);
             };
