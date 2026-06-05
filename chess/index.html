@@ -26,7 +26,7 @@
             display: flex; flex-direction: column;
             justify-content: center; padding: 20px 10px;
         }
-      
+       
 .spinner {
     display: inline-block;
     width: 18px;
@@ -91,7 +91,6 @@
 
 <body>
 
-    <!-- ADMIN MODAL -->
     <div id="adminModal" style="position:fixed; top:0; left:0; right:0; bottom:0; background:rgba(0,0,0,0.85); display:none; justify-content:center; align-items:center; z-index:9999;">
         <div style="background:#111; padding:30px; border-radius:10px; width:300px; border:2px solid #1e90ff; text-align:center;">
             <button onclick="closeAdminModal()" style="position:absolute; top:10px; right:10px; background:none; border:none; color:white; font-size:22px; cursor:pointer;">✕</button>
@@ -102,7 +101,6 @@
         </div>
     </div>
 
-    <!-- MAIN MENU -->
     <div class="overlay">
 
         
@@ -126,7 +124,6 @@
         <a href="https://interactivegamingsystems.app" class="powered-by">Powered by Interactive Gaming Systems</a>
     </footer>
 
-<!-- FIREBASE + NOTIFICATION LOGIC (v8 ONLY) -->
 <script src="https://www.gstatic.com/firebasejs/8.10.1/firebase-app.js"></script>
 <script src="https://www.gstatic.com/firebasejs/8.10.1/firebase-messaging.js"></script>
 
@@ -156,6 +153,13 @@
     })
     .catch((err) => alert("SW Registration failed: " + err));
 
+  // Hide button if already granted
+  window.addEventListener('load', () => {
+    if (Notification.permission === 'granted') {
+      document.getElementById("notifyBtn").style.display = 'none';
+    }
+  });
+
   // Enable notifications
 window.enableNotifications = async () => {
     const btn = document.getElementById("notifyBtn");
@@ -176,6 +180,8 @@ window.enableNotifications = async () => {
         const permission = await Notification.requestPermission();
         if (permission !== 'granted') {
             alert("Permission denied.");
+            btn.disabled = false;
+            btn.textContent = originalText;
             return;
         }
 
@@ -190,6 +196,8 @@ window.enableNotifications = async () => {
 
         if (!token) {
             alert("Failed to get token.");
+            btn.disabled = false;
+            btn.textContent = originalText;
             return;
         }
 
@@ -207,19 +215,14 @@ window.enableNotifications = async () => {
                 throw new Error("Invalid response from Apps Script");
             }
             alert("Notifications Enabled!");
-            // Optional: keep button disabled and change label
-            btn.textContent = "Notifications Enabled";
+            btn.style.display = 'none';
         });
 
     } catch (err) {
         alert("Token error: " + err);
         console.error(err);
-    } finally {
-        // If we didn't change the label to a final state, restore it
-        if (btn.textContent === "Enabling...") {
-            btn.textContent = originalText;
-            btn.disabled = false;
-        }
+        btn.disabled = false;
+        btn.textContent = originalText;
     }
 };
 
@@ -276,6 +279,8 @@ window.enableNotifications = async () => {
 
         if (!data.ok) {
             alert("Incorrect password.");
+            btn.textContent = originalText;
+            btn.disabled = false;
             return;
         }
 
@@ -285,12 +290,8 @@ window.enableNotifications = async () => {
     } catch (err) {
         console.error("Admin password error:", err);
         alert("Error checking password. Try again.");
-    } finally {
-        // Restore button ONLY if login failed
-        if (btn.textContent.startsWith("Checking")) {
-            btn.textContent = originalText;
-            btn.disabled = false;
-        }
+        btn.textContent = originalText;
+        btn.disabled = false;
     }
 }
 
