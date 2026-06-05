@@ -86,30 +86,34 @@ async function loadPlayers() {
     }
 }
 
-async function showProfile(name, reg, quick, blitz) {
-    currentPlayer = name;
+function showProfile(name, reg, quick, blitz) {
     const modal = document.getElementById('profile-modal');
-    
-    // Updated this line to explicitly include the photo and the name
-    document.getElementById('modal-player-name').innerHTML = `
-        <img src="${getPhotoPath(name)}" 
-             onerror="this.style.display='none'" 
-             style="width:80px; height:80px; border-radius:50%; object-fit:cover; margin-right:15px; border: 2px solid var(--accent);">
-        ${name}`;
-        
-    document.getElementById('modal-ratings').innerText = `Reg: ${reg} | Quick: ${quick} | Blitz: ${blitz}`;
-    
-    const matches = await fetchMatches();
-    currentMatches = matches.filter(m => m.white === name || m.black === name);
-    
-    const openingFilter = document.getElementById('opening-filter');
-    const openings = [...new Set(currentMatches.map(m => m.opening))];
-    openingFilter.innerHTML = '<option value="All">All Openings</option>' + 
-        openings.map(o => `<option value="${o}">${o}</option>`).join('');
-    
-    renderStats();
+    const nameEl = document.getElementById('modal-player-name');
+    const ratingsEl = document.getElementById('modal-ratings');
+
+    const photoPath = getPhotoPath(name);   // <-- real path, no placeholder
+
+    const img = new Image();                // <-- real browser image object
+    img.src = photoPath;                    // <-- tries to load actual file
+
+    img.onload = () => {
+        // Photo exists → show it
+        nameEl.innerHTML = `
+            <img src="${photoPath}"
+                 style="width:80px; height:80px; border-radius:50%; object-fit:cover; margin-right:15px; border:2px solid var(--accent);">
+            ${name}
+        `;
+    };
+
+    img.onerror = () => {
+        // Photo missing → show name only
+        nameEl.innerText = name;
+    };
+
+    ratingsEl.innerText = `Reg: ${reg} | Quick: ${quick} | Blitz: ${blitz}`;
     modal.style.display = 'block';
 }
+
 
 function closeModal() { document.getElementById('profile-modal').style.display = 'none'; }
 
