@@ -86,10 +86,29 @@ async function loadPlayers() {
     }
 }
 
-function showProfile(name, reg, quick, blitz) {
-    document.getElementById('modal-player-name').innerText = name;
+async function showProfile(name, reg, quick, blitz) {
+    currentPlayer = name;
+    const modal = document.getElementById('profile-modal');
+    
+    // Updated this line to explicitly include the photo and the name
+    document.getElementById('modal-player-name').innerHTML = `
+        <img src="${getPhotoPath(name)}" 
+             onerror="this.style.display='none'" 
+             style="width:80px; height:80px; border-radius:50%; object-fit:cover; margin-right:15px; border: 2px solid var(--accent);">
+        ${name}`;
+        
     document.getElementById('modal-ratings').innerText = `Reg: ${reg} | Quick: ${quick} | Blitz: ${blitz}`;
-    document.getElementById('profile-modal').style.display = 'block';
+    
+    const matches = await fetchMatches();
+    currentMatches = matches.filter(m => m.white === name || m.black === name);
+    
+    const openingFilter = document.getElementById('opening-filter');
+    const openings = [...new Set(currentMatches.map(m => m.opening))];
+    openingFilter.innerHTML = '<option value="All">All Openings</option>' + 
+        openings.map(o => `<option value="${o}">${o}</option>`).join('');
+    
+    renderStats();
+    modal.style.display = 'block';
 }
 
 function closeModal() { document.getElementById('profile-modal').style.display = 'none'; }
