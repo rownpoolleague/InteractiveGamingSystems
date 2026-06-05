@@ -15,6 +15,18 @@
         .modal-overlay { display: none; position: fixed; top: 0; left: 0; width: 100%; height: 100%; background: rgba(0,0,0,0.85); z-index: 200; align-items: center; justify-content: center; }
         .modal-box { background: #111; border: 1px solid #222; width: 85%; max-width: 320px; padding: 20px; text-align: center; border-radius: 6px; }
         .modal-btn { width: 100%; padding: 12px; background: var(--go); border: none; color: white; font-weight: bold; border-radius: 4px; }
+              .menu-btn {position: fixed;
+            bottom: 20px;
+            right: 20px;
+            padding: 12px 24px;
+            background: #1e90ff;
+            color: #fff;
+            text-decoration: none;
+            border-radius: 50px;
+            font-weight: bold;
+            box-shadow: 0 4px 6px rgba(0,0,0,0.3);
+            z-index: 1000;
+        }
     </style>
 </head>
 <body>
@@ -69,7 +81,7 @@
     </select>
     <button class="action-btn" onclick="submitMatch()">SUBMIT MATCH</button>
 </div>
-
+<a href="index.html" class="menu-btn">Home</a>
 <script>
     const SCRIPT_URL = 'https://script.google.com/macros/s/AKfycbz8Wko-yA9CVCPXFZPjTgRtYnwcb7y1964tS1HmAgo86XiEyLC891vO2VxmUnB5gi2dsA/exec';
     
