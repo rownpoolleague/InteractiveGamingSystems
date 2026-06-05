@@ -15,29 +15,11 @@
         .modal-overlay { display: none; position: fixed; top: 0; left: 0; width: 100%; height: 100%; background: rgba(0,0,0,0.85); z-index: 200; align-items: center; justify-content: center; }
         .modal-box { background: #111; border: 1px solid #222; width: 85%; max-width: 320px; padding: 20px; text-align: center; border-radius: 6px; }
         .modal-btn { width: 100%; padding: 12px; background: var(--go); border: none; color: white; font-weight: bold; border-radius: 4px; }
-        #menu-btn {
-    position: fixed;
-    bottom: 15px;
-    left: 50%;
-    transform: translateX(-50%);
-    width: 90%;
-    max-width: 400px;
-    padding: 15px;
-    background: var(--accent);
-    color: white;
-    border: none;
-    border-radius: 6px;
-    font-weight: bold;
-    font-size: 1rem;
-    cursor: pointer;
-    z-index: 500;
-}
-
     </style>
 </head>
 <body>
 
-<header><h1>Submit a Game</h1></header>
+<header><h1>Submit a Club Game</h1></header>
 
 <div id="confirmation-modal" class="modal-overlay">
     <div class="modal-box">
@@ -57,7 +39,7 @@
         <div><select id="p2-select" onchange="updateEloField('p2')"><option value="">Loading...</option></select><input type="number" id="p2elo" placeholder="ELO" readonly></div>
     </div>
     
-    <select id="opening" onchange="updateVariations()">
+        <select id="opening" onchange="updateVariations()">
         <option value="" disabled selected>Choose Opening...</option>
         <option value="A00: Uncommon / Flank">Flank Openings</option>
         <option value="B01: Scandinavian Defense">Scandinavian Defense 1.e4 d5</option>
@@ -85,11 +67,8 @@
         <option value="0.5-0.5">½ - ½</option>
         <option value="0-1">0 - 1</option>
     </select>
-    <button class="action-btn" onclick="submitMatch()">SUBMIT</button>
+    <button class="action-btn" onclick="submitMatch()">SUBMIT MATCH</button>
 </div>
-    <button onclick="window.location.href='index.html'" 
-        id="menu-btn">Back to Menu</button>
-
 
 <script>
     const SCRIPT_URL = 'https://script.google.com/macros/s/AKfycbz8Wko-yA9CVCPXFZPjTgRtYnwcb7y1964tS1HmAgo86XiEyLC891vO2VxmUnB5gi2dsA/exec';
@@ -105,7 +84,7 @@
         "C50: Italian Game": ["Giuoco Piano – 3.Bc4", "Evans Gambit – 3.Bc4 Bc5 4.b4", "Two Knights Defense – 3.Bc4 Nf6", "Hungarian Defense – 3.Bc4 Be7", "Anti-Fried Liver – 3.Bc4 Nf6 4.d3"],
         "C60: Ruy Lopez (Spanish)": ["Berlin Defense – 3...Nf6", "Morphy Defense – 3...a6", "Steinitz Defense – 3...d6", "Schliemann Defense – 3...f5", "Classical Defense – 3...Bc5", "Exchange Variation 4.Bxc6 dxc6", "Modern Steinitz Defense 3...d6 4.d4", "Bird Defense – 3...Nd4", "Cozio Defense – 3...Nge7", "Smyslov Defense – 3...g6", "Duras Variation – 3...f5 4.d3", "Rubinstein Defense – 3...Nf6 4.d3"],
         "D02: London System": ["Main Line – 1.d4 d5 2.Nf3 Nf6 3.Bf4","Jobava London – 1.d4 d5 2.Nc3 Nf6 3.Bf4","Accelerated London – 1.d4 Nf6 2.Nf3 g6 3.Bf4"],
-        "D06: Queen's Gambit Accepted": ["Main Line" 3.e4","Classical Defense – 3  e5", "Furman 3.e4 Nf6 4.e5 Nd5 5.Bxc4","Alekhine 3.e4 Nf6 4.Nc3","Flohr 3.e4 Nf6 4.e5 Nd5 5.Bxc4 Nb6","Smyslov 3.e4 c5","Mannheim 3.e4 e5 4.Nf3 exd4 5.Bxc4"],
+        "D06: Queen's Gambit Accepted": ["Main Line 3.e4","Classical Defense – 3  e5", "Furman 3.e4 Nf6 4.e5 Nd5 5.Bxc4","Alekhine 3.e4 Nf6 4.Nc3","Flohr 3.e4 Nf6 4.e5 Nd5 5.Bxc4 Nb6","Smyslov 3.e4 c5","Mannheim 3.e4 e5 4.Nf3 exd4 5.Bxc4"],
         "E20: Nimzo Indian ": ["Classical 1.d4 Nf6 2.c4 g6 3.Nc3 Bg7 4.e4 d6","Fianchetto 1.d4 Nf6 2.c4 g6 3.Nf3 Bg7 4.g3","Saemisch System 1.d4 Nf6 2.c4 g6 3.Nc3 Bg7 4.e4 d6 5.f3","Averbakh 1.d4 Nf6 2.c4 g6 3.Nc3 Bg7 4.e4 d6 5.Be2","Four Pawns Attack 1.d4 Nf6 2.c4 g6 3.e4 d6 4.f4","Smyslov 1.d4 Nf6 2.c4 g6 3.Nf3 Bg7 4.Bg5","Makogonov 1.d4 Nf6 2.c4 g6 3.Nc3 Bg7 4.e4 d6 5.h3","Kramer System – 1.d4 Nf6 2.c4 g6 3.Nc3 Bg7 4.e4 d6 5.Nge2"],
         "E60: King's Indian ": ["Classical 4.Qc2","Rubinstein 4.e3","Kasparov 4.Nf3","Leningrad  – 4.Bg5", "Sämisch 4.a3","Three Knights  – 4.Nf3 Nc6","Kmoch 4.f3","Spielmann  – 4.Qb3","Romanishin  4.g3"],
         }
