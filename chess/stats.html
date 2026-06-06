@@ -2,43 +2,57 @@
 <html lang="en">
 <head>
     <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>League Stats Dashboard</title>
     <style>
         body { 
             font-family: 'Segoe UI', Arial, sans-serif; 
-            padding: 20px; 
+            padding: 15px; 
             background-color: #000000; 
             color: #ffffff; 
+            margin: 0;
         }
-        h2 { color: #ffffff; border-bottom: 2px solid #f39c12; padding-bottom: 10px; }
-        .controls { display: flex; gap: 10px; margin-bottom: 20px; flex-wrap: wrap; }
+        h2 { color: #ffffff; border-bottom: 2px solid #f39c12; padding-bottom: 10px; font-size: 1.5em; }
+        
+        .controls { 
+            display: flex; 
+            flex-direction: column; 
+            gap: 12px; 
+            margin-bottom: 25px; 
+        }
+        
         select { 
             background-color: #111; 
             color: white; 
             border: 1px solid #333; 
-            padding: 10px; 
-            border-radius: 8px;
-            font-size: 16px;
+            padding: 15px; 
+            border-radius: 12px;
+            font-size: 18px; /* Larger for better mobile readability */
+            width: 100%;
         }
+
         .stat-container {
             display: flex;
             flex-direction: column;
             gap: 15px;
-            max-width: 500px;
         }
+        
         .stat-box { 
             background: #111; 
             padding: 20px; 
             border-radius: 15px; 
             border: 1px solid #333;
-            box-shadow: 0 4px 15px rgba(0,0,0,0.5);
+            box-shadow: 0 4px 10px rgba(0,0,0,0.5);
             font-size: 1.2em;
             color: #e0e0e0;
         }
+        
         .stat-value { 
             color: #1e90ff; 
             font-weight: bold; 
-            font-size: 1.25em;
+            font-size: 1.4em;
+            display: block;
+            margin-top: 5px;
         }
     </style>
 </head>
@@ -57,9 +71,9 @@
     </div>
 
     <div class="stat-container">
-        <div class="stat-box">Total Games: <span id="gameCount" class="stat-value">0</span></div>
-        <div class="stat-box">Lifetime Record: <span id="recordDisplay" class="stat-value">0-0-0</span></div>
-        <div class="stat-box">Win %: <span id="winPercent" class="stat-value">0</span>%</div>
+        <div class="stat-box">Total Games <span id="gameCount" class="stat-value">0</span></div>
+        <div class="stat-box">Lifetime Record <span id="recordDisplay" class="stat-value">0-0-0</span></div>
+        <div class="stat-box">Win % <span id="winPercent" class="stat-value">0</span></div>
     </div>
 
     <script>
