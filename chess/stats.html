@@ -27,7 +27,7 @@
             border: 1px solid #333; 
             padding: 15px; 
             border-radius: 12px;
-            font-size: 18px; /* Larger for better mobile readability */
+            font-size: 18px;
             width: 100%;
         }
 
@@ -72,7 +72,7 @@
 
     <div class="stat-container">
         <div class="stat-box">Total Games <span id="gameCount" class="stat-value">0</span></div>
-        <div class="stat-box">Lifetime Record <span id="recordDisplay" class="stat-value">0-0-0</span></div>
+        <div class="stat-box">Lifetime Record <span id="recordDisplay" class="stat-value">W: 0 | L: 0 | D: 0</span></div>
         <div class="stat-box">Win % <span id="winPercent" class="stat-value">0</span></div>
     </div>
 
@@ -117,7 +117,7 @@
 
             if(!p) {
                 document.getElementById('gameCount').innerText = 0;
-                document.getElementById('recordDisplay').innerText = "0-0-0";
+                document.getElementById('recordDisplay').innerText = "W: 0 | L: 0 | D: 0";
                 document.getElementById('winPercent').innerText = 0;
                 return;
             }
@@ -160,7 +160,7 @@
             const percent = total > 0 ? ((wins / total) * 100).toFixed(1) : 0;
             
             document.getElementById('gameCount').innerText = total;
-            document.getElementById('recordDisplay').innerText = `${wins}-${losses}-${draws}`;
+            document.getElementById('recordDisplay').innerText = `W: ${wins} | L: ${losses} | D: ${draws}`;
             document.getElementById('winPercent').innerText = percent;
         }
 
