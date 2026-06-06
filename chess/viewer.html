@@ -1,40 +1,114 @@
 <!DOCTYPE html>
-<html>
+<html lang="en">
 <head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no, viewport-fit=cover">
+    
+    <meta name="apple-mobile-web-app-capable" content="yes">
+    <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
+    <title>Analysis Viewer</title>
+    
     <style>
-        body {
+        * { box-sizing: border-box; }
+        
+        html, body {
             margin: 0;
             padding: 0;
-            font-family: Arial, sans-serif;
+            width: 100%;
+            /* dvh (dynamic viewport height) ensures it fills the entire screen, including under the notch/home bar */
+            height: 100dvh;
             background-color: #000000;
+            font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, sans-serif;
             color: white;
             display: flex;
             flex-direction: column;
-            align-items: center;
+            overflow: hidden; /* prevents unwanted scrolling */
         }
-        iframe {
+
+        /* Container that respects the unsafe areas (notch and bottom bar) */
+        .page-wrapper {
+            flex: 1;
+            display: flex;
+            flex-direction: column;
+            
+            /* Add safe area padding to prevent the board from being *behind* the notch. */
+            padding-top: env(safe-area-inset-top, 20px);
+            padding-bottom: env(safe-area-inset-bottom, 20px);
+            background-color: #000000;
+        }
+
+        /* The Lichess Embed Container */
+        .iframe-container {
             width: 100%;
-            /* Change this value to adjust height. 
-               Lowering 500px will make it shorter. */
-            height: 600px; 
+            /* This height will fill the upper part of the screen, just like in your screenshot */
+            flex-grow: 1;
+            position: relative;
+            background-color: #050505; /* Matches the screenshot's base dark area */
+        }
+
+        .iframe-container iframe {
+            position: absolute;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
             border: 0;
         }
-        button {
-            margin: 20px 0;
-            padding: 12px 24px;
-            background-color: #444;
+
+        /* The Darker Bottom Area for Moves and Button */
+        .control-area {
+            width: 100%;
+            background-color: #1a1a1a; /* The darker grey section below the board */
+            padding: 20px 0;
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            justify-content: center;
+        }
+
+        /* Placeholder for where the move list would go, matching screenshot height */
+        .moves-placeholder {
+            width: 90%;
+            height: 200px;
+            background-color: #1a1a1a;
+            margin-bottom: 15px;
+        }
+
+        /* Styling the Menu Button specifically to match image_0.png */
+        button.menu-button {
+            padding: 10px 20px;
+            background-color: #4c4c4c; /* The specific grey color from image_0.png */
             color: white;
             border: none;
             cursor: pointer;
             border-radius: 4px;
             font-size: 16px;
+            font-weight: 500;
+            min-width: 100px; /* matches the size in the image */
+            box-shadow: 0 2px 4px rgba(0,0,0,0.2);
         }
+
+        button.menu-button:active {
+            background-color: #333;
+        }
+
     </style>
 </head>
 <body>
 
-    <iframe src="https://lichess.org/embed/analysis" frameborder="0"></iframe>
-    <button onclick="window.location.href='index.html'">Menu</button>
+    <div class="page-wrapper">
+        
+        <div class="iframe-container">
+            <iframe src="https://lichess.org/embed/analysis" frameborder="0" allowfullscreen></iframe>
+        </div>
+
+        <div class="control-area">
+            <div class="moves-placeholder"></div>
+            
+            <button class="menu-button" onclick="window.location.href='index.html'">Menu</button>
+        </div>
+
+    </div>
 
 </body>
 </html>
