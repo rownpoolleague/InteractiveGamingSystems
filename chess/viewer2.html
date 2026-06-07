@@ -1,0 +1,61 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <title>Local PGN Viewer</title>
+    <link rel="stylesheet" href="https://unpkg.com/@chrisoakman/chessboardjs@1.0.0/dist/chessboard-1.0.0.min.css">
+    <script src="https://code.jquery.com/jquery-3.5.1.min.js"></script>
+    <script src="https://unpkg.com/@chrisoakman/chessboardjs@1.0.0/dist/chessboard-1.0.0.min.js"></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/chess.js/0.10.3/chess.min.js"></script>
+
+    <style>
+        #myBoard { width: 400px; margin: 20px auto; }
+        
+        /* Animation Overlay */
+        #battle-overlay { position: absolute; top: 0; left: 0; width: 100%; height: 100%; pointer-events: none; display: flex; justify-content: center; align-items: center; z-index: 1000; }
+        #sword-fight { font-size: 5rem; opacity: 0; }
+        
+        @keyframes fight {
+            0% { opacity: 0; transform: scale(0.5) rotate(-20deg); }
+            20% { opacity: 1; transform: scale(1.2) rotate(20deg); }
+            80% { opacity: 1; transform: scale(1.2) rotate(-20deg); }
+            100% { opacity: 0; transform: scale(0.5) rotate(0deg); }
+        }
+        .animate-fight { animation: fight 0.8s ease-in-out; }
+    </style>
+</head>
+<body>
+
+    <div style="position: relative;">
+        <div id="myBoard"></div>
+        <div id="battle-overlay">
+            <div id="sword-fight">⚔️</div>
+        </div>
+    </div>
+
+    <script>
+        var game = new Chess();
+        var board = Chessboard('myBoard', 'start');
+        const sword = document.getElementById('sword-fight');
+
+        function onDrop(source, target, piece, newPos, oldPos, orientation) {
+            // Check if the move is a capture
+            var move = game.move({ from: source, to: target, promotion: 'q' });
+
+            if (move === null) return 'snapback';
+            if (move.flags.includes('c')) {
+                // IT'S A CAPTURE - FIRE THE ANIMATION
+                sword.classList.add('animate-fight');
+                setTimeout(() => sword.classList.remove('animate-fight'), 800);
+            }
+            board.position(game.fen());
+        }
+
+        board = Chessboard('myBoard', {
+            draggable: true,
+            position: 'start',
+            onDrop: onDrop
+        });
+    </script>
+</body>
+</html>
