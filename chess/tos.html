@@ -1,0 +1,382 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <link rel="manifest" href="manifest.json">
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no, viewport-fit=cover">
+
+    <link rel="apple-touch-icon" sizes="180x180" href="logoicon.png">
+    <meta name="apple-mobile-web-app-capable" content="yes">
+    <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
+    <link rel="icon" type="image/png" sizes="64x64" href="icon64.png">
+    <link rel="icon" type="image/png" sizes="32x32" href="icon32.png">
+    <link rel="icon" type="image/png" sizes="16x16" href="icon16.png">
+    <meta name="theme-color" content="#000000">
+
+    <title>Club Main Menu</title>
+
+    <style>
+        * { box-sizing: border-box; }
+        body {
+            margin: 0; padding: 0; font-family: Arial, sans-serif;
+            background-color: #000000; color: white;
+        }
+
+        .overlay {
+            display: flex; flex-direction: column;
+            justify-content: center; padding: 20px 10px;
+        }
+        
+        .spinner {
+            display: inline-block;
+            width: 18px;
+            height: 18px;
+            border: 3px solid rgba(255,255,255,0.3);
+            border-top-color: #fff;
+            border-radius: 50%;
+            animation: spin 0.8s linear infinite;
+            vertical-align: middle;
+            margin-left: 8px;
+        }
+
+        @keyframes spin {
+            to { transform: rotate(360deg); }
+        }
+
+        .menu-button[disabled] {
+            opacity: 0.6;
+            cursor: not-allowed;
+        }
+
+        .link-card {
+            max-width: 500px;
+            margin: 0 auto;
+            width: 90%;
+            background: #111;
+            padding: 25px;
+            border-radius: 15px;
+            border: 1px solid #333;
+            box-shadow: 0 4px 15px rgba(0,0,0,0.5);
+        }
+
+        .menu-container {
+            display: flex; flex-direction: column; gap: 15px;
+        }
+
+        .menu-button {
+            display: block; text-align: center; padding: 10px; 
+            background: #1e90ff; color: white; text-decoration: none; 
+            font-size: 20px; border-radius: 8px; font-weight: bold; 
+            width: 100%; cursor: pointer; transition: background 0.2s;
+            border: none;
+        }
+        .menu-button:hover { background: #187bcd; }
+
+        footer { text-align: center; padding: 20px; }
+        .footer-logo { max-width: 150px; opacity: 0.8; }
+        .powered-by {
+            display: block;
+            margin-top: 10px;
+            color: #1e90ff;
+            text-decoration: none;
+            font-size: 0.8rem;
+            font-weight: bold;
+            text-shadow: 0 0 8px rgba(30, 144, 255, 0.5);
+        }
+        .powered-by:hover { text-decoration: underline; }
+
+        /* Share Button */
+        .share-btn {
+            position: fixed;
+            bottom: 20px;
+            left: 20px;
+            background: #333;
+            border: none;
+            padding: 12px;
+            border-radius: 50%;
+            cursor: pointer;
+            box-shadow: 0 4px 6px rgba(0,0,0,0.3);
+            z-index: 1000;
+        }
+
+        /* QR Modal */
+        .modal {
+            display: none;
+            position: fixed;
+            top: 0; left: 0;
+            width: 100%; height: 100%;
+            background: rgba(0,0,0,0.9);
+            justify-content: center;
+            align-items: center;
+            z-index: 2000;
+        }
+        .modal-content { background: #fff; padding: 20px; border-radius: 15px; text-align: center; }
+    </style>
+</head>
+
+<body>
+<div id="tos-modal" style="display: none; position: fixed; top: 0; left: 0; width: 100%; height: 100%; background: rgba(0,0,0,0.8); z-index: 1000; overflow-y: auto;">
+    <div style="background: white; margin: 5% auto; padding: 20px; width: 90%; max-width: 600px; border-radius: 8px;">
+        <h2>Terms of Service</h2>
+        <div style="height: 300px; overflow-y: scroll; border: 1px solid #ccc; padding: 10px; margin-bottom: 20px;">
+           <!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Terms of Service - South Suburban Chess Club</title>
+    <style>
+        body {
+            font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, Helvetica, Arial, sans-serif;
+            line-height: 1.6;
+            color: #333;
+            max-width: 800px;
+            margin: 0 auto;
+            padding: 20px;
+            background-color: #f4f4f9;
+        }
+        .container {
+            background-color: #fff;
+            padding: 40px;
+            border-radius: 8px;
+            box-shadow: 0 2px 4px rgba(0,0,0,0.1);
+        }
+        h1 {
+            color: #2c3e50;
+            border-bottom: 2px solid #2c3e50;
+            padding-bottom: 10px;
+        }
+        h2 {
+            color: #34495e;
+            margin-top: 30px;
+        }
+        ul {
+            padding-left: 20px;
+        }
+        li {
+            margin-bottom: 10px;
+        }
+        footer {
+            margin-top: 40px;
+            font-size: 0.9em;
+            color: #7f8c8d;
+            text-align: center;
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <h1>Terms of Service</h1>
+        <p><strong>Last Updated:</strong> June 7, 2026</p>
+
+        <h2>1. Acceptance of Terms</h2>
+        <p>By accessing or using the South Suburban Chess Club application, you signify your agreement to these Terms of Service. If you do not agree, you are not authorized to use this application.</p>
+
+        <h2>2. Nature of Service</h2>
+        <p>This application serves as a mobile-accessible tool for the South Suburban Chess Club to disseminate tournament updates, schedules, and player rosters. The service is provided on an open-access basis; there are no user accounts, logins, or personal profiles required to utilize the features.</p>
+
+        <h2>3. Data Collection and Push Notifications</h2>
+        <p>The application utilizes Firebase Cloud Messaging to provide push notifications. By choosing to enable push notifications, you consent to the generation and storage of an anonymous device registration token. This token is used exclusively to facilitate the delivery of broadcast messages. No personally identifiable information (PII) is requested, collected, or stored by this application.</p>
+
+        <h2>4. Prohibited Conduct</h2>
+        <p>Users are strictly prohibited from attempting to compromise the security or integrity of the application. Specifically, you agree not to:</p>
+        <ul>
+            <li>Reverse engineer, decompile, or disassemble any part of the application.</li>
+            <li>Attempt to access, scrape, or extract source code, data structures, or database connections.</li>
+            <li>Interfere with the Firebase infrastructure or the delivery of push notifications to other users.</li>
+            <li>Use any automated scripts or bots to interact with the application’s backend.</li>
+        </ul>
+
+        <h2>5. Intellectual Property</h2>
+        <p>All software, code, and design elements within this application are the property of Interactive Gaming Systems LLC. Unauthorized duplication, redistribution, or modification of the underlying source code or intellectual property is prohibited.</p>
+
+        <h2>6. Disclaimer of Warranties</h2>
+        <p>The application is provided on an "as-is" and "as-available" basis. The developers make no warranties, express or implied, regarding the accuracy, reliability, or availability of the information provided, or that the service will meet your requirements or be error-free.</p>
+
+        <h2>7. Limitation of Liability</h2>
+        <p>To the maximum extent permitted by applicable law, the developers and league operators shall not be liable for any indirect, incidental, special, or consequential damages resulting from your use or inability to use the service.</p>
+
+        <h2>8. Termination of Service</h2>
+        <p>The developers reserve the right to modify, suspend, or terminate the application, or your access to it, at any time without notice or liability.</p>
+
+        <h2>9. Governing Law</h2>
+        <p>These terms shall be governed by and construed in accordance with the laws of the State of Illinois, without regard to its conflict of law principles.</p>
+
+        <footer>
+            &copy; 2026 South Suburban Chess Club. All rights reserved.
+        </footer>
+    </div>
+</body>
+</html>
+            <p>Terms content...</p>
+        </div>
+        <label>
+            <input type="checkbox" id="tos-checkbox"> I agree to the Terms of Service.
+        </label>
+        <br><br>
+        <button id="tos-agree-btn" disabled onclick="acceptTOS()">Continue</button>
+    </div>
+</div>
+    <button class="share-btn" onclick="document.getElementById('qrModal').style.display='flex'">
+        <svg width="24" height="24" viewBox="0 0 24 24" fill="white">
+            <path d="M18 16.08c-.76 0-1.44.3-1.96.77L8.91 12.7c.05-.23.09-.46.09-.7s-.04-.47-.09-.7l7.05-4.11c.54.5 1.25.81 2.04.81 1.66 0 3-1.34 3-3s-1.34-3-3-3-3 1.34-3 3c0 .24.04.47.09.7L8.04 9.81C7.5 9.31 6.79 9 6 9c-1.66 0-3 1.34-3 3s1.34 3 3 3c.79 0 1.5-.31 2.04-.81l7.12 4.16c-.05.21-.08.43-.08.65 0 1.61 1.31 2.92 2.92 2.92 1.61 0 2.92-1.31 2.92-2.92s-1.31-2.92-2.92-2.92z"/>
+        </svg>
+    </button>
+
+    <div id="qrModal" class="modal" onclick="this.style.display='none'">
+        <div class="modal-content">
+            <div id="qrcode"></div>
+            <p style="color: #333; margin-top: 10px; font-weight: bold;">Scan to Share</p>
+        </div>
+    </div>
+
+    <div id="adminModal" style="position:fixed; top:0; left:0; right:0; bottom:0; background:rgba(0,0,0,0.85); display:none; justify-content:center; align-items:center; z-index:9999;">
+        <div style="background:#111; padding:30px; border-radius:10px; width:300px; border:2px solid #1e90ff; text-align:center;">
+            <button onclick="closeAdminModal()" style="position:absolute; top:10px; right:10px; background:none; border:none; color:white; font-size:22px; cursor:pointer;">✕</button>
+            <h2 style="color:white; margin-top:0;">Admin Login</h2>
+            <input id="adminPass" type="password" placeholder="Password" style="width:100%; padding:10px; font-size:18px; margin-bottom:20px;">
+            <button id="adminEnterBtn" onclick="submitAdminPassword()" style="width:100%; padding:10px; font-size:20px; background:#1e90ff; color:white; border:none; border-radius:6px;">Enter</button>
+        </div>
+    </div>
+
+    <div class="overlay">
+        <div class="link-card">
+            <div class="menu-container">
+                <a class="menu-button" href="calendar.html" onclick="goTo(event, this.href)">Calendar</a>
+                <a class="menu-button" href="members.html" onclick="goTo(event, this.href)">SSCC Members</a>
+                <a class="menu-button" href="tournamentdata.html" onclick="goTo(event, this.href)">Pairings/Results</a>
+                <a class="menu-button" href="clock.html" onclick="goTo(event, this.href)">Clock</a>
+                <a class="menu-button" href="submit.html" onclick="goTo(event, this.href)">Submit a Club Game</a>
+                <a class="menu-button" href="viewer.html" onclick="goTo(event, this.href)">Analyze w/Stockfish</a>
+                <a class="menu-button" href="stats.html" onclick="goTo(event, this.href)">Stats</a>
+                <a class="menu-button" href="admin.html" onclick="goTo(event, this.href, true)">Admin</a>
+                <button id="notifyBtn" class="menu-button" onclick="enableNotifications()">Enable Notifications</button>
+                
+            </div>
+        </div>
+    </div>
+
+    <footer>
+        <img src="iconking.png" alt="Club Logo" class="footer-logo">
+        <a href="https://interactivegamingsystems.app" class="powered-by">Powered by Interactive Gaming Systems</a>
+    </footer>
+
+    <script src="https://www.gstatic.com/firebasejs/8.10.1/firebase-app.js"></script>
+    <script src="https://www.gstatic.com/firebasejs/8.10.1/firebase-messaging.js"></script>
+    <script src="https://cdn.jsdelivr.net/gh/davidshimjs/qrcodejs/qrcode.min.js"></script>
+
+    <script>
+        new QRCode(document.getElementById("qrcode"), {
+            text: "https://interactivegamingsystems.app/chess/index.html",
+            width: 200,
+            height: 200
+        });
+
+        const firebaseConfig = {
+            apiKey: "AIzaSyBek60G1Ns_PVhODcp02H0S2jryhdUKFuQ",
+            authDomain: "sscc-push.firebaseapp.com",
+            projectId: "sscc-push",
+            storageBucket: "sscc-push.firebasestorage.app",
+            messagingSenderId: "954838466310",
+            appId: "1:954838466310:web:d7ba03562b6c0b8db66887"
+        };
+        firebase.initializeApp(firebaseConfig);
+
+        navigator.serviceWorker.register('sw.js')
+            .then((reg) => {
+                const messaging = firebase.messaging();
+                messaging.useServiceWorker(reg);
+                window.messaging = messaging;
+            })
+            .catch((err) => console.log("SW Registration failed: " + err));
+
+        window.addEventListener('load', () => {
+            if (Notification.permission === 'granted') {
+                document.getElementById("notifyBtn").style.display = 'none';
+            }
+        });
+
+        window.enableNotifications = async () => {
+            const btn = document.getElementById("notifyBtn");
+            if (!btn || btn.disabled) return;
+            btn.disabled = true;
+            btn.textContent = "Enabling...";
+            try {
+                const permission = await Notification.requestPermission();
+                if (permission !== 'granted') throw new Error("Permission denied.");
+                const swReg = await navigator.serviceWorker.ready;
+                const token = await window.messaging.getToken({
+                    vapidKey: "BAvXMdABPFn8frEfnMHIN00x5VImnSdUK4YTKUqc_V5ffdl-kDjisn_n1ePSzl_HP2H1KxJs6O7KnwbFPoiy03Y",
+                    serviceWorkerRegistration: swReg
+                });
+                await fetch("https://script.google.com/macros/s/AKfycbwqhsT6VkAKhr95fawXM0Kon6eJTwr22wbdtoUIDmpn5iShwg6Ssh30OJAhmQsINH8d/exec", {
+                    method: "POST",
+                    mode: "cors",
+                    headers: { "Content-Type": "application/x-www-form-urlencoded" },
+                    body: `action=saveToken&token=${encodeURIComponent(token)}`
+                });
+                alert("Notifications Enabled!");
+                btn.style.display = 'none';
+            } catch (err) {
+                alert("Error: " + err);
+                btn.disabled = false;
+                btn.textContent = "Enable Notifications";
+            }
+        };
+
+        function goTo(event, url, isAdmin = false) {
+            event.preventDefault();
+            if (isAdmin) {
+                const modal = document.getElementById("adminModal");
+                modal.style.display = "flex";
+                modal.dataset.url = url;
+                return;
+            }
+            window.location.href = url;
+        }
+
+        async function submitAdminPassword() {
+            const pass = document.getElementById("adminPass").value.trim();
+            const btn = document.getElementById("adminEnterBtn");
+            if (!pass || btn.disabled) return;
+            btn.disabled = true;
+            btn.textContent = "Checking...";
+            try {
+                const resp = await fetch("https://script.google.com/macros/s/AKfycbwqhsT6VkAKhr95fawXM0Kon6eJTwr22wbdtoUIDmpn5iShwg6Ssh30OJAhmQsINH8d/exec", {
+                    method: "POST",
+                    mode: "cors",
+                    headers: { "Content-Type": "application/x-www-form-urlencoded" },
+                    body: `action=checkAdminPassword&password=${encodeURIComponent(pass)}`
+                });
+                const data = await resp.json();
+                if (!data.ok) throw new Error("Incorrect");
+                sessionStorage.setItem("adminAuth", "ok");
+                window.location.href = document.getElementById("adminModal").dataset.url;
+            } catch (err) {
+                alert("Incorrect password.");
+                btn.disabled = false;
+                btn.textContent = "Enter";
+            }
+        }
+
+        function closeAdminModal() { document.getElementById("adminModal").style.display = "none"; }
+        // Logic to show modal on first visit
+    window.onload = function() {
+        if (!localStorage.getItem('tosAccepted')) {
+            document.getElementById('tos-modal').style.display = 'block';
+        }
+    };
+
+    // Enable button only when checked
+    document.getElementById('tos-checkbox').addEventListener('change', function() {
+        document.getElementById('tos-agree-btn').disabled = !this.checked;
+    });
+
+    // Save acceptance and hide modal
+    function acceptTOS() {
+        localStorage.setItem('tosAccepted', 'true');
+        document.getElementById('tos-modal').style.display = 'none';
+    }
+    </script>
+</body>
+</html>
