@@ -1,0 +1,475 @@
+<!DOCTYPE html>
+<html>
+<head>
+  <link rel="manifest" href="manifest.json">
+  <meta name="theme-color" content="#000000">
+  <meta charset="UTF-8">
+  <meta name="apple-mobile-web-app-capable" content="yes">
+  <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
+  <meta name="apple-mobile-web-app-title" content="Inventory App">
+  <link rel="apple-touch-icon" href="icon-192.png">
+  <title>QH Inventory Helper</title>
+  <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
+  <style>
+    body { 
+      background-color: #ffffff; 
+      color: #000000; 
+      font-family: 'Segoe UI', sans-serif; 
+      margin: 0; 
+      padding: 0; 
+      display: flex; 
+      justify-content: center; 
+      align-items: stretch; 
+      min-height: 100vh;
+      overscroll-behavior-y: contain;
+      overflow-x: hidden;
+    }
+    .form-wrapper { 
+      width: 100%; 
+      max-width: 600px;
+      min-height: 100vh; 
+      border: 6px solid #C90014; 
+      padding: 20px 10px;
+      text-align: center; 
+      box-sizing: border-box; 
+      position: relative;
+      display: flex;
+      flex-direction: column;
+      justify-content: space-between;
+    }
+    .page { 
+      display: none;
+      flex-grow: 1;
+      width: 100%;
+      box-sizing: border-box;
+    }
+    button { 
+      background-color: #C90014; 
+      color: #ffffff; 
+      border: 2px solid #000000; 
+      box-sizing: border-box; 
+      width: 100%;
+      max-width: 280px;
+      border-radius: 6px; 
+      padding: 10px 20px; 
+      font-weight: bold; 
+      cursor: pointer; 
+      margin: 5px auto; 
+      font-size: 23px; 
+    }
+    input, select { 
+      padding: 8px; 
+      font-size: 20px; 
+      width: 80%; 
+      max-width: 280px;
+      margin: 10px auto; 
+      box-sizing: border-box;
+    }
+    h2 { font-size: 30px; }
+    footer { 
+      text-align: center; 
+      padding: 20px 0 10px 0; 
+      margin-top: auto; 
+      width: 100%;
+    }
+    .powered-by {
+        display: block;
+        margin-top: 10px;
+        color: #C90014;
+        text-decoration: none;
+        font-size: 0.8rem;
+        font-weight: bold;
+        text-shadow: 0 0 8px rgba(30, 144, 255, 0.5);
+    }
+    .powered-by:hover { text-decoration: underline; }
+  </style>
+</head>
+<body>
+
+<div class="form-wrapper">
+  <div id="page-store" class="page">
+    <h2>Select Your Store</h2>
+    <select id="storeSelect" style="width:140px;"></select>
+    <br><br>
+    <button onclick="enterStore()">Enter</button>
+  </div>
+
+  <div id="page-menu" class="page">
+    <h2>Search Inventory</h2>
+    <button onclick="goNameSearch()">Search by Name</button>
+    <br><br>
+    <button onclick="goTypeSearch()">Search by Type</button>
+    <br><br>
+    <button onclick="goReview()">Review Inventory</button>
+  </div>
+
+  <div id="page-name" class="page">
+    <h2>Search by Name</h2>
+    <input id="nameInput" style="width:280px;" type="text" placeholder="Start typing..." oninput="filterNameList()" autocomplete="off">
+    <div id="customDropdown" style="max-height: 200px; overflow-y: auto; border: 1px solid #ccc; display: none; text-align: left; width: 80%; margin: 0 auto;"></div>
+    <br><br>
+    <button onclick="backToMenu()">Back</button>
+  </div>
+
+  <div id="page-type" class="page">
+    <h2>Search by Type</h2>
+    <select id="typeSelect" style="width: 280px;" onchange="displayTypeItems()">
+      <option value="" disabled selected hidden>Choose a type...</option>
+    </select>
+    <br><br>
+    <div id="typeItems"></div>
+    <br>
+    <button onclick="backToMenu()">Back</button>
+  </div>
+
+  <div id="page-item-entry" class="page">
+    <h2 id="entryItemName"></h2>
+    <div id="unitInputs"></div>
+    <br>
+    <div id="itemTotal" style="margin-top:10px; font-size:18px; font-weight:bold;">Total: 0</div>
+    <button onclick="saveItemEntry()">Save Item</button>
+    <br><br>
+    <button onclick="backToMenu()">Back</button>
+  </div>
+
+  <div id="page-review" class="page">
+    <h2>Review Inventory</h2>
+    <div id="reviewList"></div>
+    <br><br>
+    <button onclick="downloadInventory()">Download Inventory</button>
+    <br><br>
+    <button onclick="openClearModal()">Clear All</button>
+    <br><br>
+    <button onclick="backToMenu()">Back</button>
+  </div>
+
+  <footer style="width: 100%; text-align: center;">
+     <img src="qhicon512.png" style="width: 150px; display: block; margin: 0 auto;">
+     <a href="https://interactivegamingsystems.app" class="powered-by">Powered by Interactive Gaming Systems</a>
+  </footer>
+</div>
+
+<div id="successModal" style="display:none; position:fixed; top:0; left:0; width:100%; height:100%; background:rgba(0,0,0,0.6); justify-content:center; align-items:center;">
+  <div style="background:white; padding:20px; width:80%; max-width:300px; border-radius:8px; text-align:center;">
+    <h3>Success!</h3>
+    <p>Inventory saved successfully!</p>
+    <button onclick="closeSuccessModal()">OK</button>
+  </div>
+</div>
+
+<div id="clearModal" style="display:none; position:fixed; top:0; left:0; width:100%; height:100%; background:rgba(0,0,0,0.6); justify-content:center; align-items:center;">
+  <div style="background:white; padding:20px; width:80%; max-width:300px; border-radius:8px; text-align:center;">
+    <h3>Clear All Inventory?</h3>
+    <p>This will remove all saved items.</p>
+    <button onclick="confirmClearAll()" style="background:#c62828;">Clear All</button>
+    <button onclick="closeClearModal()">Cancel</button>
+  </div>
+</div>
+
+<script>
+const API_URL = "https://script.google.com/macros/s/AKfycbzEv7mXq6-yIB1xnGHQ0IwGPBQexC528NdV7BoyyQvbgO1pfdaDHpiJNU6FPKjIFeMwLw/exec";
+let inventorySession = { store: null, entries: {} };
+
+let parameters = [
+  { "item": "Pesto Sauce", "type": "Sauce", "validUnits": ["Full Case", "Bag"], "unitValues": { "Full Case": 15, "Bag": 1 } },
+  { "item": "Butter Sauce", "type": "Sauce", "validUnits": ["Full Case", "Each"], "unitValues": { "Full Case": 4, "Each": 1 } },
+  { "item": "Garlic Butter", "type": "Sauce", "validUnits": ["Full Case", "Each"], "unitValues": { "Full Case": 4, "Each": 1 } },
+  { "item": "Medium Hand Tossed", "type": "Dough", "validUnits": ["Full Case",  "Sleeve", "Each"], "unitValues": { "Full Case": 36, "Sleeve": 9, "Each": 1 } },
+  { "item": "Large Hand Tossed", "type": "Dough", "validUnits": ["Full Case", "Sleeve", "Each"], "unitValues": { "Full Case": 32, "Sleeve": 8, "Each": 1 } },
+  { "item": "Hut Dust", "type": "Seasoning", "validUnits": ["Full Case", "Bag"], "unitValues": { "Full Case": 6, "Bag": 1 } },
+  { "item": "Make Buffalo", "type": "Sauce", "validUnits": ["Full Case", "Bag"], "unitValues": { "Full Case": 18, "Bag": 1 } },
+  { "item": "Veg Oil", "type": "Misc", "validUnits": ["Full Case", "Each"], "unitValues": { "Full Case": 5, "Each": 1 } },
+  { "item": "Medium Pan", "type": "Dough", "validUnits": ["Full Case", "Sleeve", "Each"], "unitValues": { "Full Case": 36, "Sleeve": 9, "Each": 1 } },
+  { "item": "Large Pan", "type": "Dough", "validUnits": ["Full Case", "Sleeve", "Each"], "unitValues": { "Full Case": 27, "Sleeve": 9, "Each": 1 } },
+  { "item": "Personal Pan", "type": "Dough", "validUnits": ["Full Case", "Each"], "unitValues": { "Full Case": 96, "Each": 1 } },
+  { "item": "Pizza Sauce", "type": "Sauce", "validUnits": ["Full Case", "Bag"], "unitValues": { "Full Case": 6, "Bag": 1 } },
+  { "item": "Parm Shaker", "type": "Seasoning", "validUnits": ["Full Case", "Each"], "unitValues": { "Full Case": 48, "Each": 1 } },
+  { "item": "Red Pep Shaker", "type": "Seasoning", "validUnits": ["Full Case", "Each"], "unitValues": { "Full Case": 48, "Each": 1 } },
+  { "item": "Spicy Marinara", "type": "Sauce", "validUnits": ["Full Case", "Bag"], "unitValues": { "Full Case": 12, "Bag": 1 } },
+  { "item": "Sweet Sauce", "type": "Sauce", "validUnits": ["Full Case", "Bag"], "unitValues": { "Full Case": 6, "Bag": 1 } },
+  { "item": "Medium Thin", "type": "Dough", "validUnits": ["Full Case","Sleeve", "Each"], "unitValues": { "Full Case": 50, "Sleeve": 10, "Each": 1 } },
+  { "item": "Large Thin", "type": "Dough", "validUnits": ["Full Case","Sleeve", "Each"], "unitValues": { "Full Case": 40, "Sleeve": 10, "Each": 1 } },
+  { "item": "Bacon", "type": "Topping", "validUnits": ["Full Case", "Bag", "Lbs"], "unitValues": { "Full Case": 20, "Bag": 5, "Lbs": 1 } },
+  { "item": "Banana Pepper", "type": "Topping", "validUnits": ["Full Case", "Bag"], "unitValues": { "Full Case": 8, "Bag": 1 } },
+  { "item": "Beef", "type": "Topping", "validUnits": ["Full Case", "Bag", "Lbs"], "unitValues": { "Full Case": 40, "Bag": 5, "Lbs": 1 } },
+  { "item": "Black Olives", "type": "Topping", "validUnits": ["Full Case", "Bag"], "unitValues": { "Full Case": 10, "Bag": 1 } },
+  { "item": "Carm Onion", "type": "Topping", "validUnits": ["Full Case", "Bag", "Lbs"], "unitValues": { "Full Case": 15, "Bag": 2.5, "Lbs": 1 } },
+  { "item": "CC Pep", "type": "Topping", "validUnits": ["Full Case", "Lbs"], "unitValues": { "Full Case": 10, "Lbs": 1 } },
+  { "item": "Chicken Strips", "type": "Topping", "validUnits": ["Full Case", "Bag", "Lbs"], "unitValues": { "Full Case": 20, "Bag": 2.5, "Lbs": 1 } },
+  { "item": "Chicken Sausage", "type": "Topping", "validUnits": ["Full Case", "Bag", "Lbs"], "unitValues": { "Full Case": 20, "Bag": 5, "Lbs": 1 } },
+  { "item": "Tomato", "type": "Topping", "validUnits": ["Full Case", "Lbs"], "unitValues": { "Full Case": 2.5, "Lbs": 1 } },
+  { "item": "Green Pepper", "type": "Topping", "validUnits": ["Full Case", "Bag", "Lbs"], "unitValues": { "Full Case": 10, "Bag": 2.5, "Lbs": 1 } },
+  { "item": "Ham", "type": "Topping", "validUnits": ["Full Case", "Bag", "Lbs"], "unitValues": { "Full Case": 20, "Bag": 5, "Lbs": 1 } },
+  { "item": "Sauasage", "type": "Topping", "validUnits": ["Full Case", "Bag", "Lbs"], "unitValues": { "Full Case": 40, "Bag": 5, "Lbs": 1 } },
+  { "item": "Jalapeno", "type": "Topping", "validUnits": ["Full Case", "Bag"], "unitValues": { "Full Case": 10, "Bag": 1 } },
+  { "item": "Mushroom", "type": "Topping", "validUnits": ["Full Case", "Lbs"], "unitValues": { "Full Case": 5, "Lbs": 1 } },
+  { "item": "Onion", "type": "Topping", "validUnits": ["Full Case", "Bag", "Lbs"], "unitValues": { "Full Case": 10, "Bag": 2.5, "Lbs": 1 } },
+  { "item": "Pepperoni", "type": "Topping", "validUnits": ["Full Case", "Bag", "Lbs"], "unitValues": { "Full Case": 25, "Bag": 12.5, "Lbs": 1 } },
+  { "item": "Pineapple", "type": "Topping", "validUnits": ["Full Case", "Bag"], "unitValues": { "Full Case": 12, "Bag": 1 } },
+  { "item": "Pork", "type": "Topping", "validUnits": ["Full Case", "Bag", "Lbs"], "unitValues": { "Full Case": 40, "Bag": 5, "Lbs": 1 } },
+  { "item": "Roasted Pepper", "type": "Topping", "validUnits": ["Full Case", "Bag", "Lbs"], "unitValues": { "Full Case": 15, "Bag": 2.5, "Lbs": 1 } },
+  { "item": "Cheddar", "type": "Topping", "validUnits": ["Full Case", "Bag"], "unitValues": { "Full Case": 12, "Bag": 1 } },
+  { "item": "Pizza Cheese", "type": "Topping", "validUnits": ["Full Case", "Lbs"], "unitValues": { "Full Case": 20, "Lbs": 1 } },
+  { "item": "String Cheese", "type": "Topping", "validUnits": ["Full Case", "Lbs"], "unitValues": { "Full Case": 20, "Lbs": 1 } },
+  { "item": "Garlic Cups", "type": "Wingstreet", "validUnits": ["Full Case","Full Level", "Each"], "unitValues": { "Full Case": 144,"Full Level":36, "Each": 1 } },
+  { "item": "Breadsticks", "type": "Dough", "validUnits": ["Full Case","Sleeve", "Each"], "unitValues": { "Full Case": 36, "Sleeve": 9, "Each": 1 } },
+  { "item": "Sticks Seasoning", "type": "Seasoning", "validUnits": ["Full Case", "Bag", "Lbs"], "unitValues": { "Full Case": 10, "Bag": 2, "Lbs": 1 } },
+  { "item": "Blue Cheese", "type": "Wingstreet", "validUnits": ["Full Case","Full Level", "Each"], "unitValues": { "Full Case": 180,"Full Level":36, "Each": 1 } },
+  { "item": "Boneless Wings", "type": "Wingstreet", "validUnits": ["Full Case", "Bag"], "unitValues": { "Full Case": 10, "Bag": 1 } },
+  { "item": "Large Bowls", "type": "Wingstreet", "validUnits": ["Full Case", "Bag", "Each"], "unitValues": { "Full Case": 190, "Bag": 95, "Each": 1 } },
+  { "item": "Small Bowls", "type": "Wingstreet", "validUnits": ["Full Case", "Bag", "Each"], "unitValues": { "Full Case": 285, "Bag": 95, "Each": 1 } },
+  { "item": "Buffalo Hot", "type": "Wingstreet", "validUnits": ["Full Case", "Bag"], "unitValues": { "Full Case": 10, "Bag": 1 } },
+  { "item": "Buffalo Medium", "type": "Wingstreet", "validUnits": ["Full Case", "Bag"], "unitValues": { "Full Case": 10, "Bag": 1 } },
+  { "item": "Buffalo Mild", "type": "Wingstreet", "validUnits": ["Full Case", "Bag"], "unitValues": { "Full Case": 10, "Bag": 1 } },
+  { "item": "Cajun", "type": "Wingstreet", "validUnits": ["Full Case", "Each"], "unitValues": { "Full Case": 10, "Each": 1 } },
+  { "item": "Foil Wrap", "type": "Packaging", "validUnits": ["Full Case"], "unitValues": { "Full Case": 1 } },
+  { "item": "Fries", "type": "Wingstreet", "validUnits": ["Full Case", "Bag"], "unitValues": { "Full Case": 6, "Bag": 1 } },
+  { "item": "Honey BBQ", "type": "Wingstreet", "validUnits": ["Full Case", "Bag"], "unitValues": { "Full Case": 6, "Bag": 1 } },
+  { "item": "Lemon Pepper", "type": "Wingstreet", "validUnits": ["Full Case", "Each"], "unitValues": { "Full Case": 100, "Each": 1 } },
+  { "item": "Soy Oil", "type": "Wingstreet", "validUnits": ["Full Case", "Lbs"], "unitValues": { "Full Case": 35, "Lbs": 1 } },
+  { "item": "Ranch", "type": "Wingstreet", "validUnits": ["Full Case","Full Level", "Each"], "unitValues": { "Full Case": 180,"Full Level":36, "Each": 1 } },
+  { "item": "Sweet Chili", "type": "Wingstreet", "validUnits": ["Full Case", "Bag"], "unitValues": { "Full Case": 8, "Bag": 1 } },
+  { "item": "Traditional Wings", "type": "Wingstreet", "validUnits": ["Full Case", "Bag"], "unitValues": { "Full Case": 10, "Bag": 1 } },
+  { "item": "Garlic Parm", "type": "Wingstreet", "validUnits": ["Full Case", "Bag"], "unitValues": { "Full Case": 8, "Bag": 1 } },
+  { "item": "Pasta Tins", "type": "Packaging", "validUnits": ["Full Case", "Each"], "unitValues": { "Full Case": 500, "Each": 1 } },
+  { "item": "New Yorker Box", "type": "Packaging", "validUnits": ["Full Case", "Each"], "unitValues": { "Full Case": 50, "Each": 1 } },
+  { "item": "Pasta Box", "type": "Packaging", "validUnits": ["Full Case", "Each"], "unitValues": { "Full Case": 100, "Each": 1 } },
+  { "item": "Cinnabon Box", "type": "Packaging", "validUnits": ["Full Case", "Each"], "unitValues": { "Full Case": 250, "Each": 1 } },
+  { "item": "Large Box", "type": "Packaging", "validUnits": ["Full Case", "Each"], "unitValues": { "Full Case": 50, "Each": 1 } },
+  { "item": "Medium Box", "type": "Packaging", "validUnits": ["Full Case", "Each"], "unitValues": { "Full Case": 100, "Each": 1 } },
+  { "item": "PP MI Box", "type": "Packaging", "validUnits": ["Full Case", "Each"], "unitValues": { "Full Case": 250, "Each": 1 } },
+  { "item": "Sides Box", "type": "Packaging", "validUnits": ["Full Case", "Each"], "unitValues": { "Full Case": 250, "Each": 1 } },
+  { "item": "Breadstick Bags", "type": "Packaging", "validUnits": ["Full Case"], "unitValues": { "Full Case": 1 } },
+  { "item": "Dough Liner", "type": "Misc", "validUnits": ["Full Case", "Each"], "unitValues": { "Full Case": 2000, "Each": 1 } },
+  { "item": "Lids", "type": "Packaging", "validUnits": ["Full Case", "Bag", "Each"], "unitValues": { "Full Case": 2400, "Bag": 2000, "Each": 1 } },
+  { "item": "My Hut Box Box", "type": "Packaging", "validUnits": ["Full Case", "Each"], "unitValues": { "Full Case": 100, "Each": 1 } },
+  { "item": "My Hut Box Trays", "type": "Packaging", "validUnits": ["Full Case", "Each"], "unitValues": { "Full Case": 350, "Each": 1 } },
+  { "item": "Cinnabon Tray", "type": "Packaging", "validUnits": ["Full Case", "Each"], "unitValues": { "Full Case": 300, "Each": 1 } },
+  { "item": "2L Pepsi", "type": "Drinks", "validUnits": ["Full Case", "Each"], "unitValues": { "Full Case": 8, "Each": 1 } },
+  { "item": "Aquafina", "type": "Drinks", "validUnits": ["Full Case", "Each"], "unitValues": { "Full Case": 32, "Each": 1 } },
+  { "item": "20oz Pepsi", "type": "Drinks", "validUnits": ["Full Case", "Each"], "unitValues": { "Full Case": 24, "Each": 1 } },
+  { "item": "Alfredo", "type": "Sauce", "validUnits": ["Full Case", "Bag"], "unitValues": { "Full Case": 8, "Bag": 1 } },
+  { "item": "Penne", "type": "Misc", "validUnits": ["Full Case", "Lbs"], "unitValues": { "Full Case": 30, "Lbs": 1 } },
+  { "item": "Brownie", "type": "Desert", "validUnits": ["Full Case", "Each"], "unitValues": { "Full Case": 24, "Each": 1 } },
+  { "item": "Cinnamon sugar", "type": "Desert", "validUnits": ["Full Case", "Lbs"], "unitValues": { "Full Case": 25, "Lbs": 1 } },
+  { "item": "Cinnabon", "type": "Desert", "validUnits": ["Full Case", "Each"], "unitValues": { "Full Case": 420, "Prepped": 10 ,"Each": 1 } },
+  { "item": "Cookie", "type": "Desert", "validUnits": ["Full Case", "Each"], "unitValues": { "Full Case": 24, "Each": 1 } },
+  { "item": "Frosting", "type": "Desert", "validUnits": ["Full Case", "Bag"], "unitValues": { "Full Case": 24, "Bag": 1 } },
+  { "item": "Icing", "type": "Desert", "validUnits": ["Full Case","Full Level", "Each"], "unitValues": { "Full Case": 180,"Full Level":36, "Each": 1 } },
+  { "item": "Parmesan Shaved", "type": "Topping", "validUnits": ["Full Case", "Bag"], "unitValues": { "Full Case": 6, "Bag": 1 } },
+  { "item": "Lid PP Dispenser", "type": "Packaging", "validUnits": ["Full Case", "Each"], "unitValues": { "Full Case": 500, "Each": 1 } },
+  { "item": "Parchment", "type": "Misc", "validUnits": ["Full Case"], "unitValues": { "Full Case": 1 } },
+  { "item": "Sauce Cups", "type": "Packaging", "validUnits": ["Full Case", "Bag", "Each"], "unitValues": { "Full Case": 2400, "Bag": 200, "Each": 1 } }
+];
+
+let hardcodedStores = [
+  "034136",
+  "034122"
+];
+
+function showPage(id) { 
+  document.querySelectorAll(".page").forEach(p => p.style.display = "none"); 
+  document.getElementById(id).style.display = "block"; 
+}
+
+// SIMPLIFIED: Instantly fires setups locally and opens up your store view directly
+window.onload = function() {
+  loadSessionFromLocal();
+  loadStores();
+  showPage("page-store");
+};
+
+// CLEANED: Dropped asynchronous network fetch code
+function loadStores() {
+  const sel = document.getElementById("storeSelect");
+  sel.innerHTML = "";
+  hardcodedStores.forEach(s => { 
+    sel.innerHTML += `<option value="${s}">${s}</option>`; 
+  });
+}
+
+function enterStore() { 
+  inventorySession.store = document.getElementById("storeSelect").value; 
+  saveSessionToLocal(); 
+  showPage("page-menu"); 
+}
+
+function goNameSearch() { 
+  document.getElementById("nameInput").value = ""; 
+  document.getElementById("customDropdown").style.display = "none"; 
+  showPage("page-name"); 
+}
+
+function goTypeSearch() { 
+  document.getElementById("typeItems").innerHTML = ""; 
+  populateTypeList(); 
+  document.getElementById("typeSelect").selectedIndex = 0; 
+  showPage("page-type"); 
+}
+
+function backToMenu() { showPage("page-menu"); }
+
+function filterNameList() {
+  const input = document.getElementById("nameInput");
+  const filter = input.value.toLowerCase().trim();
+  const dropdown = document.getElementById("customDropdown");
+  if (!filter) { dropdown.innerHTML = ""; dropdown.style.display = "none"; return; }
+  const startsWith = [], contains = [];
+  parameters.forEach(p => {
+    const itemName = p.item.toLowerCase();
+    if (itemName.startsWith(filter)) startsWith.push(p);
+    else if (itemName.includes(filter)) contains.push(p);
+  });
+  startsWith.sort((a, b) => a.item.localeCompare(b.item));
+  contains.sort((a, b) => a.item.localeCompare(b.item));
+  const filtered = startsWith.concat(contains);
+  dropdown.innerHTML = "";
+  if (filtered.length > 0) {
+    dropdown.style.display = "block";
+    filtered.forEach(p => {
+      const isStart = startsWith.includes(p);
+      dropdown.innerHTML += `<div style="padding: 10px; cursor: pointer; border-bottom: 1px solid #eee; ${isStart ? 'font-weight:bold;' : ''}" onclick="openItemEntry('${p.item.replace(/'/g, "\\'")}')">${p.item}</div>`;
+    });
+  } else { dropdown.style.display = "none"; }
+}
+
+function populateTypeList() {
+  const sel = document.getElementById("typeSelect");
+  sel.innerHTML = '<option value="" disabled selected hidden>Choose a type...</option>';
+  [...new Set(parameters.map(p => p.type))].forEach(t => { sel.innerHTML += `<option value="${t}">${t}</option>`; });
+}
+
+function openItemEntry(itemName) {
+  const item = parameters.find(p => p.item === itemName);
+  if (!item) return;
+  document.getElementById("entryItemName").innerText = item.item;
+  const container = document.getElementById("unitInputs");
+  container.innerHTML = "";
+  const savedEntry = inventorySession.entries[item.item] || {};
+  item.validUnits.forEach(unit => {
+    const val = savedEntry[unit] || 0;
+    container.innerHTML += `<div style="margin-bottom:8px;"><label style="display:inline-block; width:140px;">${unit}</label><input type="number" id="unit_${unit}" min="0" value="${val}" style="width:80px;" oninput="updateItemTotal()"></div>`;
+  });
+  updateItemTotal();
+  showPage("page-item-entry");
+}
+
+function saveItemEntry() {
+  const itemName = document.getElementById("entryItemName").innerText;
+  const item = parameters.find(p => p.item === itemName);
+  const entry = {};
+  item.validUnits.forEach(unit => {
+    const val = Number(document.getElementById("unit_" + unit).value);
+    if (val > 0) entry[unit] = val;
+  });
+  inventorySession.entries[itemName] = entry;
+  saveSessionToLocal();    
+  backToMenu();
+}
+
+function displayTypeItems() {
+  const selectedType = document.getElementById("typeSelect").value;
+  if (!selectedType) return; 
+  const container = document.getElementById("typeItems");
+  const filtered = parameters.filter(p => p.type === selectedType);
+  container.innerHTML = "";
+  filtered.forEach(item => { container.innerHTML += `<div style="padding:6px; border-bottom:1px solid #ccc; cursor:pointer;" onclick="openItemEntry('${item.item.replace(/'/g, "\\'")}')">${item.item}</div>`; });
+}
+
+function updateItemTotal() {
+  const itemName = document.getElementById("entryItemName").innerText;
+  const item = parameters.find(p => p.item === itemName);
+  let total = 0;
+  item.validUnits.forEach(unit => {
+    const qty = Number(document.getElementById("unit_" + unit).value) || 0;
+    total += qty * item.unitValues[unit];
+  });
+  document.getElementById("itemTotal").innerText = "Total: " + total;
+}
+
+function goReview() { buildReviewList(); showPage("page-review"); }
+
+function buildReviewList() {
+    const container = document.getElementById("reviewList");
+    container.innerHTML = "";
+    if (Object.keys(inventorySession.entries).length === 0) { container.innerHTML = "<p>No items entered yet.</p>"; return; }
+    parameters.forEach(p => {
+        if (inventorySession.entries[p.item]) {
+            let total = 0;
+            for (const unit in inventorySession.entries[p.item]) { total += inventorySession.entries[p.item][unit] * p.unitValues[unit]; }
+            container.innerHTML += `<div style="padding:10px; border-bottom:1px solid #ccc; cursor:pointer;" onclick="openItemEntry('${p.item.replace(/'/g, "\\'")}')"><span style="font-weight:bold;">${p.item}</span> <span style="margin-left:10px;font-weight:bold">Total: ${total}</span></div>`;
+        }
+    });
+}
+
+function saveSessionToLocal() { localStorage.setItem("inventorySession", JSON.stringify(inventorySession)); }
+function loadSessionFromLocal() { const saved = localStorage.getItem("inventorySession"); if (saved) inventorySession = JSON.parse(saved); }
+
+async function sendInventoryToSheet() {
+  const entries = inventorySession.entries;
+  if (Object.keys(entries).length === 0) return;
+
+  const payload = {
+    action: "saveInventory",
+    storeName: inventorySession.store,
+    data: []
+  };
+
+  parameters.forEach(p => {
+    if (entries[p.item]) {
+      let total = 0;
+      for (const unit in entries[p.item]) {
+        total += entries[p.item][unit] * p.unitValues[unit];
+      }
+      payload.data.push({ item: p.item, total: total });
+    }
+  });
+
+  try {
+    await fetch(API_URL, {
+      method: "POST",
+      mode: "no-cors",
+      headers: { "Content-Type": "application/json" },
+      body: JSON.stringify(payload)
+    });
+    openSuccessModal();
+  } catch (error) {
+    console.error("Error:", error);
+  }
+}
+
+function downloadInventory() {
+  const entries = inventorySession.entries;
+  if (Object.keys(entries).length === 0) { alert("No items"); return; }
+  let text = "";
+  for (const itemName in entries) {
+    const item = parameters.find(p => p.item === itemName);
+    text += `Item: ${itemName}\n`;
+    let total = 0;
+    for (const unit in entries[itemName]) {
+      const sub = entries[itemName][unit] * item.unitValues[unit];
+      total += sub;
+      text += `  ${unit}: ${entries[itemName][unit]} × ${item.unitValues[unit]} = ${sub}\n`;
+    }
+    text += `  Total: ${total}\n\n`;
+  }
+  const blob = new Blob([text], { type: "text/plain" });
+  const url = window.URL.createObjectURL(blob);
+  const a = document.createElement("a");
+  a.href = url;
+  a.download = `inventory_${inventorySession.store}_${Date.now()}.txt`;
+  a.click();
+  sendInventoryToSheet();
+}
+
+function openSuccessModal() { document.getElementById("successModal").style.display = "flex"; }
+defineStores = () => {}; 
+function closeSuccessModal() { document.getElementById("successModal").style.display = "none"; }
+function openClearModal() { document.getElementById("clearModal").style.display = "flex"; }
+function closeClearModal() { document.getElementById("clearModal").style.display = "none"; }
+function confirmClearAll() { inventorySession.entries = {}; saveSessionToLocal(); closeClearModal(); backToMenu(); }
+
+if ('serviceWorker' in navigator) navigator.serviceWorker.register('./sw.js');
+</script>
+</body>
+</html>
