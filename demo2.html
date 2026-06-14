@@ -4,45 +4,88 @@
 <head>
     <meta name="theme-color" content="#000000">
     <meta charset="UTF-8">
-    <title>Inventory Helper</title>
+    <title>Inventory Helper - Interactive Demo</title>
     <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
     <style>
+        /* Global Web Page Styles */
         body {
-            background-color: #ffffff;
-            color: #000000;
-            font-family: 'Segoe UI', sans-serif;
+            background-color: #f4f6f9;
+            color: #333333;
+            font-family: 'Segoe UI', -apple-system, BlinkMacSystemFont, Roboto, sans-serif;
             margin: 0;
             padding: 0;
-            display: flex;
-            justify-content: center;
-            align-items: stretch;
-            min-height: 100vh;
-            overscroll-behavior-y: contain;
-            overflow-x: hidden;
+            box-sizing: border-box;
         }
 
-        .form-wrapper {
+        /* Top Marketing / Explanatory Section */
+        .promo-header {
+            background: linear-gradient(135deg, #4169e1, #1e3c96);
+            color: #ffffff;
+            text-align: center;
+            padding: 60px 20px;
+        }
+
+        .promo-header h1 {
+            margin: 0 0 15px 0;
+            font-size: 2.5rem;
+            font-weight: 700;
+        }
+
+        .promo-header p {
+            margin: 0 auto;
+            max-width: 700px;
+            font-size: 1.15rem;
+            line-height: 1.6;
+            opacity: 0.9;
+        }
+
+        /* Main Page Content Container */
+        .page-container {
+            max-width: 1200px;
+            margin: 0 auto;
+            padding: 40px 20px;
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+        }
+
+        .demo-instructions {
+            text-align: center;
+            max-width: 600px;
+            margin-bottom: 30px;
+        }
+
+        .demo-instructions h2 {
+            font-size: 1.8rem;
+            margin-bottom: 10px;
+            color: #1e3c96;
+        }
+
+        /* Isolated Module Container */
+        .app-module-card {
             width: 100%;
             max-width: 600px;
-            min-height: 100vh;
+            background: #ffffff;
             border: 6px solid #4169e1;
+            border-radius: 12px;
             padding: 20px 10px;
             text-align: center;
             box-sizing: border-box;
-            position: relative;
             display: flex;
             flex-direction: column;
             justify-content: flex-start;
-            padding-bottom: 240px; 
+            box-shadow: 0 10px 30px rgba(0, 0, 0, 0.08);
+            margin-bottom: 25px;
+            /* Spacing leading directly into inline sheet frame below */
         }
 
         .page {
             display: none;
-            flex-grow: 1;
             width: 100%;
             box-sizing: border-box;
         }
 
+        /* Form Interaction Elements */
         button {
             background-color: #4169e1;
             color: #ffffff;
@@ -55,7 +98,12 @@
             font-weight: bold;
             cursor: pointer;
             margin: 5px auto;
-            font-size: 23px;
+            font-size: 22px;
+            transition: transform 0.1s, background-color 0.2s;
+        }
+
+        button:active {
+            transform: scale(0.98);
         }
 
         input,
@@ -66,26 +114,14 @@
             max-width: 280px;
             margin: 10px auto;
             box-sizing: border-box;
+            border: 2px solid #cccccc;
+            border-radius: 4px;
         }
 
-        h2 {
-            font-size: 30px;
-        }
-
-        footer {
-            text-align: center;
-            padding: 20px 0 10px 0;
-            margin-top: auto;
-            width: 100%;
-        }
-
-        .powered-by {
-            display: block;
+        .app-module-card h2 {
+            font-size: 26px;
             margin-top: 10px;
-            color: #4169e1;
-            text-decoration: none;
-            font-size: 0.8rem;
-            font-weight: bold;
+            color: #000000;
         }
 
         .type-list-item {
@@ -99,38 +135,35 @@
             transition: background-color 0.2s;
             max-width: 280px;
             box-sizing: border-box;
+            cursor: pointer;
         }
 
         .type-list-item:hover {
             background-color: #e0e6f7;
         }
 
-        /* Floating Google Sheets Visual Container Framework */
+        /* Block Inline Google Sheets Visual Container Framework */
         .sheets-iframe-replacement {
-            position: fixed;
-            bottom: 40px; 
-            left: 50%;
-            transform: translateX(-50%);
             width: 100%;
-            max-width: 568px; 
+            max-width: 600px;
             box-sizing: border-box;
-            background: transparent; 
+            background: transparent;
             border-top: 3px solid #4169e1;
-            z-index: 9999;
-            display: none; 
-            padding: 5px;
-            pointer-events: none; 
+            display: none;
+            padding: 0;
+            margin-bottom: 50px;
+            /* Separation space above global website footer */
         }
 
         .sheets-container {
             width: 100%;
-            height: 160px; 
+            height: 180px;
             overflow-y: auto;
             overflow-x: auto;
             border: 1px solid #d9d9d9;
             background: #ffffff;
-            box-shadow: 0 -4px 15px rgba(0, 0, 0, 0.15);
-            pointer-events: auto; 
+            box-shadow: 0 4px 15px rgba(0, 0, 0, 0.05);
+            border-radius: 0 0 8px 8px;
         }
 
         .sheets-table {
@@ -141,7 +174,8 @@
             color: #333333;
         }
 
-        .sheets-table th, .sheets-axis {
+        .sheets-table th,
+        .sheets-axis {
             background-color: #f3f3f3;
             color: #666666;
             text-align: center;
@@ -179,67 +213,99 @@
         .sheets-table tr.interactive-row:hover td:not(.sheets-axis) {
             background-color: #e8f0fe !important;
         }
+
+        /* Marketing Page Footer */
+        .global-footer {
+            background-color: #1e2023;
+            color: #ffffff;
+            width: 100%;
+            text-align: center;
+            padding: 30px 20px;
+            box-sizing: border-box;
+            margin-top: auto;
+        }
+
+        .powered-by {
+            color: #4169e1;
+            text-decoration: none;
+            font-weight: bold;
+        }
     </style>
 </head>
 
 <body>
 
-    <div class="form-wrapper">
-        <div id="page-store" class="page" style="display:block;">
-            <h2>Select Your Store</h2>
-            <select id="storeSelect" style="width:180px;">
-                <option value="Chicago">Chicago</option>
-                <option value="New York">New York</option>
-                <option value="Los Angeles">Los Angeles</option>
-            </select>
-            <br><br>
-            <button onclick="enterStore()">Enter</button>
-        </div>
+    <header class="promo-header">
+        <h1>Inventory Helper</h1>
+        <p>Our mobile apps are built to eliminate both the paper trail and guard against human error. Our lightweight utilities transforms complex logistics into simple categorical lookups while populating your master backend spreadsheet in real time, in any way you specify.</p>
+    </header>
 
-        <div id="page-menu" class="page">
-            <h2>Search Inventory</h2>
-            <button onclick="goNameSearch()">Search by Name</button>
-            <br><br>
-            <button onclick="goTypeSearch()">Search by Type</button>
-            <br><br>
-            <button onclick="goReview()">Review Inventory</button>
-        </div>
+    <main class="page-container">
 
-        <div id="page-name" class="page">
-            <h2>Search by Name</h2>
-            <input id="nameInput" style="width:280px;" type="text" placeholder="Start typing..." oninput="filterNameList()" autocomplete="off">
-            <div id="customDropdown" style="max-height: 200px; overflow-y: auto; border: 1px solid #ccc; display: none; text-align: left; width: 80%; margin: 0 auto;"></div>
-            <br><br>
-            <button onclick="backToMenu()">Back</button>
-        </div>
+        <section class="demo-instructions">
+            <h2>Live Interactive Module</h2>
+            <p>Below is a simple inventory module you can interact with, as items are saved they will be saved to your backend database. (Google Sheets version used for demo).</p>
+        </section>
 
-        <div id="page-type" class="page">
-            <h2>Search by Type</h2>
-            <ul id="typeSelect" style="list-style-type: none; padding: 0; width: 100%;"></ul>
-            <br><br>
-            <div id="typeItems"></div>
-            <br>
-            <button onclick="backToMenu()">Back</button>
-        </div>
+        <div class="app-module-card">
 
-        <div id="page-item-entry" class="page">
-            <h2 id="entryItemName"></h2>
-            <div id="unitInputs"></div>
-            <br>
-            <div id="itemTotal" style="margin-top:10px; font-size:18px; font-weight:bold;">Total: 0</div>
-            <br>
-            <button onclick="saveItemEntry()">Save Item</button>
-            <br><br>
-            <button onclick="backToMenu()">Back</button>
-        </div>
+            <div id="page-store" class="page" style="display:block;">
+                <h2>Select Your Store</h2>
+                <select id="storeSelect" style="width:180px;">
+                    <option value="Chicago">Chicago</option>
+                    <option value="New York">New York</option>
+                    <option value="Los Angeles">Los Angeles</option>
+                </select>
+                <br><br>
+                <button onclick="enterStore()">Enter</button>
+            </div>
 
-        <div id="page-review" class="page">
-            <h2>Review Inventory</h2>
-            <button onclick="submitFinalInventory()">Save Inventory</button>
-            <br><br>
-            <button onclick="openClearModal()" style="background:#c62828;">Clear All</button>
-            <br><br>
-            <button onclick="backToMenu()">Back</button>
+            <div id="page-menu" class="page">
+                <h2>Search Inventory</h2>
+                <button onclick="goNameSearch()">Search by Name</button>
+                <br><br>
+                <button onclick="goTypeSearch()">Search by Type</button>
+                <br><br>
+                <button onclick="goReview()">Review Inventory</button>
+            </div>
+
+            <div id="page-name" class="page">
+                <h2>Search by Name</h2>
+                <input id="nameInput" style="width:280px;" type="text" placeholder="Start typing..." oninput="filterNameList()" autocomplete="off">
+                <div id="customDropdown" style="max-height: 200px; overflow-y: auto; border: 1px solid #ccc; display: none; text-align: left; width: 80%; margin: 0 auto; background: #fff;"></div>
+                <br><br>
+                <button onclick="backToMenu()">Back</button>
+            </div>
+
+            <div id="page-type" class="page">
+                <h2>Search by Type</h2>
+                <ul id="typeSelect" style="list-style-type: none; padding: 0; width: 100%; margin: 0;"></ul>
+                <br>
+                <div id="typeItems"></div>
+                <br>
+                <button onclick="backToMenu()">Back</button>
+            </div>
+
+            <div id="page-item-entry" class="page">
+                <h2 id="entryItemName"></h2>
+                <div id="unitInputs"></div>
+                <br>
+                <div id="itemTotal" style="margin-top:10px; font-size:18px; font-weight:bold;">Total: 0</div>
+                <br>
+                <button onclick="saveItemEntry()">Save Item</button>
+                <br><br>
+                <button onclick="backToMenu()">Back</button>
+            </div>
+
+            <div id="page-review" class="page">
+                <h2>Review Inventory</h2>
+                <button onclick="submitFinalInventory()">Save Inventory</button>
+                <br><br>
+                <button onclick="openClearModal()" style="background:#c62828;">Clear All</button>
+                <br><br>
+                <button onclick="backToMenu()">Back</button>
+            </div>
+
         </div>
 
         <div id="persistentSheetsFrame" class="sheets-iframe-replacement">
@@ -260,24 +326,26 @@
                         </tr>
                     </thead>
                     <tbody id="sheetsTableBody">
-                        </tbody>
+                    </tbody>
                 </table>
             </div>
         </div>
 
-        <footer>
-            <a href="https://interactivegamingsystems.app" class="powered-by">Powered by Interactive Gaming Systems</a>
-        </footer>
-    </div>
+    </main>
 
-    <div id="successModal" style="display:none; position:fixed; top:0; left:0; width:100%; height:100%; background:rgba(0,0,0,0.6); justify-content:center; align-items:center;">
+    <footer class="global-footer">
+        <p>&copy; 2026 Platform Solutions. All rights reserved.</p>
+        <a href="https://interactivegamingsystems.app" class="powered-by">Powered by Interactive Gaming Systems</a>
+    </footer>
+
+    <div id="successModal" style="display:none; position:fixed; top:0; left:0; width:100%; height:100%; background:rgba(0,0,0,0.6); justify-content:center; align-items:center; z-index: 100000;">
         <div style="background:white; padding:20px; width:80%; max-width:300px; border-radius:8px; text-align:center;">
             <h3>Success!</h3>
             <button onclick="closeSuccessModal()">OK</button>
         </div>
     </div>
 
-    <div id="clearModal" style="display:none; position:fixed; top:0; left:0; width:100%; height:100%; background:rgba(0,0,0,0.6); justify-content:center; align-items:center;">
+    <div id="clearModal" style="display:none; position:fixed; top:0; left:0; width:100%; height:100%; background:rgba(0,0,0,0.6); justify-content:center; align-items:center; z-index: 100000;">
         <div style="background:white; padding:20px; width:80%; max-width:300px; border-radius:8px; text-align:center;">
             <h3>Clear All?</h3>
             <button onclick="confirmClearAll()" style="background:#c62828; color:white;">Clear All</button>
@@ -291,17 +359,99 @@
             entries: {}
         };
 
-        let parameters = [
-            { "item": "Ham", "type": "Entree", "validUnits": ["Full Case", "Bag", "Lbs"], "unitValues": { "Full Case": 20, "Bag": 5, "Lbs": 1 } },
-            { "item": "Pineapple", "type": "Side", "validUnits": ["Full Case", "Bag"], "unitValues": { "Full Case": 10, "Bag": 1 } },
-            { "item": "Shrimp", "type": "Entree", "validUnits": ["Full Case", "Bag", "Lbs"], "unitValues": { "Full Case": 30, "Bag": 10, "Lbs": 1 } },
-            { "item": "Cream of Mushroom", "type": "Appetizer", "validUnits": ["Full Case", "Bag"], "unitValues": { "Full Case": 6, "Bag": 1 } },
-            { "item": "Carryout Bag", "type": "Packaging", "validUnits": ["Full Case"], "unitValues": { "Full Case": 1 } },
-            { "item": "Chicken Kiev", "type": "Entree", "validUnits": ["Full Case", "Bag", "Lbs"], "unitValues": { "Full Case": 40, "Bag": 10, "Lbs": 1 } },
-            { "item": "Tomato Soup", "type": "Appetizer", "validUnits": ["Full Case", "Bag"], "unitValues": { "Full Case": 6, "Bag": 1 } },
-            { "item": "French Bread", "type": "Appetizer", "validUnits": ["Full Case", "Bag", "Each"], "unitValues": { "Full Case": 12, "Bag": 2, "Each": 1 } },
-            { "item": "Green Beans", "type": "Side", "validUnits": ["Full Case", "Lbs"], "unitValues": { "Full Case": 10, "Lbs": 1 } },
-            { "item": "Large Boxes", "type": "Packaging", "validUnits": ["Full Case", "Each"], "unitValues": { "Full Case": 150, "Each": 1 } }
+        let parameters = [{
+                "item": "Ham",
+                "type": "Entree",
+                "validUnits": ["Full Case", "Bag", "Lbs"],
+                "unitValues": {
+                    "Full Case": 20,
+                    "Bag": 5,
+                    "Lbs": 1
+                }
+            },
+            {
+                "item": "Pineapple",
+                "type": "Side",
+                "validUnits": ["Full Case", "Bag"],
+                "unitValues": {
+                    "Full Case": 10,
+                    "Bag": 1
+                }
+            },
+            {
+                "item": "Shrimp",
+                "type": "Entree",
+                "validUnits": ["Full Case", "Bag", "Lbs"],
+                "unitValues": {
+                    "Full Case": 30,
+                    "Bag": 10,
+                    "Lbs": 1
+                }
+            },
+            {
+                "item": "Cream of Mushroom",
+                "type": "Appetizer",
+                "validUnits": ["Full Case", "Bag"],
+                "unitValues": {
+                    "Full Case": 6,
+                    "Bag": 1
+                }
+            },
+            {
+                "item": "Carryout Bag",
+                "type": "Packaging",
+                "validUnits": ["Full Case"],
+                "unitValues": {
+                    "Full Case": 1
+                }
+            },
+            {
+                "item": "Chicken Kiev",
+                "type": "Entree",
+                "validUnits": ["Full Case", "Bag", "Lbs"],
+                "unitValues": {
+                    "Full Case": 40,
+                    "Bag": 10,
+                    "Lbs": 1
+                }
+            },
+            {
+                "item": "Tomato Soup",
+                "type": "Appetizer",
+                "validUnits": ["Full Case", "Bag"],
+                "unitValues": {
+                    "Full Case": 6,
+                    "Bag": 1
+                }
+            },
+            {
+                "item": "French Bread",
+                "type": "Appetizer",
+                "validUnits": ["Full Case", "Bag", "Each"],
+                "unitValues": {
+                    "Full Case": 12,
+                    "Bag": 2,
+                    "Each": 1
+                }
+            },
+            {
+                "item": "Green Beans",
+                "type": "Side",
+                "validUnits": ["Full Case", "Lbs"],
+                "unitValues": {
+                    "Full Case": 10,
+                    "Lbs": 1
+                }
+            },
+            {
+                "item": "Large Boxes",
+                "type": "Packaging",
+                "validUnits": ["Full Case", "Each"],
+                "unitValues": {
+                    "Full Case": 150,
+                    "Each": 1
+                }
+            }
         ];
 
         document.addEventListener("DOMContentLoaded", function() {
@@ -309,8 +459,7 @@
             if (saved) {
                 inventorySession = JSON.parse(saved);
             }
-            
-            // Sync current state with UI elements safely
+
             const sel = document.getElementById("storeSelect");
             if (inventorySession.store) {
                 sel.value = inventorySession.store;
@@ -324,7 +473,7 @@
         function showPage(id) {
             document.querySelectorAll(".page").forEach(p => p.style.display = "none");
             document.getElementById(id).style.display = "block";
-            
+
             const frame = document.getElementById("persistentSheetsFrame");
             if (id === "page-store") {
                 frame.style.display = "none";
@@ -374,16 +523,18 @@
 
         function populateTypeList() {
             const listContainer = document.getElementById("typeSelect");
-            listContainer.innerHTML = ''; 
+            listContainer.innerHTML = '';
 
             [...new Set(parameters.map(p => p.type))].forEach(t => {
                 const li = document.createElement("li");
                 li.textContent = t;
-                li.className = "type-list-item"; 
-                li.onclick = function() { displayTypeItems(t); };
+                li.className = "type-list-item";
+                li.onclick = function() {
+                    displayTypeItems(t);
+                };
                 listContainer.appendChild(li);
             });
-            
+
             document.getElementById("typeItems").innerHTML = '';
         }
 
@@ -397,7 +548,7 @@
         function openItemEntry(itemName) {
             const item = parameters.find(p => p.item === itemName);
             document.getElementById("entryItemName").innerText = item.item;
-            
+
             document.getElementById("unitInputs").innerHTML = item.validUnits.map(unit => {
                 const existingVal = (inventorySession.entries[item.item] || {})[unit] || 0;
                 return `<div style="margin-bottom:12px;">
@@ -405,7 +556,7 @@
                     <input type="number" id="unit_${unit}" min="0" value="${existingVal}" style="width:100px; font-size:18px;" oninput="updateItemTotal()">
                 </div>`;
             }).join('');
-            
+
             updateItemTotal();
             showPage("page-item-entry");
         }
@@ -414,18 +565,18 @@
             const itemName = document.getElementById("entryItemName").innerText;
             const item = parameters.find(p => p.item === itemName);
             const entry = {};
-            
+
             item.validUnits.forEach(unit => {
                 const val = Number(document.getElementById("unit_" + unit).value);
                 if (val > 0) entry[unit] = val;
             });
-            
+
             if (Object.keys(entry).length > 0) {
                 inventorySession.entries[itemName] = entry;
             } else {
                 delete inventorySession.entries[itemName];
             }
-            
+
             localStorage.setItem("inventorySession", JSON.stringify(inventorySession));
             syncSheetsDisplay();
             backToMenu();
@@ -440,7 +591,7 @@
         function syncSheetsDisplay() {
             const tbody = document.getElementById("sheetsTableBody");
             tbody.innerHTML = '';
-            
+
             let rowIndex = 2;
             const itemsCounted = Object.keys(inventorySession.entries).length;
 
@@ -457,7 +608,7 @@
             parameters.forEach(p => {
                 if (inventorySession.entries[p.item]) {
                     const breakdownObj = inventorySession.entries[p.item];
-                    
+
                     const breakdownStr = Object.keys(breakdownObj)
                         .map(unit => `${breakdownObj[unit]} ${unit}`)
                         .join(', ');
@@ -466,8 +617,10 @@
 
                     const row = document.createElement("tr");
                     row.className = "interactive-row";
-                    row.onclick = function() { openItemEntry(p.item); };
-                    
+                    row.onclick = function() {
+                        openItemEntry(p.item);
+                    };
+
                     row.innerHTML = `
                         <td class="sheets-axis">${rowIndex}</td>
                         <td style="font-weight:bold;">${p.item}</td>
@@ -504,7 +657,7 @@
             inventorySession.entries = {};
             inventorySession.store = null;
             localStorage.removeItem("inventorySession");
-            
+
             syncSheetsDisplay();
             closeClearModal();
             document.getElementById("storeSelect").selectedIndex = 0;
