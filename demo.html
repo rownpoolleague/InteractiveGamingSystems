@@ -77,9 +77,9 @@
     <button onclick="openClearModal()">Clear All</button>
     <br><br>
     <button onclick="backToMenu()">Back</button>
-    <div id="iframeContainer" style="display:none; margin-top:20px;">
-        <iframe id="successFrame" src="about:blank" width="100%" height="200px" frameborder="0"></iframe>
-    </div>
+   <div id="iframeContainer" style="margin-top:20px; border-top: 2px solid #4169e1; padding-top: 10px;">
+    <iframe id="successFrame" src="https://docs.google.com/spreadsheets/d/e/2PACX-1vTm-2qCeE7HcO-TCijFxJCEgHqMPHqfiBe9U43CIW6CDF0oF8rToDPtw8SDZYjj8oDALYw6Qx_M3cC-/pubhtml" width="100%" height="300px" frameborder="0"></iframe>
+</div>
   </div>
 
   <footer>
@@ -123,7 +123,16 @@ document.addEventListener("DOMContentLoaded", function() {
 });
 
 function showPage(id) { document.querySelectorAll(".page").forEach(p => p.style.display = "none"); document.getElementById(id).style.display = "block"; }
-function enterStore() { inventorySession.store = document.getElementById("storeSelect").value; localStorage.setItem("inventorySession", JSON.stringify(inventorySession)); showPage("page-menu"); }
+function enterStore() { 
+    inventorySession.store = document.getElementById("storeSelect").value; 
+    localStorage.setItem("inventorySession", JSON.stringify(inventorySession)); 
+    
+    // Update the iframe for the selected store
+    const baseUrl = "https://docs.google.com/spreadsheets/d/e/2PACX-1vTm-2qCeE7HcO-TCijFxJCEgHqMPHqfiBe9U43CIW6CDF0oF8rToDPtw8SDZYjj8oDALYw6Qx_M3cC-/pubhtml";
+    document.getElementById("successFrame").src = `${baseUrl}?gid=${storeGidMap[inventorySession.store]}&single=true`;
+    
+    showPage("page-menu"); 
+}
 function backToMenu() { showPage("page-menu"); }
 function goNameSearch() { showPage("page-name"); }
 function goTypeSearch() { populateTypeList(); showPage("page-type"); }
@@ -210,7 +219,8 @@ async function saveAndSubmit() {
     
     // Set the iframe and show success
     document.getElementById("iframeContainer").style.display = "block";
-    document.getElementById("successFrame").src = `https://docs.google.com/spreadsheets/d/${SHEET_ID}/pubhtml?gid=${storeGidMap[inventorySession.store]}&single=true`;
+    const baseUrl = "https://docs.google.com/spreadsheets/d/e/2PACX-1vTm-2qCeE7HcO-TCijFxJCEgHqMPHqfiBe9U43CIW6CDF0oF8rToDPtw8SDZYjj8oDALYw6Qx_M3cC-/pubhtml";
+document.getElementById("successFrame").src = `${baseUrl}?gid=${storeGidMap[inventorySession.store]}&single=true`;
     document.getElementById("successModal").style.display = "flex";
   } catch (error) { 
     console.error("Error:", error); 
@@ -220,7 +230,14 @@ async function saveAndSubmit() {
 function closeSuccessModal() { document.getElementById("successModal").style.display = "none"; }
 function openClearModal() { document.getElementById("clearModal").style.display = "flex"; }
 function closeClearModal() { document.getElementById("clearModal").style.display = "none"; }
-function confirmClearAll() { inventorySession.entries = {}; localStorage.setItem("inventorySession", JSON.stringify(inventorySession)); closeClearModal(); backToMenu(); }
+function confirmClearAll() { 
+    inventorySession.entries = {}; 
+    inventorySession.store = null; 
+    localStorage.removeItem("inventorySession"); 
+    closeClearModal(); 
+    document.getElementById("storeSelect").selectedIndex = 0;
+    showPage("page-store"); 
+}
 </script>
 </body>
 </html>
