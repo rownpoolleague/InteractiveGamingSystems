@@ -1,0 +1,226 @@
+<!DOCTYPE html>
+<html>
+<head>
+  <meta name="theme-color" content="#000000">
+  <meta charset="UTF-8">
+  <meta name="apple-mobile-web-app-capable" content="yes">
+  <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
+  <meta name="apple-mobile-web-app-title" content="Inventory App">
+  <link rel="apple-touch-icon" href="icon-192.png">
+  <title>Inventory Helper</title>
+  <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
+  <style>
+    body { background-color: #ffffff; color: #000000; font-family: 'Segoe UI', sans-serif; margin: 0; padding: 0; display: flex; justify-content: center; align-items: stretch; min-height: 100vh; overscroll-behavior-y: contain; overflow-x: hidden; }
+    .form-wrapper { width: 100%; max-width: 600px; min-height: 100vh; border: 6px solid #4169e1; padding: 20px 10px; text-align: center; box-sizing: border-box; position: relative; display: flex; flex-direction: column; justify-content: space-between; }
+    .page { display: none; flex-grow: 1; width: 100%; box-sizing: border-box; }
+    button { background-color: #4169e1; color: #ffffff; border: 2px solid #000000; box-sizing: border-box; width: 100%; max-width: 280px; border-radius: 6px; padding: 10px 20px; font-weight: bold; cursor: pointer; margin: 5px auto; font-size: 23px; }
+    input, select { padding: 8px; font-size: 20px; width: 80%; max-width: 280px; margin: 10px auto; box-sizing: border-box; }
+    h2 { font-size: 30px; }
+    footer { text-align: center; padding: 20px 0 10px 0; margin-top: auto; width: 100%; }
+    .powered-by { display: block; margin-top: 10px; color: #4169e1; text-decoration: none; font-size: 0.8rem; font-weight: bold; }
+  </style>
+</head>
+<body>
+
+<div class="form-wrapper">
+  <div id="page-store" class="page" style="display:block;">
+    <h2>Select Your Store</h2>
+    <select id="storeSelect" style="width:140px;"></select>
+    <br><br>
+    <button onclick="enterStore()">Enter</button>
+  </div>
+
+  <div id="page-menu" class="page">
+    <h2>Search Inventory</h2>
+    <button onclick="goNameSearch()">Search by Name</button>
+    <br><br>
+    <button onclick="goTypeSearch()">Search by Type</button>
+    <br><br>
+    <button onclick="goReview()">Review Inventory</button>
+  </div>
+
+  <div id="page-name" class="page">
+    <h2>Search by Name</h2>
+    <input id="nameInput" style="width:280px;" type="text" placeholder="Start typing..." oninput="filterNameList()" autocomplete="off">
+    <div id="customDropdown" style="max-height: 200px; overflow-y: auto; border: 1px solid #ccc; display: none; text-align: left; width: 80%; margin: 0 auto;"></div>
+    <br><br>
+    <button onclick="backToMenu()">Back</button>
+  </div>
+
+  <div id="page-type" class="page">
+    <h2>Search by Type</h2>
+    <select id="typeSelect" style="width: 280px;" onchange="displayTypeItems()">
+      <option value="" disabled selected hidden>Choose a type...</option>
+    </select>
+    <br><br>
+    <div id="typeItems"></div>
+    <br>
+    <button onclick="backToMenu()">Back</button>
+  </div>
+
+  <div id="page-item-entry" class="page">
+    <h2 id="entryItemName"></h2>
+    <div id="unitInputs"></div>
+    <br>
+    <div id="itemTotal" style="margin-top:10px; font-size:18px; font-weight:bold;">Total: 0</div>
+    <button onclick="saveItemEntry()">Save Item</button>
+    <br><br>
+    <button onclick="backToMenu()">Back</button>
+  </div>
+
+  <div id="page-review" class="page">
+    <h2>Review Inventory</h2>
+    <div id="reviewList"></div>
+    <br><br>
+    <button onclick="saveAndSubmit()">Save Inventory</button>
+    <br><br>
+    <button onclick="openClearModal()">Clear All</button>
+    <br><br>
+    <button onclick="backToMenu()">Back</button>
+    <div id="iframeContainer" style="display:none; margin-top:20px;">
+        <iframe id="successFrame" src="about:blank" width="100%" height="200px" frameborder="0"></iframe>
+    </div>
+  </div>
+
+  <footer>
+     <a href="https://interactivegamingsystems.app" class="powered-by">Powered by Interactive Gaming Systems</a>
+  </footer>
+</div>
+
+<div id="successModal" style="display:none; position:fixed; top:0; left:0; width:100%; height:100%; background:rgba(0,0,0,0.6); justify-content:center; align-items:center;">
+  <div style="background:white; padding:20px; width:80%; max-width:300px; border-radius:8px; text-align:center;"><h3>Success!</h3><button onclick="closeSuccessModal()">OK</button></div>
+</div>
+
+<div id="clearModal" style="display:none; position:fixed; top:0; left:0; width:100%; height:100%; background:rgba(0,0,0,0.6); justify-content:center; align-items:center;">
+  <div style="background:white; padding:20px; width:80%; max-width:300px; border-radius:8px; text-align:center;"><h3>Clear All?</h3><button onclick="confirmClearAll()" style="background:#c62828; color:white;">Clear All</button><button onclick="closeClearModal()">Cancel</button></div>
+</div>
+
+<script>
+const API_URL = "https://script.google.com/macros/s/AKfycbxh2DNiKzFKRBOU1eNoeyEt1xd9xnF7AqiPbP7mRxDIAQ_Zwz7ESkttXK7oSQfTjVxSXA/exec";
+const SHEET_ID = "1I92r4F_tLUCjr624t4YGHBCwz5d63aTcsBdNra0aDoA";
+const storeGidMap = { "Chicago": "1004710217", "New York": "1697503524", "Los Angeles": "556902113" };
+let inventorySession = { store: null, entries: {} };
+let parameters = [
+  {"item": "Ham", "type": "Entree", "validUnits": ["Full Case", "Bag", "Lbs"], "unitValues": { "Full Case": 20, "Bag": 5, "Lbs": 1 }},
+  {"item": "Pineapple", "type": "Side", "validUnits": ["Full Case", "Bag"], "unitValues": { "Full Case": 10, "Bag": 1 }},
+  {"item": "Shrimp", "type": "Entree", "validUnits": ["Full Case", "Bag", "Lbs"], "unitValues": { "Full Case": 30, "Bag": 10, "Lbs": 1 }},
+  {"item": "Cream of Mushroom", "type": "Appetizer", "validUnits": ["Full Case", "Bag"], "unitValues": { "Full Case": 6, "Bag": 1 }},
+  {"item": "Carryout Bag", "type": "Packaging", "validUnits": ["Full Case"], "unitValues": { "Full Case": 1 }},
+  {"item": "Chicken Kiev", "type": "Entree", "validUnits": ["Full Case", "Bag", "Lbs"], "unitValues": { "Full Case": 40, "Bag": 10, "Lbs": 1 }},
+  {"item": "Tomato Soup", "type": "Appetizer", "validUnits": ["Full Case", "Bag"], "unitValues": { "Full Case": 6, "Bag": 1 }},
+  {"item": "French Bread", "type": "Appetizer", "validUnits": ["Full Case", "Bag", "Each"], "unitValues": { "Full Case": 12, "Bag": 2, "Each": 1 }},
+  {"item": "Green Beans", "type": "Side", "validUnits": ["Full Case", "Lbs"], "unitValues": { "Full Case": 10, "Lbs": 1 }},
+  {"item": "Large Boxes", "type": "Packaging", "validUnits": ["Full Case", "Each"], "unitValues": { "Full Case": 150, "Each": 1 }}
+];
+let hardcodedStores = ["Chicago", "New York", "Los Angeles"];
+
+document.addEventListener("DOMContentLoaded", function() {
+    const saved = localStorage.getItem("inventorySession");
+    if (saved) inventorySession = JSON.parse(saved);
+    const sel = document.getElementById("storeSelect");
+    hardcodedStores.forEach(s => sel.innerHTML += `<option value="${s}">${s}</option>`);
+    if (inventorySession.store) sel.value = inventorySession.store;
+});
+
+function showPage(id) { document.querySelectorAll(".page").forEach(p => p.style.display = "none"); document.getElementById(id).style.display = "block"; }
+function enterStore() { inventorySession.store = document.getElementById("storeSelect").value; localStorage.setItem("inventorySession", JSON.stringify(inventorySession)); showPage("page-menu"); }
+function backToMenu() { showPage("page-menu"); }
+function goNameSearch() { showPage("page-name"); }
+function goTypeSearch() { populateTypeList(); showPage("page-type"); }
+function goReview() { buildReviewList(); showPage("page-review"); }
+
+function filterNameList() {
+  const filter = document.getElementById("nameInput").value.toLowerCase().trim();
+  const dropdown = document.getElementById("customDropdown");
+  if (!filter) { dropdown.style.display = "none"; return; }
+  const filtered = parameters.filter(p => p.item.toLowerCase().includes(filter));
+  dropdown.innerHTML = filtered.map(p => `<div style="padding:10px; cursor:pointer;" onclick="openItemEntry('${p.item.replace(/'/g, "\\'")}')">${p.item}</div>`).join('');
+  dropdown.style.display = filtered.length ? "block" : "none";
+}
+
+function populateTypeList() {
+  const sel = document.getElementById("typeSelect");
+  sel.innerHTML = '<option value="" disabled selected hidden>Choose a type...</option>';
+  [...new Set(parameters.map(p => p.type))].forEach(t => { sel.innerHTML += `<option value="${t}">${t}</option>`; });
+}
+
+function openItemEntry(itemName) {
+  const item = parameters.find(p => p.item === itemName);
+  document.getElementById("entryItemName").innerText = item.item;
+  document.getElementById("unitInputs").innerHTML = item.validUnits.map(unit => `<div style="margin-bottom:8px;"><label style="display:inline-block; width:140px;">${unit}</label><input type="number" id="unit_${unit}" min="0" value="${(inventorySession.entries[item.item] || {})[unit] || 0}" style="width:80px;" oninput="updateItemTotal()"></div>`).join('');
+  updateItemTotal();
+  showPage("page-item-entry");
+}
+
+function saveItemEntry() {
+  const itemName = document.getElementById("entryItemName").innerText;
+  const item = parameters.find(p => p.item === itemName);
+  const entry = {};
+  item.validUnits.forEach(unit => { const val = Number(document.getElementById("unit_" + unit).value); if (val > 0) entry[unit] = val; });
+  inventorySession.entries[itemName] = entry;
+  localStorage.setItem("inventorySession", JSON.stringify(inventorySession));
+  backToMenu();
+}
+
+function displayTypeItems() {
+  const selectedType = document.getElementById("typeSelect").value;
+  document.getElementById("typeItems").innerHTML = parameters.filter(p => p.type === selectedType).map(item => `<div style="padding:6px; cursor:pointer;" onclick="openItemEntry('${item.item.replace(/'/g, "\\'")}')">${item.item}</div>`).join('');
+}
+
+function updateItemTotal() {
+  const item = parameters.find(p => p.item === document.getElementById("entryItemName").innerText);
+  const total = item.validUnits.reduce((acc, unit) => acc + (Number(document.getElementById("unit_" + unit).value) || 0) * item.unitValues[unit], 0);
+  document.getElementById("itemTotal").innerText = "Total: " + total;
+}
+
+function buildReviewList() {
+    const container = document.getElementById("reviewList");
+    container.innerHTML = Object.keys(inventorySession.entries).length ? "" : "<p>No items entered yet.</p>";
+    parameters.forEach(p => {
+        if (inventorySession.entries[p.item]) {
+            const total = Object.keys(inventorySession.entries[p.item]).reduce((acc, unit) => acc + inventorySession.entries[p.item][unit] * p.unitValues[unit], 0);
+            container.innerHTML += `<div style="padding:10px; border-bottom:1px solid #ccc; cursor:pointer;" onclick="openItemEntry('${p.item.replace(/'/g, "\\'")}')"><b>${p.item}</b>: ${total}</div>`;
+        }
+    });
+}
+
+async function saveAndSubmit() {
+  const entries = inventorySession.entries;
+  if (Object.keys(entries).length === 0) return;
+  
+  const payload = { action: "saveInventory", storeName: inventorySession.store, data: [] };
+  
+  parameters.forEach(p => {
+    if (entries[p.item]) {
+      let total = 0;
+      for (const unit in entries[p.item]) {
+        total += entries[p.item][unit] * p.unitValues[unit];
+      }
+      payload.data.push({ item: p.item, total: total });
+    }
+  });
+
+  try {
+    await fetch(API_URL, { 
+      method: "POST", 
+      mode: "no-cors", 
+      headers: { "Content-Type": "application/json" }, 
+      body: JSON.stringify(payload) 
+    });
+    
+    // Set the iframe and show success
+    document.getElementById("iframeContainer").style.display = "block";
+    document.getElementById("successFrame").src = `https://docs.google.com/spreadsheets/d/${SHEET_ID}/pubhtml?gid=${storeGidMap[inventorySession.store]}&single=true`;
+    document.getElementById("successModal").style.display = "flex";
+  } catch (error) { 
+    console.error("Error:", error); 
+  }
+}
+
+function closeSuccessModal() { document.getElementById("successModal").style.display = "none"; }
+function openClearModal() { document.getElementById("clearModal").style.display = "flex"; }
+function closeClearModal() { document.getElementById("clearModal").style.display = "none"; }
+function confirmClearAll() { inventorySession.entries = {}; localStorage.setItem("inventorySession", JSON.stringify(inventorySession)); closeClearModal(); backToMenu(); }
+</script>
+</body>
+</html>
