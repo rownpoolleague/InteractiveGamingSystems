@@ -33,6 +33,7 @@
             display: flex;
             flex-direction: column;
             justify-content: flex-start;
+            padding-bottom: 240px; 
         }
 
         .page {
@@ -103,6 +104,81 @@
         .type-list-item:hover {
             background-color: #e0e6f7;
         }
+
+        /* Floating Google Sheets Visual Container Framework */
+        .sheets-iframe-replacement {
+            position: fixed;
+            bottom: 40px; 
+            left: 50%;
+            transform: translateX(-50%);
+            width: 100%;
+            max-width: 568px; 
+            box-sizing: border-box;
+            background: transparent; 
+            border-top: 3px solid #4169e1;
+            z-index: 9999;
+            display: none; 
+            padding: 5px;
+            pointer-events: none; 
+        }
+
+        .sheets-container {
+            width: 100%;
+            height: 160px; 
+            overflow-y: auto;
+            overflow-x: auto;
+            border: 1px solid #d9d9d9;
+            background: #ffffff;
+            box-shadow: 0 -4px 15px rgba(0, 0, 0, 0.15);
+            pointer-events: auto; 
+        }
+
+        .sheets-table {
+            width: 100%;
+            border-collapse: collapse;
+            font-family: Arial, sans-serif;
+            font-size: 13px;
+            color: #333333;
+        }
+
+        .sheets-table th, .sheets-axis {
+            background-color: #f3f3f3;
+            color: #666666;
+            text-align: center;
+            font-weight: normal;
+            font-size: 11px;
+            user-select: none;
+            border: 1px solid #d9d9d9;
+            padding: 4px;
+        }
+
+        .sheets-axis {
+            width: 25px;
+        }
+
+        .sheets-table td {
+            border: 1px solid #e2e2e2;
+            padding: 6px 8px;
+            white-space: nowrap;
+            overflow: hidden;
+            text-overflow: ellipsis;
+            text-align: left;
+            background: #ffffff;
+        }
+
+        .sheets-table td.num-cell {
+            text-align: right;
+            font-family: 'Courier New', monospace;
+            font-weight: bold;
+        }
+
+        .sheets-table tr.interactive-row {
+            cursor: pointer;
+        }
+
+        .sheets-table tr.interactive-row:hover td:not(.sheets-axis) {
+            background-color: #e8f0fe !important;
+        }
     </style>
 </head>
 
@@ -111,7 +187,11 @@
     <div class="form-wrapper">
         <div id="page-store" class="page" style="display:block;">
             <h2>Select Your Store</h2>
-            <select id="storeSelect" style="width:140px;"></select>
+            <select id="storeSelect" style="width:180px;">
+                <option value="Chicago">Chicago</option>
+                <option value="New York">New York</option>
+                <option value="Los Angeles">Los Angeles</option>
+            </select>
             <br><br>
             <button onclick="enterStore()">Enter</button>
         </div>
@@ -135,10 +215,7 @@
 
         <div id="page-type" class="page">
             <h2>Search by Type</h2>
-
-            <ul id="typeSelect" style="list-style-type: none; padding: 0; width: 100%;">
-            </ul>
-
+            <ul id="typeSelect" style="list-style-type: none; padding: 0; width: 100%;"></ul>
             <br><br>
             <div id="typeItems"></div>
             <br>
@@ -150,6 +227,7 @@
             <div id="unitInputs"></div>
             <br>
             <div id="itemTotal" style="margin-top:10px; font-size:18px; font-weight:bold;">Total: 0</div>
+            <br>
             <button onclick="saveItemEntry()">Save Item</button>
             <br><br>
             <button onclick="backToMenu()">Back</button>
@@ -157,17 +235,36 @@
 
         <div id="page-review" class="page">
             <h2>Review Inventory</h2>
-            <div id="reviewList"></div>
+            <button onclick="submitFinalInventory()">Save Inventory</button>
             <br><br>
-            <button onclick="saveAndSubmit()">Save Inventory</button>
-            <br><br>
-            <button onclick="openClearModal()">Clear All</button>
+            <button onclick="openClearModal()" style="background:#c62828;">Clear All</button>
             <br><br>
             <button onclick="backToMenu()">Back</button>
         </div>
-        <div id="iframeContainer" style="margin-top:20px; border-top: 2px solid #4169e1; padding-top: 10px;">
-            <iframe id="successFrame" src="https://docs.google.com/spreadsheets/d/e/2PACX-1vTm-2qCeE7HcO-TCijFxJCEgHqMPHqfiBe9U43CIW6CDF0oF8rToDPtw8SDZYjj8oDALYw6Qx_M3cC-/pubhtml?widget=true&amp;headers=false" width="100%" height="300px" frameborder="0"></iframe>
+
+        <div id="persistentSheetsFrame" class="sheets-iframe-replacement">
+            <div class="sheets-container">
+                <table class="sheets-table">
+                    <thead>
+                        <tr>
+                            <th class="sheets-axis"></th>
+                            <th>A</th>
+                            <th>B</th>
+                            <th>C</th>
+                        </tr>
+                        <tr>
+                            <td class="sheets-axis">1</td>
+                            <td style="background-color: #f8f9fa; font-weight: bold; color: #1f2023;">Item Name</td>
+                            <td style="background-color: #f8f9fa; font-weight: bold; color: #1f2023;">Breakdown</td>
+                            <td style="background-color: #f8f9fa; font-weight: bold; color: #1f2023; text-align: right;">Total Count</td>
+                        </tr>
+                    </thead>
+                    <tbody id="sheetsTableBody">
+                        </tbody>
+                </table>
+            </div>
         </div>
+
         <footer>
             <a href="https://interactivegamingsystems.app" class="powered-by">Powered by Interactive Gaming Systems</a>
         </footer>
@@ -175,144 +272,72 @@
 
     <div id="successModal" style="display:none; position:fixed; top:0; left:0; width:100%; height:100%; background:rgba(0,0,0,0.6); justify-content:center; align-items:center;">
         <div style="background:white; padding:20px; width:80%; max-width:300px; border-radius:8px; text-align:center;">
-            <h3>Success!</h3><button onclick="closeSuccessModal()">OK</button>
+            <h3>Success!</h3>
+            <button onclick="closeSuccessModal()">OK</button>
         </div>
     </div>
 
     <div id="clearModal" style="display:none; position:fixed; top:0; left:0; width:100%; height:100%; background:rgba(0,0,0,0.6); justify-content:center; align-items:center;">
         <div style="background:white; padding:20px; width:80%; max-width:300px; border-radius:8px; text-align:center;">
-            <h3>Clear All?</h3><button onclick="confirmClearAll()" style="background:#c62828; color:white;">Clear All</button><button onclick="closeClearModal()">Cancel</button>
+            <h3>Clear All?</h3>
+            <button onclick="confirmClearAll()" style="background:#c62828; color:white;">Clear All</button>
+            <button onclick="closeClearModal()">Cancel</button>
         </div>
     </div>
 
     <script>
-        const API_URL = "https://script.google.com/macros/s/AKfycbwUIphnqazEBtHtCTFRxJYelpbACI2hhEQcruzhtVnh5zRcdLMbmKtqxgprol0JEGwCLw/exec";
-        const BASE_URL = "https://docs.google.com/spreadsheets/d/e/2PACX-1vTm-2qCeE7HcO-TCijFxJCEgHqMPHqfiBe9U43CIW6CDF0oF8rToDPtw8SDZYjj8oDALYw6Qx_M3cC-/pubhtml";
-        const storeGidMap = {
-            "Chicago": "1004710217",
-            "New York": "1697503524",
-            "Los Angeles": "556902113"
-        };
         let inventorySession = {
             store: null,
             entries: {}
         };
-        let parameters = [{
-                "item": "Ham",
-                "type": "Entree",
-                "validUnits": ["Full Case", "Bag", "Lbs"],
-                "unitValues": {
-                    "Full Case": 20,
-                    "Bag": 5,
-                    "Lbs": 1
-                }
-            },
-            {
-                "item": "Pineapple",
-                "type": "Side",
-                "validUnits": ["Full Case", "Bag"],
-                "unitValues": {
-                    "Full Case": 10,
-                    "Bag": 1
-                }
-            },
-            {
-                "item": "Shrimp",
-                "type": "Entree",
-                "validUnits": ["Full Case", "Bag", "Lbs"],
-                "unitValues": {
-                    "Full Case": 30,
-                    "Bag": 10,
-                    "Lbs": 1
-                }
-            },
-            {
-                "item": "Cream of Mushroom",
-                "type": "Appetizer",
-                "validUnits": ["Full Case", "Bag"],
-                "unitValues": {
-                    "Full Case": 6,
-                    "Bag": 1
-                }
-            },
-            {
-                "item": "Carryout Bag",
-                "type": "Packaging",
-                "validUnits": ["Full Case"],
-                "unitValues": {
-                    "Full Case": 1
-                }
-            },
-            {
-                "item": "Chicken Kiev",
-                "type": "Entree",
-                "validUnits": ["Full Case", "Bag", "Lbs"],
-                "unitValues": {
-                    "Full Case": 40,
-                    "Bag": 10,
-                    "Lbs": 1
-                }
-            },
-            {
-                "item": "Tomato Soup",
-                "type": "Appetizer",
-                "validUnits": ["Full Case", "Bag"],
-                "unitValues": {
-                    "Full Case": 6,
-                    "Bag": 1
-                }
-            },
-            {
-                "item": "French Bread",
-                "type": "Appetizer",
-                "validUnits": ["Full Case", "Bag", "Each"],
-                "unitValues": {
-                    "Full Case": 12,
-                    "Bag": 2,
-                    "Each": 1
-                }
-            },
-            {
-                "item": "Green Beans",
-                "type": "Side",
-                "validUnits": ["Full Case", "Lbs"],
-                "unitValues": {
-                    "Full Case": 10,
-                    "Lbs": 1
-                }
-            },
-            {
-                "item": "Large Boxes",
-                "type": "Packaging",
-                "validUnits": ["Full Case", "Each"],
-                "unitValues": {
-                    "Full Case": 150,
-                    "Each": 1
-                }
-            }
+
+        let parameters = [
+            { "item": "Ham", "type": "Entree", "validUnits": ["Full Case", "Bag", "Lbs"], "unitValues": { "Full Case": 20, "Bag": 5, "Lbs": 1 } },
+            { "item": "Pineapple", "type": "Side", "validUnits": ["Full Case", "Bag"], "unitValues": { "Full Case": 10, "Bag": 1 } },
+            { "item": "Shrimp", "type": "Entree", "validUnits": ["Full Case", "Bag", "Lbs"], "unitValues": { "Full Case": 30, "Bag": 10, "Lbs": 1 } },
+            { "item": "Cream of Mushroom", "type": "Appetizer", "validUnits": ["Full Case", "Bag"], "unitValues": { "Full Case": 6, "Bag": 1 } },
+            { "item": "Carryout Bag", "type": "Packaging", "validUnits": ["Full Case"], "unitValues": { "Full Case": 1 } },
+            { "item": "Chicken Kiev", "type": "Entree", "validUnits": ["Full Case", "Bag", "Lbs"], "unitValues": { "Full Case": 40, "Bag": 10, "Lbs": 1 } },
+            { "item": "Tomato Soup", "type": "Appetizer", "validUnits": ["Full Case", "Bag"], "unitValues": { "Full Case": 6, "Bag": 1 } },
+            { "item": "French Bread", "type": "Appetizer", "validUnits": ["Full Case", "Bag", "Each"], "unitValues": { "Full Case": 12, "Bag": 2, "Each": 1 } },
+            { "item": "Green Beans", "type": "Side", "validUnits": ["Full Case", "Lbs"], "unitValues": { "Full Case": 10, "Lbs": 1 } },
+            { "item": "Large Boxes", "type": "Packaging", "validUnits": ["Full Case", "Each"], "unitValues": { "Full Case": 150, "Each": 1 } }
         ];
-        let hardcodedStores = ["Chicago", "New York", "Los Angeles"];
 
         document.addEventListener("DOMContentLoaded", function() {
             const saved = localStorage.getItem("inventorySession");
-            if (saved) inventorySession = JSON.parse(saved);
+            if (saved) {
+                inventorySession = JSON.parse(saved);
+            }
+            
+            // Sync current state with UI elements safely
             const sel = document.getElementById("storeSelect");
-
-            // Re-added the dropdown option builder here
-            hardcodedStores.forEach(s => sel.innerHTML += `<option value="${s}">${s}</option>`);
-
-            if (inventorySession.store) sel.value = inventorySession.store;
+            if (inventorySession.store) {
+                sel.value = inventorySession.store;
+                syncSheetsDisplay();
+                showPage("page-menu");
+            } else {
+                showPage("page-store");
+            }
         });
 
         function showPage(id) {
             document.querySelectorAll(".page").forEach(p => p.style.display = "none");
             document.getElementById(id).style.display = "block";
+            
+            const frame = document.getElementById("persistentSheetsFrame");
+            if (id === "page-store") {
+                frame.style.display = "none";
+            } else {
+                frame.style.display = "block";
+            }
         }
 
         function enterStore() {
-            inventorySession.store = document.getElementById("storeSelect").value;
+            const sel = document.getElementById("storeSelect");
+            inventorySession.store = sel.value;
             localStorage.setItem("inventorySession", JSON.stringify(inventorySession));
-            document.getElementById("successFrame").src = `${BASE_URL}?gid=${storeGidMap[inventorySession.store]}&refresh=${new Date().getTime()}`;
+            syncSheetsDisplay();
             showPage("page-menu");
         }
 
@@ -321,6 +346,8 @@
         }
 
         function goNameSearch() {
+            document.getElementById("nameInput").value = '';
+            document.getElementById("customDropdown").style.display = "none";
             showPage("page-name");
         }
 
@@ -330,7 +357,6 @@
         }
 
         function goReview() {
-            buildReviewList();
             showPage("page-review");
         }
 
@@ -342,41 +368,44 @@
                 return;
             }
             const filtered = parameters.filter(p => p.item.toLowerCase().includes(filter));
-            dropdown.innerHTML = filtered.map(p => `<div style="padding:10px; cursor:pointer;" onclick="openItemEntry('${p.item.replace(/'/g, "\\'")}')">${p.item}</div>`).join('');
+            dropdown.innerHTML = filtered.map(p => `<div style="padding:10px; border-bottom:1px solid #eee; cursor:pointer;" onclick="openItemEntry('${p.item.replace(/'/g, "\\'")}')">${p.item}</div>`).join('');
             dropdown.style.display = filtered.length ? "block" : "none";
         }
 
         function populateTypeList() {
             const listContainer = document.getElementById("typeSelect");
-            listContainer.innerHTML = '';
+            listContainer.innerHTML = ''; 
 
             [...new Set(parameters.map(p => p.type))].forEach(t => {
                 const li = document.createElement("li");
                 li.textContent = t;
-                li.className = "type-list-item";
-                li.style.cursor = "pointer";
-
-                li.onclick = function() {
-                    displayTypeItems(t);
-                };
-
+                li.className = "type-list-item"; 
+                li.onclick = function() { displayTypeItems(t); };
                 listContainer.appendChild(li);
             });
-
+            
             document.getElementById("typeItems").innerHTML = '';
         }
 
         function displayTypeItems(selectedType) {
             document.getElementById("typeItems").innerHTML = parameters
                 .filter(p => p.type === selectedType)
-                .map(item => `<div style="padding:12px; border:1px solid #ccc; margin:5px auto; width:80%; max-width:280px; box-sizing:border-box; cursor:pointer; font-size:18px;" onclick="openItemEntry('${item.item.replace(/'/g, "\\'")}')">${item.item}</div>`)
+                .map(item => `<div style="padding:12px; border:1px solid #ccc; margin:5px auto; width:80%; max-width:280px; box-sizing:border-box; cursor:pointer; font-size:18px; background:#f9f9f9; border-radius:4px;" onclick="openItemEntry('${item.item.replace(/'/g, "\\'")}')">${item.item}</div>`)
                 .join('');
         }
 
         function openItemEntry(itemName) {
             const item = parameters.find(p => p.item === itemName);
             document.getElementById("entryItemName").innerText = item.item;
-            document.getElementById("unitInputs").innerHTML = item.validUnits.map(unit => `<div style="margin-bottom:8px;"><label style="display:inline-block; width:140px;">${unit}</label><input type="number" id="unit_${unit}" min="0" value="${(inventorySession.entries[item.item] || {})[unit] || 0}" style="width:80px;" oninput="updateItemTotal()"></div>`).join('');
+            
+            document.getElementById("unitInputs").innerHTML = item.validUnits.map(unit => {
+                const existingVal = (inventorySession.entries[item.item] || {})[unit] || 0;
+                return `<div style="margin-bottom:12px;">
+                    <label style="display:inline-block; width:120px; font-size:18px; text-align:left;">${unit}</label>
+                    <input type="number" id="unit_${unit}" min="0" value="${existingVal}" style="width:100px; font-size:18px;" oninput="updateItemTotal()">
+                </div>`;
+            }).join('');
+            
             updateItemTotal();
             showPage("page-item-entry");
         }
@@ -385,12 +414,20 @@
             const itemName = document.getElementById("entryItemName").innerText;
             const item = parameters.find(p => p.item === itemName);
             const entry = {};
+            
             item.validUnits.forEach(unit => {
                 const val = Number(document.getElementById("unit_" + unit).value);
                 if (val > 0) entry[unit] = val;
             });
-            inventorySession.entries[itemName] = entry;
+            
+            if (Object.keys(entry).length > 0) {
+                inventorySession.entries[itemName] = entry;
+            } else {
+                delete inventorySession.entries[itemName];
+            }
+            
             localStorage.setItem("inventorySession", JSON.stringify(inventorySession));
+            syncSheetsDisplay();
             backToMenu();
         }
 
@@ -400,52 +437,55 @@
             document.getElementById("itemTotal").innerText = "Total: " + total;
         }
 
-        function buildReviewList() {
-            const container = document.getElementById("reviewList");
-            container.innerHTML = Object.keys(inventorySession.entries).length ? "" : "<p>No items entered yet.</p>";
+        function syncSheetsDisplay() {
+            const tbody = document.getElementById("sheetsTableBody");
+            tbody.innerHTML = '';
+            
+            let rowIndex = 2;
+            const itemsCounted = Object.keys(inventorySession.entries).length;
+
+            if (itemsCounted === 0) {
+                tbody.innerHTML = `
+                    <tr>
+                        <td class="sheets-axis">${rowIndex}</td>
+                        <td colspan="3" style="color:#999; text-align:center; font-style:italic;">Spreadsheet is empty...</td>
+                    </tr>
+                `;
+                return;
+            }
+
             parameters.forEach(p => {
                 if (inventorySession.entries[p.item]) {
-                    const total = Object.keys(inventorySession.entries[p.item]).reduce((acc, unit) => acc + inventorySession.entries[p.item][unit] * p.unitValues[unit], 0);
-                    container.innerHTML += `<div style="padding:10px; border-bottom:1px solid #ccc; cursor:pointer;" onclick="openItemEntry('${p.item.replace(/'/g, "\\'")}')"><b>${p.item}</b>: ${total}</div>`;
+                    const breakdownObj = inventorySession.entries[p.item];
+                    
+                    const breakdownStr = Object.keys(breakdownObj)
+                        .map(unit => `${breakdownObj[unit]} ${unit}`)
+                        .join(', ');
+
+                    const total = Object.keys(breakdownObj).reduce((acc, unit) => acc + breakdownObj[unit] * p.unitValues[unit], 0);
+
+                    const row = document.createElement("tr");
+                    row.className = "interactive-row";
+                    row.onclick = function() { openItemEntry(p.item); };
+                    
+                    row.innerHTML = `
+                        <td class="sheets-axis">${rowIndex}</td>
+                        <td style="font-weight:bold;">${p.item}</td>
+                        <td style="color:#555;">${breakdownStr}</td>
+                        <td class="num-cell">${total}</td>
+                    `;
+                    tbody.appendChild(row);
+                    rowIndex++;
                 }
             });
         }
 
-        async function saveAndSubmit() {
-            const entries = inventorySession.entries;
-            if (Object.keys(entries).length === 0) return;
-            const payload = {
-                action: "saveInventory",
-                storeName: inventorySession.store,
-                data: []
-            };
-            parameters.forEach(p => {
-                if (entries[p.item]) {
-                    let total = 0;
-                    for (const unit in entries[p.item]) {
-                        total += entries[p.item][unit] * p.unitValues[unit];
-                    }
-                    payload.data.push({
-                        item: p.item,
-                        total: total
-                    });
-                }
-            });
-            try {
-                await fetch(API_URL, {
-                    method: "POST",
-                    mode: "no-cors",
-                    headers: {
-                        "Content-Type": "application/json"
-                    },
-                    body: JSON.stringify(payload)
-                });
-                document.getElementById("iframeContainer").style.display = "block";
-                document.getElementById("successFrame").src = `${BASE_URL}?gid=${storeGidMap[inventorySession.store]}&refresh=${new Date().getTime()}`;
-                document.getElementById("successModal").style.display = "flex";
-            } catch (error) {
-                console.error("Error:", error);
+        function submitFinalInventory() {
+            if (Object.keys(inventorySession.entries).length === 0) {
+                alert("Spreadsheet context empty!");
+                return;
             }
+            document.getElementById("successModal").style.display = "flex";
         }
 
         function closeSuccessModal() {
@@ -460,29 +500,15 @@
             document.getElementById("clearModal").style.display = "none";
         }
 
-        async function confirmClearAll() {
-            try {
-                await fetch(API_URL, {
-                    method: "POST",
-                    mode: "no-cors",
-                    headers: {
-                        "Content-Type": "application/json"
-                    },
-                    body: JSON.stringify({
-                        action: "clearInventory",
-                        storeName: inventorySession.store
-                    })
-                });
-                document.getElementById("successFrame").src = `${BASE_URL}?gid=${storeGidMap[inventorySession.store]}&refresh=${new Date().getTime()}`;
-                inventorySession.entries = {};
-                inventorySession.store = null;
-                localStorage.removeItem("inventorySession");
-                closeClearModal();
-                document.getElementById("storeSelect").selectedIndex = 0;
-                showPage("page-store");
-            } catch (e) {
-                console.error("Clear failed:", e);
-            }
+        function confirmClearAll() {
+            inventorySession.entries = {};
+            inventorySession.store = null;
+            localStorage.removeItem("inventorySession");
+            
+            syncSheetsDisplay();
+            closeClearModal();
+            document.getElementById("storeSelect").selectedIndex = 0;
+            showPage("page-store");
         }
     </script>
 </body>
