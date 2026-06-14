@@ -148,8 +148,10 @@
             <button onclick="backToMenu()">Back</button>
         </div>
         <div id="iframeContainer" style="margin-top:20px; border-top: 2px solid #4169e1; padding-top: 10px;">
-            <iframe id="successFrame" src="https://docs.google.com/spreadsheets/d/e/2PACX-1vTm-2qCeE7HcO-TCijFxJCEgHqMPHqfiBe9U43CIW6CDF0oF8rToDPtw8SDZYjj8oDALYw6Qx_M3cC-/pubhtml?widget=true&headers=false" width="100%" height="300px" frameborder="0"></iframe>
-        </div>
+<iframe id="successFrame" 
+    src="https://docs.google.com/spreadsheets/d/e/2PACX-1vTm-2qCeE7HcO-TCijFxJCEgHqMPHqfiBe9U43CIW6CDF0oF8rToDPtw8SDZYjj8oDALYw6Qx_M3cC-/pubhtml?widget=true&amp;headers=false" 
+    width="100%" height="300px" frameborder="0"></iframe>
+    </div>
         <footer>
             <a href="https://interactivegamingsystems.app" class="powered-by">Powered by Interactive Gaming Systems</a>
         </footer>
@@ -175,18 +177,103 @@
             "New York": "1697503524",
             "Los Angeles": "556902113"
         };
-        let inventorySession = { store: null, entries: {} };
-        let parameters = [
-            {"item": "Ham", "type": "Entree", "validUnits": ["Full Case", "Bag", "Lbs"], "unitValues": {"Full Case": 20, "Bag": 5, "Lbs": 1}},
-            {"item": "Pineapple", "type": "Side", "validUnits": ["Full Case", "Bag"], "unitValues": {"Full Case": 10, "Bag": 1}},
-            {"item": "Shrimp", "type": "Entree", "validUnits": ["Full Case", "Bag", "Lbs"], "unitValues": {"Full Case": 30, "Bag": 10, "Lbs": 1}},
-            {"item": "Cream of Mushroom", "type": "Appetizer", "validUnits": ["Full Case", "Bag"], "unitValues": {"Full Case": 6, "Bag": 1}},
-            {"item": "Carryout Bag", "type": "Packaging", "validUnits": ["Full Case"], "unitValues": {"Full Case": 1}},
-            {"item": "Chicken Kiev", "type": "Entree", "validUnits": ["Full Case", "Bag", "Lbs"], "unitValues": {"Full Case": 40, "Bag": 10, "Lbs": 1}},
-            {"item": "Tomato Soup", "type": "Appetizer", "validUnits": ["Full Case", "Bag"], "unitValues": {"Full Case": 6, "Bag": 1}},
-            {"item": "French Bread", "type": "Appetizer", "validUnits": ["Full Case", "Bag", "Each"], "unitValues": {"Full Case": 12, "Bag": 2, "Each": 1}},
-            {"item": "Green Beans", "type": "Side", "validUnits": ["Full Case", "Lbs"], "unitValues": {"Full Case": 10, "Lbs": 1}},
-            {"item": "Large Boxes", "type": "Packaging", "validUnits": ["Full Case", "Each"], "unitValues": {"Full Case": 150, "Each": 1}}
+        let inventorySession = {
+            store: null,
+            entries: {}
+        };
+        let parameters = [{
+                "item": "Ham",
+                "type": "Entree",
+                "validUnits": ["Full Case", "Bag", "Lbs"],
+                "unitValues": {
+                    "Full Case": 20,
+                    "Bag": 5,
+                    "Lbs": 1
+                }
+            },
+            {
+                "item": "Pineapple",
+                "type": "Side",
+                "validUnits": ["Full Case", "Bag"],
+                "unitValues": {
+                    "Full Case": 10,
+                    "Bag": 1
+                }
+            },
+            {
+                "item": "Shrimp",
+                "type": "Entree",
+                "validUnits": ["Full Case", "Bag", "Lbs"],
+                "unitValues": {
+                    "Full Case": 30,
+                    "Bag": 10,
+                    "Lbs": 1
+                }
+            },
+            {
+                "item": "Cream of Mushroom",
+                "type": "Appetizer",
+                "validUnits": ["Full Case", "Bag"],
+                "unitValues": {
+                    "Full Case": 6,
+                    "Bag": 1
+                }
+            },
+            {
+                "item": "Carryout Bag",
+                "type": "Packaging",
+                "validUnits": ["Full Case"],
+                "unitValues": {
+                    "Full Case": 1
+                }
+            },
+            {
+                "item": "Chicken Kiev",
+                "type": "Entree",
+                "validUnits": ["Full Case", "Bag", "Lbs"],
+                "unitValues": {
+                    "Full Case": 40,
+                    "Bag": 10,
+                    "Lbs": 1
+                }
+            },
+            {
+                "item": "Tomato Soup",
+                "type": "Appetizer",
+                "validUnits": ["Full Case", "Bag"],
+                "unitValues": {
+                    "Full Case": 6,
+                    "Bag": 1
+                }
+            },
+            {
+                "item": "French Bread",
+                "type": "Appetizer",
+                "validUnits": ["Full Case", "Bag", "Each"],
+                "unitValues": {
+                    "Full Case": 12,
+                    "Bag": 2,
+                    "Each": 1
+                }
+            },
+            {
+                "item": "Green Beans",
+                "type": "Side",
+                "validUnits": ["Full Case", "Lbs"],
+                "unitValues": {
+                    "Full Case": 10,
+                    "Lbs": 1
+                }
+            },
+            {
+                "item": "Large Boxes",
+                "type": "Packaging",
+                "validUnits": ["Full Case", "Each"],
+                "unitValues": {
+                    "Full Case": 150,
+                    "Each": 1
+                }
+            }
         ];
         let hardcodedStores = ["Chicago", "New York", "Los Angeles"];
 
@@ -206,19 +293,35 @@
         function enterStore() {
             inventorySession.store = document.getElementById("storeSelect").value;
             localStorage.setItem("inventorySession", JSON.stringify(inventorySession));
-            document.getElementById("successFrame").src = `${BASE_URL}?gid=${storeGidMap[inventorySession.store]}&single=true&refresh=${new Date().getTime()}`;
+            document.getElementById("successFrame").src = `${BASE_URL}?gid=${storeGidMap[inventorySession.store]}&refresh=${new Date().getTime()}`;
             showPage("page-menu");
         }
 
-        function backToMenu() { showPage("page-menu"); }
-        function goNameSearch() { showPage("page-name"); }
-        function goTypeSearch() { populateTypeList(); showPage("page-type"); }
-        function goReview() { buildReviewList(); showPage("page-review"); }
+        function backToMenu() {
+            showPage("page-menu");
+        }
+
+        function goNameSearch() {
+            showPage("page-name");
+        }
+
+        function goTypeSearch() {
+            populateTypeList();
+            showPage("page-type");
+        }
+
+        function goReview() {
+            buildReviewList();
+            showPage("page-review");
+        }
 
         function filterNameList() {
             const filter = document.getElementById("nameInput").value.toLowerCase().trim();
             const dropdown = document.getElementById("customDropdown");
-            if (!filter) { dropdown.style.display = "none"; return; }
+            if (!filter) {
+                dropdown.style.display = "none";
+                return;
+            }
             const filtered = parameters.filter(p => p.item.toLowerCase().includes(filter));
             dropdown.innerHTML = filtered.map(p => `<div style="padding:10px; cursor:pointer;" onclick="openItemEntry('${p.item.replace(/'/g, "\\'")}')">${p.item}</div>`).join('');
             dropdown.style.display = filtered.length ? "block" : "none";
@@ -227,7 +330,9 @@
         function populateTypeList() {
             const sel = document.getElementById("typeSelect");
             sel.innerHTML = '<option value="" disabled selected hidden>Choose a type...</option>';
-            [...new Set(parameters.map(p => p.type))].forEach(t => { sel.innerHTML += `<option value="${t}">${t}</option>`; });
+            [...new Set(parameters.map(p => p.type))].forEach(t => {
+                sel.innerHTML += `<option value="${t}">${t}</option>`;
+            });
         }
 
         function openItemEntry(itemName) {
@@ -276,38 +381,77 @@
         async function saveAndSubmit() {
             const entries = inventorySession.entries;
             if (Object.keys(entries).length === 0) return;
-            const payload = { action: "saveInventory", storeName: inventorySession.store, data: [] };
+            const payload = {
+                action: "saveInventory",
+                storeName: inventorySession.store,
+                data: []
+            };
             parameters.forEach(p => {
                 if (entries[p.item]) {
                     let total = 0;
-                    for (const unit in entries[p.item]) { total += entries[p.item][unit] * p.unitValues[unit]; }
-                    payload.data.push({ item: p.item, total: total });
+                    for (const unit in entries[p.item]) {
+                        total += entries[p.item][unit] * p.unitValues[unit];
+                    }
+                    payload.data.push({
+                        item: p.item,
+                        total: total
+                    });
                 }
             });
             try {
-                await fetch(API_URL, { method: "POST", mode: "no-cors", headers: { "Content-Type": "application/json" }, body: JSON.stringify(payload) });
+                await fetch(API_URL, {
+                    method: "POST",
+                    mode: "no-cors",
+                    headers: {
+                        "Content-Type": "application/json"
+                    },
+                    body: JSON.stringify(payload)
+                });
                 document.getElementById("iframeContainer").style.display = "block";
-                document.getElementById("successFrame").src = `${BASE_URL}?gid=${storeGidMap[inventorySession.store]}&single=true&refresh=${new Date().getTime()}`;
+                document.getElementById("successFrame").src = `${BASE_URL}?gid=${storeGidMap[inventorySession.store]}&refresh=${new Date().getTime()}`;
                 document.getElementById("successModal").style.display = "flex";
-            } catch (error) { console.error("Error:", error); }
+            } catch (error) {
+                console.error("Error:", error);
+            }
         }
 
-        function closeSuccessModal() { document.getElementById("successModal").style.display = "none"; }
-        function openClearModal() { document.getElementById("clearModal").style.display = "flex"; }
-        function closeClearModal() { document.getElementById("clearModal").style.display = "none"; }
+        function closeSuccessModal() {
+            document.getElementById("successModal").style.display = "none";
+        }
+
+        function openClearModal() {
+            document.getElementById("clearModal").style.display = "flex";
+        }
+
+        function closeClearModal() {
+            document.getElementById("clearModal").style.display = "none";
+        }
 
         async function confirmClearAll() {
             try {
-                await fetch(API_URL, { method: "POST", mode: "no-cors", headers: { "Content-Type": "application/json" }, body: JSON.stringify({ action: "clearInventory", storeName: inventorySession.store }) });
-                document.getElementById("successFrame").src = `${BASE_URL}?gid=${storeGidMap[inventorySession.store]}&single=true&refresh=${new Date().getTime()}`;
+                await fetch(API_URL, {
+                    method: "POST",
+                    mode: "no-cors",
+                    headers: {
+                        "Content-Type": "application/json"
+                    },
+                    body: JSON.stringify({
+                        action: "clearInventory",
+                        storeName: inventorySession.store
+                    })
+                });
+                document.getElementById("successFrame").src = `${BASE_URL}?gid=${storeGidMap[inventorySession.store]}&refresh=${new Date().getTime()}`;
                 inventorySession.entries = {};
                 inventorySession.store = null;
                 localStorage.removeItem("inventorySession");
                 closeClearModal();
                 document.getElementById("storeSelect").selectedIndex = 0;
                 showPage("page-store");
-            } catch (e) { console.error("Clear failed:", e); }
+            } catch (e) {
+                console.error("Clear failed:", e);
+            }
         }
     </script>
 </body>
+
 </html>
