@@ -238,29 +238,53 @@
             .hero p { font-size: 1.15rem; }
         }
 
-        @media (max-width: 600px) {
-            .nav-container { padding: 16px 20px; }
-            nav { display: none; }
-            .btn { text-align: center; width: 100%; }
-        }
+        @media (max-width: 768px) {
+    .hero h1 { font-size: 2.6rem; }
+    .hero p { font-size: 1.15rem; }
+    
+    /* Allow the nav container to stack vertically on smaller screens */
+    .nav-container { 
+        flex-direction: column;
+        gap: 16px;
+        padding: 16px 20px;
+    }
+    
+    /* Keep links visible, wrap them nicely, and remove left margin */
+    nav {
+        display: flex;
+        flex-wrap: wrap;
+        justify-content: center;
+        gap: 16px;
+    }
+    
+    nav a {
+        margin-left: 0; /* Prevents awkward off-center alignment */
+    }
+}
+
+@media (max-width: 600px) {
+    .btn { text-align: center; width: 100%; }
+    .banner-section { margin: 10px 0; }
+}
     </style>
 </head>
 <body>
 
     <header>
-         <section class="banner-section">
-            <img src="photos/igsbanner.png" class="banner-img">
-        </section>
-        <div class="nav-container">
-            <nav>
-                <a href="features.html">Features</a>
-                <a href="demos.html">Demos</a>
-                <a href="purchase.html">Purchase</a>
-                <a href="contact.html">Contact</a>
-                <a href="faqs.html">FAQ</a>
-            </nav>
-        </div>
-    </header>
+    <div class="banner-section">
+        <img src="photos/igsbanner.png" class="banner-img" >
+    </div>
+    <div class="nav-container">
+        <a href="#" class="brand-logo"></a>
+        <nav>
+            <a href="features.html">Features</a>
+            <a href="demos.html">Demos</a>
+            <a href="purchase.html">Purchase</a>
+            <a href="contact.html">Contact</a>
+            <a href="faqs.html">FAQ</a>
+        </nav>
+    </div>
+</header>
 
     <main class="container">
        
