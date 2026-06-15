@@ -16,7 +16,19 @@
             padding: 0;
             box-sizing: border-box;
         }
-
+.form-wrapper { 
+      width: 100%; 
+      max-width: 600px;
+      min-height: 100vh; 
+      border: 6px solid #000000; 
+      padding: 20px 10px;
+      text-align: center; 
+      box-sizing: border-box; 
+      position: relative;
+      display: flex;
+      flex-direction: column;
+      justify-content: space-between;
+    }
         /* Top Marketing / Explanatory Section */
         .promo-header {
             background: linear-gradient(135deg, #4169e1, #1e3c96);
@@ -234,7 +246,7 @@
 </head>
 
 <body>
-
+<div class="form-wrapper">
     <header class="promo-header">
         <h1>Inventory Helper</h1>
         <p>Our mobile apps are built to eliminate both the paper trail and guard against human error. Our lightweight utilities transforms complex logistics into simple categorical lookups while populating your master backend spreadsheet in real time, in any way you specify.</p>
@@ -330,7 +342,7 @@
                 </table>
             </div>
         </div>
-
+ </div>
     </main>
 
     <footer class="global-footer">
