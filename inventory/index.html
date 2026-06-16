@@ -181,16 +181,20 @@
   </div>
 </div>
 <div id="instructionModal" style="display:none; position:fixed; top:0; left:0; width:100%; height:100%; background:rgba(0,0,0,0.6); justify-content:center; align-items:center; z-index: 2000;">
-  <div style="background:white; padding:20px; width:90%; max-width:400px; border-radius:8px; text-align:left; max-height:80vh; overflow-y:auto;">
+  <div style="background:white; padding:20px; width:90%; max-width:400px; border-radius:8px; text-align:left; max-height:80vh; overflow-y:auto; border: 6px solid #c90014;">
     <h3>How to Use</h3>
     <p><strong>1. Search:</strong> Start typing in the search bar to find an item. Click the item.</p>
-    <p><strong>2. Count:</strong> Enter values for each unit type i.e. "Case" "Bag" "Each" Etc. Click save. You may adjust your number at anytime even after saving.</p>
-    <p><strong>3. Calculator:</strong> Tap the icon to add to your already saved total. Useful at EOD when adding in uncounted items.</p>
-    <p><strong>4. Review Inventory:</strong>This screen shows a full list of all saved items in FMS order. Click an item here to adjust the count if needed</p>
-    <p><strong>5. Save to Phone:</strong>Downloads a text list to your phone.</p>
-    <p><strong>6. Clear All:</strong> DELETES all saved data. Do this ONLY AFTER completing inventory in FMS</p>
-    <p><strong>SEARCH TIP:</strong> Items are named strategically. For instance, when counting in the freezer type Dough, when you save an item the dough list is reloaded. The word Cup will produce all sauce cups etc.</p>
-    <button onclick="document.getElementById('instructionModal').style.display='none'" style="background:#6c757d; width:100%;">Close</button>
+    <p><strong>2. Count:</strong> Enter values for each unit type i.e. "Case", "Bag", "Each", etc. Click save. You may adjust your number at any time, even after saving.</p>
+    <p><strong>3. Calculator:</strong> Tap the icon to add to your already saved total. Useful at EOD when adding in uncounted items. (Loose Boxes, maketable items and so on)</p>
+    <p><strong>4. Review Inventory:</strong> This screen shows a full list of all saved items in FMS order. Click an item here to adjust the count if needed.</p>
+    <p><strong>5. Save to Phone:</strong> Downloads a text list to your phone.</p>
+    <p><strong>6. Clear All:</strong> DELETES all saved data. Do this ONLY AFTER completing inventory in FMS.</p>
+    <p><strong>SEARCH TIP:</strong> Items are named strategically. For instance, when counting in the freezer type "Dough", after you save an item, the dough list is reloaded; the word "Cup" will produce all sauce cups etc.
+    
+    <button onclick="document.getElementById('instructionModal').style.display='none'" 
+            style="background:#C90014; color:white; border: 2px solid #000000; padding:10px; width:100%; max-width:200px; display:block; margin:15px auto; border-radius:6px; font-weight:bold;">
+      Close
+    </button>
   </div>
 </div>
 <script>
