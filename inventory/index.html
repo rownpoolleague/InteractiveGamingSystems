@@ -159,7 +159,8 @@
 
 <div id="clearModal" style="display:none; position:fixed; top:0; left:0; width:100%; height:100%; background:rgba(0,0,0,0.6); justify-content:center; align-items:center;">
   <div style="background:white; padding:20px; width:80%; max-width:300px; border-radius:8px; text-align:center;">
-    <h3>Clear All Inventory?</h3>
+   <h3 style="color: black;"> <span style="color: #C90014;">**Warning**</span><br><br> Clear All Inventory? 
+</h3>
     <p>This will remove all saved items.</p>
     <button onclick="confirmClearAll()" style="background:#c90014;">Clear All</button>
     <button onclick="closeClearModal()">Cancel</button>
@@ -178,7 +179,7 @@ let parameters = [
   { "item": "Large Hand Tossed Dough", "type": "Dough", "validUnits": ["Full Case", "Sleeve", "Each"], "unitValues": { "Full Case": 32, "Sleeve": 8, "Each": 1 } },
   { "item": "Hut Dust", "type": "Seasoning", "validUnits": ["Full Case", "Bag"], "unitValues": { "Full Case": 6, "Bag": 1 } },
   { "item": "Maketable Buffalo", "type": "Sauce", "validUnits": ["Full Case", "Bag"], "unitValues": { "Full Case": 18, "Bag": 1 } },
-  { "item": "Vegetable Oil", "type": "Misc", "validUnits": ["Full Case", "Each"], "unitValues": { "Full Case": 5, "Each": 1 } },
+  { "item": "Veg Oil", "type": "Misc", "validUnits": ["Full Case", "Each"], "unitValues": { "Full Case": 5, "Each": 1 } },
   { "item": "Medium Pan Dough", "type": "Dough", "validUnits": ["Full Case", "Sleeve", "Each"], "unitValues": { "Full Case": 36, "Sleeve": 9, "Each": 1 } },
   { "item": "Large Pan Dough", "type": "Dough", "validUnits": ["Full Case", "Sleeve", "Each"], "unitValues": { "Full Case": 27, "Sleeve": 9, "Each": 1 } },
   { "item": "Personal Pan Dough", "type": "Dough", "validUnits": ["Full Case", "Each"], "unitValues": { "Full Case": 96, "Each": 1 } },
@@ -254,8 +255,8 @@ let parameters = [
   { "item": "Cinnamon Sugar", "type": "Desert", "validUnits": ["Full Bag", "Lbs"], "unitValues": { "Full Bag": 25, "Lbs": 1 } },
   { "item": "Cinnabon", "type": "Desert", "validUnits": ["Full Case", "Each"], "unitValues": { "Full Case": 420, "Prepped": 10 ,"Each": 1 } },
   { "item": "Cookie", "type": "Desert", "validUnits": ["Full Case", "Each"], "unitValues": { "Full Case": 24, "Each": 1 } },
-  { "item": "Cinnabon Frosting", "type": "Desert", "validUnits": ["Full Case", "Bag"], "unitValues": { "Full Case": 24, "Bag": 1 } },
-  { "item": "Icing Cups", "type": "Desert", "validUnits": ["Full Case","Full Level", "Each"], "unitValues": { "Full Case": 180,"Full Level":36, "Each": 1 } },
+  { "item": "Frosting", "type": "Desert", "validUnits": ["Full Case", "Bag"], "unitValues": { "Full Case": 24, "Bag": 1 } },
+  { "item": "Icing", "type": "Desert", "validUnits": ["Full Case","Full Level", "Each"], "unitValues": { "Full Case": 180,"Full Level":36, "Each": 1 } },
   { "item": "Parmesan Shaved", "type": "Topping", "validUnits": ["Full Case", "Bag"], "unitValues": { "Full Case": 6, "Bag": 1 } },
   { "item": "Lid PP Pasta Tin", "type": "Packaging", "validUnits": ["Full Case", "Sleeve", "Each"], "unitValues": { "Full Case": 500, "Sleeve": 100, "Each": 1 } },
   { "item": "Parchment Paper", "type": "Misc", "validUnits": ["Full Case"], "unitValues": { "Full Case": 1 } },
@@ -300,12 +301,6 @@ function goNameSearch() {
   showPage("page-name"); 
 }
 
-function goTypeSearch() { 
-  document.getElementById("typeItems").innerHTML = ""; 
-  populateTypeList(); 
-  document.getElementById("typeSelect").selectedIndex = 0; 
-  showPage("page-type"); 
-}
 
 function backToMenu() { showPage("page-name"); }
 
@@ -406,10 +401,14 @@ function saveSessionToLocal() { localStorage.setItem("inventorySession", JSON.st
 function loadSessionFromLocal() { const saved = localStorage.getItem("inventorySession"); if (saved) inventorySession = JSON.parse(saved); }
 
 function downloadInventory() {
-  const blob = new Blob([JSON.stringify(inventorySession.entries)], { type: "application/json" });
+  const textContent = Object.entries(inventorySession.entries)
+    .map(([item, units]) => `${item}: ${JSON.stringify(units)}`)
+    .join("\n");
+  
+  const blob = new Blob([textContent], { type: "text/plain" });
   const a = document.createElement("a");
   a.href = URL.createObjectURL(blob);
-  a.download = "inventory.json";
+  a.download = "inventory.txt";
   a.click();
 }
 
