@@ -126,6 +126,14 @@
     <h2 id="entryItemName"></h2>
     <div id="unitInputs"></div>
     <br>
+        <div id="calcModal" style="display:none; position:fixed; top:0; left:0; width:100%; height:100%; background:rgba(0,0,0,0.6); justify-content:center; align-items:center; z-index: 1000;">
+  <div style="background:white; padding:20px; width:80%; max-width:250px; border-radius:8px; text-align:center;">
+    <h3 id="calcHeader">Add to Total</h3>
+    <input type="number" id="calcInput" style="width:40%; font-size:20px; padding:10px; margin-bottom:10px;" placeholder="Amount to add">
+    <button onclick="applyAddition()" style="background:#c90014; color:white; border:none; padding:10px; width:100%; border-radius:6px;">Add</button>
+    <button onclick="closeCalcModal()" style="background:#6c757d; color:white; border:none; padding:10px; width:100%; border-radius:6px; margin-top:5px;">Cancel</button>
+  </div>
+</div>
     <div id="itemTotal" style="margin-top:10px; font-size:18px; font-weight:bold;">Total: 0</div>
     <button onclick="saveItemEntry()">Save Item</button>
     <br><br>
@@ -156,6 +164,8 @@
     <button onclick="closeSuccessModal()">OK</button>
   </div>
 </div>
+
+
 
 <div id="clearModal" style="display:none; position:fixed; top:0; left:0; width:100%; height:100%; background:rgba(0,0,0,0.6); justify-content:center; align-items:center;">
   <div style="background:white; padding:20px; width:80%; max-width:300px; border-radius:8px; text-align:center;">
@@ -341,9 +351,29 @@ function openItemEntry(itemName) {
   const container = document.getElementById("unitInputs");
   container.innerHTML = "";
   const savedEntry = inventorySession.entries[item.item] || {};
-  item.validUnits.forEach(unit => {
+  
+  item.validUnits.forEach((unit, index) => {
     const val = savedEntry[unit] || 0;
-    container.innerHTML += `<div style="margin-bottom:8px;"><label style="display:inline-block; width:140px;">${unit}</label><input type="number" id="unit_${unit}" min="0" value="${val}" style="width:80px;" oninput="updateItemTotal()"></div>`;
+    
+    // Check if this is the last unit
+    const isLast = index === item.validUnits.length - 1;
+    
+    container.innerHTML += `
+      <div style="margin-bottom:8px; display:flex; align-items:center; justify-content:center;">
+        ${isLast ? `
+          <div onclick="openCalcModal('unit_${unit}')" style="cursor:pointer; margin-right:5px; display:flex; align-items:center;">
+            <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="black" stroke-width="2">
+              <rect x="4" y="2" width="16" height="20" rx="2"></rect>
+              <line x1="8" y1="6" x2="16" y2="6"></line>
+              <rect x="8" y="10" width="3" height="3"></rect>
+              <rect x="13" y="10" width="3" height="3"></rect>
+              <rect x="8" y="15" width="3" height="3"></rect>
+              <rect x="13" y="15" width="3" height="3"></rect>
+            </svg>
+          </div>` : '<div style="width:25px;"></div>'}
+        <label style="display:inline-block; width:115px;">${unit}</label>
+        <input type="number" id="unit_${unit}" min="0" value="${val}" style="width:80px;" oninput="updateItemTotal()">
+      </div>`;
   });
   updateItemTotal();
   showPage("page-item-entry");
@@ -419,8 +449,37 @@ function closeSuccessModal() { document.getElementById("successModal").style.dis
 function openClearModal() { document.getElementById("clearModal").style.display = "flex"; }
 function closeClearModal() { document.getElementById("clearModal").style.display = "none"; }
 function confirmClearAll() { inventorySession.entries = {}; saveSessionToLocal(); closeClearModal(); backToMenu(); }
+let targetInputId = ""; // Track which input we are editing
 
-if ('serviceWorker' in navigator) navigator.serviceWorker.register('./sw.js');
+function openCalcModal(inputId) {
+  targetInputId = inputId;
+  const calcField = document.getElementById("calcInput");
+  
+  // Clear the field so the user doesn't have to delete anything
+  calcField.value = "";
+  calcField.placeholder = "Add to Total";
+  
+  document.getElementById("calcModal").style.display = "flex";
+  calcField.focus(); // Immediately opens keyboard
+}
+
+function applyAddition() {
+  const inputVal = Number(document.getElementById(targetInputId).value) || 0;
+  const addVal = Number(document.getElementById("calcInput").value) || 0;
+  
+  // Update the original input field
+  document.getElementById(targetInputId).value = inputVal + addVal;
+  
+  // Update the UI total
+  updateItemTotal();
+  closeCalcModal();
+}
+
+function closeCalcModal() {
+  document.getElementById("calcModal").style.display = "none";
+}
+
+if ('serviceWorker' in navigator) navigator.serviceWorker.register('sw.js');
 </script>
 </body>
 </html>
