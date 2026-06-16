@@ -87,9 +87,18 @@
 <body>
 
 <div class="form-wrapper">
-    <div id="page-menu" class="page">
+  <div id="page-store" class="page">
+    <h2>Select Your Store</h2>
+    <select id="storeSelect" style="width:140px;"></select>
+    <br><br>
+    <button onclick="enterStore()">Enter</button>
+  </div>
+
+  <div id="page-menu" class="page">
     <h2>Search Inventory</h2>
     <button onclick="goNameSearch()">Search by Name</button>
+    <br><br>
+    <button onclick="goTypeSearch()">Search by Type</button>
     <br><br>
     <button onclick="goReview()">Review Inventory</button>
   </div>
@@ -99,7 +108,7 @@
     <input id="nameInput" style="width:280px;" type="text" placeholder="Start typing..." oninput="filterNameList()" autocomplete="off">
     <div id="customDropdown" style="max-height: 200px; overflow-y: auto; border: 1px solid #ccc; display: none; text-align: left; width: 80%; margin: 0 auto;"></div>
     <br><br>
-    <button onclick="backToMenu()">Back</button>
+    <button onclick="goReview()">Review Inventory</button>
   </div>
 
   <div id="page-type" class="page">
@@ -127,11 +136,11 @@
     <h2>Review Inventory</h2>
     <div id="reviewList"></div>
     <br><br>
-    <button onclick="downloadInventory()">Download Inventory</button>
+    <button onclick="downloadInventory()">Save to Phone</button>
     <br><br>
-    <button onclick="openClearModal()">Clear All</button>
+    <button onclick="backToMenu()">Search</button>
     <br><br>
-    <button onclick="backToMenu()">Back</button>
+     <button style="color: #c90014; background-color: #000000" onclick="openClearModal()">Clear All</button>
   </div>
 
   <footer style="width: 100%; text-align: center;">
@@ -152,13 +161,13 @@
   <div style="background:white; padding:20px; width:80%; max-width:300px; border-radius:8px; text-align:center;">
     <h3>Clear All Inventory?</h3>
     <p>This will remove all saved items.</p>
-    <button onclick="confirmClearAll()" style="background:#c62828;">Clear All</button>
+    <button onclick="confirmClearAll()" style="background:#c90014;">Clear All</button>
     <button onclick="closeClearModal()">Cancel</button>
   </div>
 </div>
 
 <script>
-const API_URL = "https://script.google.com/macros/s/AKfycbz852gDVGYwAuqGwpLaBSEFI3v0O-SGdKsG_iwRfjVgZEb3V2142jtrtUN-IxKoPF03cA/exec";
+
 let inventorySession = { store: null, entries: {} };
 
 let parameters = [
@@ -188,10 +197,10 @@ let parameters = [
   { "item": "CC Pep", "type": "Topping", "validUnits": ["Full Case", "Lbs"], "unitValues": { "Full Case": 10, "Lbs": 1 } },
   { "item": "Chicken Strips", "type": "Topping", "validUnits": ["Full Case", "Bag", "Lbs"], "unitValues": { "Full Case": 20, "Bag": 2.5, "Lbs": 1 } },
   { "item": "Chicken Sausage", "type": "Topping", "validUnits": ["Full Case", "Bag", "Lbs"], "unitValues": { "Full Case": 20, "Bag": 5, "Lbs": 1 } },
-  { "item": "Tomato", "type": "Topping", "validUnits": ["Full Case", "Lbs"], "unitValues": { "Full Case": 2.5, "Lbs": 1 } },
+  { "item": "Tomato Diced", "type": "Topping", "validUnits": ["Full Case", "Lbs"], "unitValues": { "Full Case": 2.5, "Lbs": 1 } },
   { "item": "Green Pepper", "type": "Topping", "validUnits": ["Full Case", "Bag", "Lbs"], "unitValues": { "Full Case": 10, "Bag": 2.5, "Lbs": 1 } },
-  { "item": "Ham", "type": "Topping", "validUnits": ["Full Case", "Bag", "Lbs"], "unitValues": { "Full Case": 20, "Bag": 5, "Lbs": 1 } },
-  { "item": "Sauasage", "type": "Topping", "validUnits": ["Full Case", "Bag", "Lbs"], "unitValues": { "Full Case": 40, "Bag": 5, "Lbs": 1 } },
+  { "item": "Ham Julienne", "type": "Topping", "validUnits": ["Full Case", "Bag", "Lbs"], "unitValues": { "Full Case": 20, "Bag": 5, "Lbs": 1 } },
+  { "item": "Italian Sausage", "type": "Topping", "validUnits": ["Full Case", "Bag", "Lbs"], "unitValues": { "Full Case": 40, "Bag": 5, "Lbs": 1 } },
   { "item": "Jalapeno", "type": "Topping", "validUnits": ["Full Case", "Bag"], "unitValues": { "Full Case": 10, "Bag": 1 } },
   { "item": "Mushroom", "type": "Topping", "validUnits": ["Full Case", "Lbs"], "unitValues": { "Full Case": 5, "Lbs": 1 } },
   { "item": "Onion", "type": "Topping", "validUnits": ["Full Case", "Bag", "Lbs"], "unitValues": { "Full Case": 10, "Bag": 2.5, "Lbs": 1 } },
@@ -232,7 +241,7 @@ let parameters = [
   { "item": "Sides Box", "type": "Packaging", "validUnits": ["Full Case", "Each"], "unitValues": { "Full Case": 250, "Each": 1 } },
   { "item": "Breadstick Bags", "type": "Packaging", "validUnits": ["Full Case"], "unitValues": { "Full Case": 1 } },
   { "item": "Dough Liner", "type": "Misc", "validUnits": ["Full Case", "Each"], "unitValues": { "Full Case": 2000, "Each": 1 } },
-  { "item": "Lids", "type": "Packaging", "validUnits": ["Full Case", "Bag", "Each"], "unitValues": { "Full Case": 2400, "Bag": 100, "Each": 1 } },
+  { "item": "Lids 2oz", "type": "Packaging", "validUnits": ["Full Case", "Bag", "Each"], "unitValues": { "Full Case": 2400, "Bag": 100, "Each": 1 } },
   { "item": "My Hut Box Box", "type": "Packaging", "validUnits": ["Full Case", "Each"], "unitValues": { "Full Case": 100, "Each": 1 } },
   { "item": "My Hut Box Trays", "type": "Packaging", "validUnits": ["Full Case", "Each"], "unitValues": { "Full Case": 350, "Each": 1 } },
   { "item": "Cinnabon Tray", "type": "Packaging", "validUnits": ["Full Case", "Each"], "unitValues": { "Full Case": 300, "Each": 1 } },
@@ -267,7 +276,7 @@ function showPage(id) {
 window.onload = function() {
   loadSessionFromLocal();
   loadStores();
-  showPage("page-menu");
+  showPage("page-name");
 };
 
 // CLEANED: Dropped asynchronous network fetch code
@@ -279,13 +288,26 @@ function loadStores() {
   });
 }
 
+function enterStore() { 
+  inventorySession.store = document.getElementById("storeSelect").value; 
+  saveSessionToLocal(); 
+  showPage("page-menu"); 
+}
+
 function goNameSearch() { 
   document.getElementById("nameInput").value = ""; 
   document.getElementById("customDropdown").style.display = "none"; 
   showPage("page-name"); 
 }
 
-function backToMenu() { showPage("page-menu"); }
+function goTypeSearch() { 
+  document.getElementById("typeItems").innerHTML = ""; 
+  populateTypeList(); 
+  document.getElementById("typeSelect").selectedIndex = 0; 
+  showPage("page-type"); 
+}
+
+function backToMenu() { showPage("page-name"); }
 
 function filterNameList() {
   const input = document.getElementById("nameInput");
@@ -372,61 +394,25 @@ function buildReviewList() {
     container.innerHTML = "";
     if (Object.keys(inventorySession.entries).length === 0) { container.innerHTML = "<p>No items entered yet.</p>"; return; }
     parameters.forEach(p => {
-        if (inventorySession.entries[p.item]) {async function sendInventoryToSheet() {
-  const entries = inventorySession.entries;
-  if (Object.keys(entries).length === 0) return;
-
-  const payload = {
-    action: "saveInventory",
-    storeName: inventorySession.store,
-    data: []
-  };
-
-  parameters.forEach(p => {
-    if (entries[p.item]) {
-      let total = 0;
-      for (const unit in entries[p.item]) {
-        total += entries[p.item][unit] * p.unitValues[unit];
-      }
-      payload.data.push({ item: p.item, total: total });
-    }
-  });
-
-  const blob = new Blob([JSON.stringify(payload)], { type: "application/json" });
-  const url = URL.createObjectURL(blob);
-  const a = document.createElement("a");
-  a.href = url;
-  a.download = "inventory.json";
-  document.body.appendChild(a);
-  a.click();
-  document.body.removeChild(a);
-  URL.revokeObjectURL(url);
-  openSuccessModal();
+        if (inventorySession.entries[p.item]) {
+            let total = 0;
+            for (const unit in inventorySession.entries[p.item]) { total += inventorySession.entries[p.item][unit] * p.unitValues[unit]; }
+            container.innerHTML += `<div style="padding:10px; border-bottom:1px solid #ccc; cursor:pointer;" onclick="openItemEntry('${p.item.replace(/'/g, "\\'")}')"><span style="font-weight:bold;">${p.item}</span> <span style="margin-left:10px;font-weight:bold">Total: ${total}</span></div>`;
+        }
+    });
 }
+
+function saveSessionToLocal() { localStorage.setItem("inventorySession", JSON.stringify(inventorySession)); }
+function loadSessionFromLocal() { const saved = localStorage.getItem("inventorySession"); if (saved) inventorySession = JSON.parse(saved); }
 
 function downloadInventory() {
-  const entries = inventorySession.entries;
-  if (Object.keys(entries).length === 0) { alert("No items"); return; }
-  let text = "";
-  for (const itemName in entries) {
-    const item = parameters.find(p => p.item === itemName);
-    text += `Item: ${itemName}\n`;
-    let total = 0;
-    for (const unit in entries[itemName]) {
-      const sub = entries[itemName][unit] * item.unitValues[unit];
-      total += sub;
-      text += `  ${unit}: ${entries[itemName][unit]} × ${item.unitValues[unit]} = ${sub}\n`;
-    }
-    text += `  Total: ${total}\n\n`;
-  }
-  const blob = new Blob([text], { type: "text/plain" });
-  const url = window.URL.createObjectURL(blob);
+  const blob = new Blob([JSON.stringify(inventorySession.entries)], { type: "application/json" });
   const a = document.createElement("a");
-  a.href = url;
-  a.download = `inventory_${inventorySession.store}_${Date.now()}.txt`;
+  a.href = URL.createObjectURL(blob);
+  a.download = "inventory.json";
   a.click();
-  sendInventoryToSheet();
 }
+
 
 function openSuccessModal() { document.getElementById("successModal").style.display = "flex"; }
 defineStores = () => {}; 
@@ -435,7 +421,7 @@ function openClearModal() { document.getElementById("clearModal").style.display 
 function closeClearModal() { document.getElementById("clearModal").style.display = "none"; }
 function confirmClearAll() { inventorySession.entries = {}; saveSessionToLocal(); closeClearModal(); backToMenu(); }
 
-if ('serviceWorker' in navigator) navigator.serviceWorker.register('sw.js');
+if ('serviceWorker' in navigator) navigator.serviceWorker.register('./sw.js');
 </script>
 </body>
 </html>
