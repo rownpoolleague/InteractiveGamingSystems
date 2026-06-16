@@ -267,7 +267,7 @@ function showPage(id) {
 window.onload = function() {
   loadSessionFromLocal();
   loadStores();
-  showPage("page-store");
+  showPage("page-menu");
 };
 
 // CLEANED: Dropped asynchronous network fetch code
@@ -435,7 +435,7 @@ function openClearModal() { document.getElementById("clearModal").style.display 
 function closeClearModal() { document.getElementById("clearModal").style.display = "none"; }
 function confirmClearAll() { inventorySession.entries = {}; saveSessionToLocal(); closeClearModal(); backToMenu(); }
 
-if ('serviceWorker' in navigator) navigator.serviceWorker.register('./sw.js');
+if ('serviceWorker' in navigator) navigator.serviceWorker.register('sw.js');
 </script>
 </body>
 </html>
