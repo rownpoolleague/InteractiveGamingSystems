@@ -87,18 +87,9 @@
 <body>
 
 <div class="form-wrapper">
-  <div id="page-store" class="page">
-    <h2>Select Your Store</h2>
-    <select id="storeSelect" style="width:140px;"></select>
-    <br><br>
-    <button onclick="enterStore()">Enter</button>
-  </div>
-
-  <div id="page-menu" class="page">
+    <div id="page-menu" class="page">
     <h2>Search Inventory</h2>
     <button onclick="goNameSearch()">Search by Name</button>
-    <br><br>
-    <button onclick="goTypeSearch()">Search by Type</button>
     <br><br>
     <button onclick="goReview()">Review Inventory</button>
   </div>
@@ -288,23 +279,10 @@ function loadStores() {
   });
 }
 
-function enterStore() { 
-  inventorySession.store = document.getElementById("storeSelect").value; 
-  saveSessionToLocal(); 
-  showPage("page-menu"); 
-}
-
 function goNameSearch() { 
   document.getElementById("nameInput").value = ""; 
   document.getElementById("customDropdown").style.display = "none"; 
   showPage("page-name"); 
-}
-
-function goTypeSearch() { 
-  document.getElementById("typeItems").innerHTML = ""; 
-  populateTypeList(); 
-  document.getElementById("typeSelect").selectedIndex = 0; 
-  showPage("page-type"); 
 }
 
 function backToMenu() { showPage("page-menu"); }
@@ -394,18 +372,7 @@ function buildReviewList() {
     container.innerHTML = "";
     if (Object.keys(inventorySession.entries).length === 0) { container.innerHTML = "<p>No items entered yet.</p>"; return; }
     parameters.forEach(p => {
-        if (inventorySession.entries[p.item]) {
-            let total = 0;
-            for (const unit in inventorySession.entries[p.item]) { total += inventorySession.entries[p.item][unit] * p.unitValues[unit]; }
-            container.innerHTML += `<div style="padding:10px; border-bottom:1px solid #ccc; cursor:pointer;" onclick="openItemEntry('${p.item.replace(/'/g, "\\'")}')"><span style="font-weight:bold;">${p.item}</span> <span style="margin-left:10px;font-weight:bold">Total: ${total}</span></div>`;
-        }
-    });
-}
-
-function saveSessionToLocal() { localStorage.setItem("inventorySession", JSON.stringify(inventorySession)); }
-function loadSessionFromLocal() { const saved = localStorage.getItem("inventorySession"); if (saved) inventorySession = JSON.parse(saved); }
-
-async function sendInventoryToSheet() {
+        if (inventorySession.entries[p.item]) {async function sendInventoryToSheet() {
   const entries = inventorySession.entries;
   if (Object.keys(entries).length === 0) return;
 
@@ -425,17 +392,16 @@ async function sendInventoryToSheet() {
     }
   });
 
-  try {
-    await fetch(API_URL, {
-      method: "POST",
-      mode: "no-cors",
-      headers: { "Content-Type": "application/json" },
-      body: JSON.stringify(payload)
-    });
-    openSuccessModal();
-  } catch (error) {
-    console.error("Error:", error);
-  }
+  const blob = new Blob([JSON.stringify(payload)], { type: "application/json" });
+  const url = URL.createObjectURL(blob);
+  const a = document.createElement("a");
+  a.href = url;
+  a.download = "inventory.json";
+  document.body.appendChild(a);
+  a.click();
+  document.body.removeChild(a);
+  URL.revokeObjectURL(url);
+  openSuccessModal();
 }
 
 function downloadInventory() {
