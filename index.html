@@ -183,42 +183,6 @@
             letter-spacing: -1px;
         }
 
-        .contact-form {
-            display: flex;
-            flex-direction: column;
-            gap: 28px;
-        }
-
-        .form-group {
-            display: flex;
-            flex-direction: column;
-            gap: 10px;
-        }
-
-        .form-group label {
-            font-size: 0.8rem;
-            font-weight: 700;
-            text-transform: uppercase;
-            letter-spacing: 1px;
-            color: var(--text-secondary);
-        }
-
-.form-group input, .form-group textarea {
-    width: 100%;
-    padding: 14px;
-    font-size: 1rem;
-    background-color: #ffffff;
-    color: #000000;
-    border: 1px solid #cbd5e1;
-    border-radius: 4px;
-    font-family: var(--font);
-}
-
-        .form-group input:focus, .form-group textarea:focus {
-            outline: none;
-            box-shadow: 0 0 0 2px var(--accent-end);
-        }
-
         .direct-mail {
             margin-top: 48px;
             font-size: 0.95rem;
@@ -234,56 +198,52 @@
         @media (max-width: 768px) {
             .hero h1 { font-size: 2.6rem; }
             .hero p { font-size: 1.15rem; }
+            .nav-container { 
+                flex-direction: column;
+                gap: 16px;
+                padding: 16px 20px;
+            }
+            nav {
+                display: flex;
+                flex-wrap: wrap;
+                justify-content: center;
+                gap: 16px;
+            }
+            nav a {
+                margin-left: 0;
+            }
         }
 
-       .nav-container { 
-        flex-direction: column;
-        gap: 16px;
-        padding: 16px 20px;
-    }
-    
-    nav {
-        display: flex;
-        flex-wrap: wrap;
-        justify-content: center;
-        gap: 16px;
-    }
-    
-    nav a {
-        margin-left: 0;
-    }
-}
-
-@media (max-width: 600px) {
-    .btn { text-align: center; width: 100%; }
-    .banner-section { margin: 10px 0; }
-}
+        @media (max-width: 600px) {
+            .btn { text-align: center; width: 100%; }
+            .banner-section { margin: 10px 0; }
+        }
     </style>
 </head>
 <body>
 
     <header>
-    <div class="banner-section">
+       <div class="banner-section">
+
         <img src="photos/igsbanner.png" class="banner-img" >
+
     </div>
-    <div class="nav-container">
-        <a href="#" class="brand-logo"></a>
-        <nav>
-            <a href="features.html">Features</a>
-            <a href="purchase.html">Purchase</a>
-    <a href="#contact">Contact</a>
-            <a href="faqs.html">FAQ</a>
-            <a href="about.html">About</a>
-        </nav>
-    </div>
-</header>
+        <div class="nav-container">
+            <a href="#" class="brand-logo"></a>
+            <nav>
+                <a href="features.html">Features</a>
+                <a href="purchase.html">Purchase</a>
+                <a href="#contact">Contact</a>
+                <a href="faqs.html">FAQ</a>
+                <a href="about.html">About</a>
+            </nav>
+        </div>
+    </header>
 
     <main class="container">
-       
-
         <section class="hero">
             <h1>Branded Custom League Web Apps Engineered Exactly <span>For Your Needs.</span></h1>
-            <p>We build mobile-first web applications specifically hardcoded to manage your local rule variations, scheduling, player handicaps, and standings .</p>
+            <p>We build mobile-first web applications specifically hardcoded to manage your local rule variations, scheduling, player handicaps, and standings.</p>
             <a href="features.html" class="btn">Explore Features</a>
         </section>
 
@@ -302,20 +262,20 @@
             </div>
         </section>
 
-     <section id="contact" class="contact-section">
-    <h2>Contact Development</h2>
-    <p style="color: var(--text-secondary); margin-bottom: 32px;">
-        Ready to build your custom app or have questions about integration? Click below to launch your email client and get in touch directly with our development team.
-    </p>
-    
-    <a href="mailto:support@interactivegamingsystems.app?subject=Custom%20League%20App%20Inquiry" class="btn" style="text-align: center; text-transform: uppercase; letter-spacing: 0.5px;">
-        Launch Email
-    </a>
+        <section id="contact" class="contact-section">
+            <h2>Contact Development</h2>
+            <p style="color: var(--text-secondary); margin-bottom: 32px;">
+                Ready to build your custom app or have questions about integration? Click below to launch your email client and get in touch directly with our development team.
+            </p>
+            
+            <a href="mailto:support@interactivegamingsystems.app?subject=Custom%20League%20App%20Inquiry" class="btn" style="text-align: center; text-transform: uppercase; letter-spacing: 0.5px;">
+                Launch Email
+            </a>
 
-    <div class="direct-mail" style="margin-top: 32px;">
-        Or copy our address: <a href="mailto:support@interactivegamingsystems.app">support@interactivegamingsystems.app</a>
-    </div>
-</section>
+            <div class="direct-mail" style="margin-top: 32px;">
+                Or copy our address: <a href="mailto:support@interactivegamingsystems.app">support@interactivegamingsystems.app</a>
+            </div>
+        </section>
     </main>
 
 </body>
