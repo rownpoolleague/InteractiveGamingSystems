@@ -1,0 +1,339 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no, viewport-fit=cover">
+    <title>CHESS CLOCK</title>
+    <style>
+        :root { --bg: #000; --accent: #3b82f6; --text: #eee; --go: #22c55e; --stop: #ef4444; }
+        body { font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, sans-serif; background: var(--bg); color: var(--text); margin: 0; overflow: hidden; height: 100dvh; touch-action: none; }
+        
+        #view-clock { position: relative; height: 100dvh; width: 100vw; background: #000; }
+        
+        .clock-top-settings { 
+            display: grid; grid-template-columns: 1fr 1fr 1fr; background: #000; 
+            padding: 10px; border-bottom: 1px solid #222; position: relative; z-index: 10; 
+        }
+        .clock-top-settings div { font-size: 0.6rem; text-align: center; }
+        .clock-top-settings input { width: 80%; background: #111; border: 1px solid #333; color: #fff; text-align: center; font-size: 0.8rem; padding: 5px; }
+
+        .clock-main { display: flex; flex-direction: column; height: 100%; width: 100%; position: absolute; top: 0; left: 0; z-index: 5; }
+        .clock-face { flex: 1; display: flex; flex-direction: column; align-items: center; justify-content: center; background: #050505; border: 1px solid #111; transition: background 0.1s; }
+        .time-stack { display: flex; flex-direction: column; align-items: center; transform: rotate(90deg); }
+        
+        input::-webkit-outer-spin-button, input::-webkit-inner-spin-button { -webkit-appearance: none; margin: 0; }
+        input[type=number] { -moz-appearance: textfield; }
+        
+        .delay-display { font-size: 1.8rem; color: var(--accent); font-weight: bold; height: 2rem; visibility: hidden; }
+        .delay-active { visibility: visible; }
+        
+        .time-container { display: flex; align-items: center; justify-content: center; font-size: 6rem; font-family: monospace; color: #333; line-height: 1; pointer-events: none; }
+        .time-field { outline: none; -webkit-user-select: text; user-select: text; pointer-events: auto; min-width: 2ch; text-align: center; }
+        
+        .clock-face.active .time-container { color: #fff; }
+        .clock-face.timed-out { background: var(--stop) !important; }
+        .clock-face.timed-out .time-container { color: #fff !important; }
+
+        #clock-overlay { position: absolute; bottom: 70px; right: 5px; width: 70px; display: flex; flex-direction: column; gap: 8px; z-index: 30; }
+        .side-btn, .menu-btn { height: 60px; width: 100%; border: none; color: white; font-weight: bold; border-radius: 8px; cursor: pointer; display: flex; align-items: center; justify-content: center; font-size: 0.8rem; }
+        .side-btn { background-color: #ff0000; }
+        .menu-btn { background: #1e90ff; text-decoration: none; }
+        #pause-btn { background: var(--go); }
+        #mode-btn { background: #6b7280; }
+        
+        .hidden-ui { display: none !important; }
+
+        #toast {
+            position: fixed; top: 20px; left: 50%; transform: translateX(-50%);
+            background: #333; color: #fff; padding: 10px 20px; border-radius: 5px;
+            z-index: 1000; pointer-events: none; transition: opacity 0.2s; opacity: 0;
+        }
+    </style>
+</head>
+<body>
+
+<div id="view-clock">
+    <div id="top-bar" class="clock-top-settings">
+        <div id="setting-label-1">MINUTES<br><input type="number" id="cfg-time" value="5"></div>
+        <div id="setting-label-2">INCREMENT<br><input type="number" id="cfg-inc" value="0"></div>
+        <div id="setting-label-3">DELAY<br><input type="number" id="cfg-delay" value="0"></div>
+    </div>
+    <div class="clock-main">
+       <div id="black-timer" class="clock-face" onclick="switchClock('white')">
+            <div class="time-stack">
+                <div id="black-delay" class="delay-display">0</div>
+                <div class="time-container">
+                    <div id="black-min" class="time-field" contenteditable="true" oninput="handleTimeInput('black')" onfocus="keepText(this)">05</div>
+                    <div>:</div>
+                    <div id="black-sec" class="time-field" contenteditable="true" oninput="handleTimeInput('black')" onfocus="keepText(this)">00</div>
+                    <div id="black-ms" style="display:none">.00</div>
+                </div>
+            </div>
+       </div>
+       <div id="white-timer" class="clock-face active" onclick="switchClock('black')">
+            <div class="time-stack">
+                <div id="white-delay" class="delay-display">0</div>
+                <div class="time-container">
+                    <div id="white-min" class="time-field" contenteditable="true" oninput="handleTimeInput('white')" onfocus="keepText(this)">05</div>
+                    <div>:</div>
+                    <div id="white-sec" class="time-field" contenteditable="true" oninput="handleTimeInput('white')" onfocus="keepText(this)">00</div>
+                </div>
+            </div>
+       </div>
+    </div>
+    <div id="clock-overlay">
+        <a class="menu-btn" href="clockinstructions.html">Read</a>
+        <button class="side-btn" onclick="resetClock()">SET</button>
+        <button id="mode-btn" class="side-btn" onclick="toggleMode()">Dual</button>
+        <button id="pause-btn" class="side-btn" onclick="armClock()">START</button>
+       
+    </div>
+</div>
+
+<script>
+    let timers = { white: 300, black: 300 }, active = null, ticker = null, delayLeft = 0, isArmed = false, holdTimer;
+    
+    // Modes: 'dual', 'single-down', 'single-up' (Stopwatch)
+    let currentMode = 'dual'; 
+    let stopwatchMs = 0; 
+    let lastTimestamp = 0;
+
+    function keepText(el) {
+        const range = document.createRange();
+        const sel = window.getSelection();
+        range.selectNodeContents(el);
+        sel.removeAllRanges();
+        sel.addRange(range);
+    }
+
+    function showToast(message) {
+        let toast = document.getElementById('toast');
+        if (!toast) {
+            toast = document.createElement('div');
+            toast.id = 'toast';
+            document.body.appendChild(toast);
+        }
+        toast.innerText = message;
+        toast.style.opacity = '1';
+        setTimeout(() => {
+            toast.style.opacity = '0';
+        }, 2000);
+    }
+
+    document.body.addEventListener('pointerdown', (e) => {
+        if (e.target.closest('.time-field') || e.target.tagName === 'BUTTON' || e.target.tagName === 'A' || e.target.tagName === 'INPUT') return;
+        holdTimer = setTimeout(() => {
+            const overlay = document.getElementById('clock-overlay');
+            if (overlay.classList.contains('hidden-ui')) {
+                stopTicker();
+                overlay.classList.remove('hidden-ui');
+                document.getElementById('top-bar').classList.remove('hidden-ui');
+                toggleEditability(true);
+            } else {
+                overlay.classList.add('hidden-ui');
+                document.getElementById('top-bar').classList.add('hidden-ui');
+                toggleEditability(false);
+                if (isArmed && currentMode === 'dual' && active && timers[active] > 0) startTicker();
+                if (isArmed && currentMode !== 'dual' && active) startTicker();
+            }
+        }, 1500);
+    });
+
+    document.body.addEventListener('pointerup', () => clearTimeout(holdTimer));
+    document.body.addEventListener('pointerleave', () => clearTimeout(holdTimer));
+
+    function handleTimeInput(player) {
+        const minText = document.getElementById(`${player}-min`).innerText.replace(/\D/g, '');
+        const secText = document.getElementById(`${player}-sec`).innerText.replace(/\D/g, '');
+        timers[player] = (parseInt(minText || 0, 10)) * 60 + (parseInt(secText || 0, 10));
+    }
+
+    function toggleEditability(enable) {
+        if(currentMode === 'single-up') return; // Cannot edit active stopwatch running fields
+        document.querySelectorAll('.time-field').forEach(el => el.contentEditable = enable);
+    }
+
+    function toggleMode() {
+        stopTicker();
+        resetClock();
+        const modeBtn = document.getElementById('mode-btn');
+        const whiteTimer = document.getElementById('white-timer');
+        const blackTimer = document.getElementById('black-timer');
+        const configInc = document.getElementById('setting-label-2');
+        const configDelay = document.getElementById('setting-label-3');
+
+        if (currentMode === 'dual') {
+            currentMode = 'single-down';
+            modeBtn.innerText = "Count Down Mode";
+            modeBtn.style.backgroundColor = "#7c3aed";
+            whiteTimer.style.display = "none"; // Hide second clock face completely
+            configInc.style.visibility = "hidden";
+            configDelay.style.visibility = "hidden";
+            blackTimer.classList.add('active');
+            showToast("Single Countdown Mode");
+        } else if (currentMode === 'single-down') {
+            currentMode = 'single-up';
+            modeBtn.innerText = "Stopwatch Mode";
+            modeBtn.style.backgroundColor = "#0284c7";
+            whiteTimer.style.display = "none";
+            configInc.style.visibility = "hidden";
+            configDelay.style.visibility = "hidden";
+            document.getElementById('black-ms').style.display = "inline-block"; // Show stopwatch hundredths field
+            blackTimer.classList.add('active');
+            showToast("Stopwatch (Count Up) Mode");
+            updateClock();
+        } else {
+            currentMode = 'dual';
+            modeBtn.innerText = "Chess Mode";
+            modeBtn.style.backgroundColor = "#6b7280";
+            whiteTimer.style.display = "flex"; // Restore standard layout
+            configInc.style.visibility = "visible";
+            configDelay.style.visibility = "visible";
+            document.getElementById('black-ms').style.display = "none";
+            showToast("Standard Chess Mode");
+            resetClock();
+        }
+    }
+
+    function armClock() {
+        isArmed = true; 
+        toggleEditability(false);
+        document.getElementById('clock-overlay').classList.add('hidden-ui');
+        document.getElementById('top-bar').classList.add('hidden-ui');
+        document.documentElement.requestFullscreen?.().catch(() => {});
+        
+        if (currentMode === 'dual') {
+            active = 'white';
+        } else {
+            active = 'black';
+            delayLeft = 0;
+            startTicker();
+        }
+    }
+
+    function switchClock(nextPlayer) {
+        if (!document.getElementById('clock-overlay').classList.contains('hidden-ui')) return;
+        
+        // Single Mode (Both countdown or stopwatch count up) behavior 
+        if (currentMode !== 'dual') {
+            if (ticker) {
+                stopTicker(); // If touched while running, pause the single clock face
+            } else {
+                lastTimestamp = performance.now();
+                startTicker(); // If touched while paused, resume running
+            }
+            return;
+        }
+
+        // Standard Chess Match behavior
+        if (active && timers[active] <= 0) return;
+        if (!ticker) { 
+            active = nextPlayer; 
+            delayLeft = parseInt(document.getElementById('cfg-delay').value) || 0; 
+            startTicker(); 
+        } else {
+            if (active && nextPlayer !== active) { 
+                timers[active] += parseInt(document.getElementById('cfg-inc').value) || 0; 
+                document.getElementById(active + '-delay').classList.remove('delay-active'); 
+            }
+            active = nextPlayer; 
+            delayLeft = parseInt(document.getElementById('cfg-delay').value) || 0; 
+        }
+        document.querySelectorAll('.clock-face').forEach(c => c.classList.remove('active'));
+        document.getElementById(nextPlayer + '-timer').classList.add('active');
+        updateClock();
+    }
+
+    function startTicker() {
+        if (ticker) return;
+        lastTimestamp = performance.now();
+
+        if (currentMode === 'single-up') {
+            // High refresh accurate loops for stopwatch mode fraction tracking
+            function loop(now) {
+                if(!ticker) return;
+                let dt = now - lastTimestamp;
+                lastTimestamp = now;
+                stopwatchMs += dt;
+                updateClock();
+                ticker = requestAnimationFrame(loop);
+            }
+            ticker = requestAnimationFrame(loop);
+        } else {
+            // Standard second ticks for countdown timers
+            ticker = setInterval(() => { 
+                if (!active) return;
+                const delayEl = document.getElementById(active + '-delay');
+                if (delayLeft > 0 && currentMode === 'dual') { 
+                    delayEl.innerText = delayLeft; 
+                    delayEl.classList.add('delay-active'); 
+                    delayLeft--; 
+                } else {
+                    delayEl.classList.remove('delay-active');
+                    timers[active]--; 
+                    updateClock(); 
+                    if (timers[active] <= 0) { 
+                        stopTicker(); 
+                        document.getElementById(active + '-timer').classList.add('timed-out'); 
+                    }
+                }
+            }, 1000);
+        }
+    }
+
+    function stopTicker() {
+        if (!ticker) return;
+        if (currentMode === 'single-up') {
+            cancelAnimationFrame(ticker);
+        } else {
+            clearInterval(ticker);
+        }
+        ticker = null;
+    }
+
+    function updateClock() {
+        if (currentMode === 'single-up') {
+            let totalSeconds = Math.floor(stopwatchMs / 1000);
+            let mins = Math.floor(totalSeconds / 60);
+            let secs = totalSeconds % 60;
+            let hundredths = Math.floor((stopwatchMs % 1000) / 10);
+
+            document.getElementById('black-min').innerText = mins.toString().padStart(2, '0');
+            document.getElementById('black-sec').innerText = secs.toString().padStart(2, '0');
+            document.getElementById('black-ms').innerText = "." + hundredths.toString().padStart(2, '0');
+            return;
+        }
+
+        ['white','black'].forEach(p => {
+            document.getElementById(`${p}-min`).innerText = Math.floor(timers[p]/60).toString().padStart(2, '0');
+            document.getElementById(`${p}-sec`).innerText = (timers[p]%60).toString().padStart(2, '0');
+        });
+    }
+
+    function resetClock() {
+        stopTicker();
+        active = null; 
+        isArmed = false;
+        stopwatchMs = 0;
+
+        const base = (parseInt(document.getElementById('cfg-time').value) || 5) * 60;
+        timers = { white: base, black: base };
+        toggleEditability(true);
+        
+        document.getElementById('clock-overlay').classList.remove('hidden-ui');
+        document.getElementById('top-bar').classList.remove('hidden-ui');
+        document.querySelectorAll('.clock-face').forEach(c => { c.classList.remove('timed-out', 'active'); });
+        document.querySelectorAll('.delay-display').forEach(d => { d.classList.remove('delay-active'); d.innerText = "0"; });
+        
+        if (currentMode !== 'dual') {
+            document.getElementById('black-timer').classList.add('active');
+        } else {
+            document.getElementById('white-timer').classList.add('active');
+        }
+
+        updateClock();
+        showToast("Settings Saved");
+    }
+</script>
+</body>
+</html>
