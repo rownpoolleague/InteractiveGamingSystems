@@ -45,7 +45,7 @@
         #toast {
             position: fixed; top: 20px; left: 50%; transform: translateX(-50%);
             background: #333; color: #fff; padding: 10px 20px; border-radius: 5px;
-            z-index: 1000; pointer-events: none;
+            z-index: 1000; pointer-events: none; transition: opacity 0.2s; opacity: 0;
         }
     </style>
 </head>
@@ -89,6 +89,7 @@
 
 <script>
     let timers = { white: 300, black: 300 }, active = null, ticker = null, delayLeft = 0, isArmed = false, holdTimer;
+    let wakeLock = null;
 
     function keepText(el) {
         const range = document.createRange();
@@ -112,7 +113,34 @@
         }, 2000);
     }
 
-    document.body.addEventListener('onpointerdown', (e) => {
+    // Requests screen continuous activation lock
+    async function requestWakeLock() {
+        try {
+            if ('wakeLock' in navigator) {
+                wakeLock = await navigator.wakeLock.request('screen');
+            }
+        } catch (err) {
+            console.warn('Wake Lock request failed:', err);
+        }
+    }
+
+    // Safely releases screen lock control
+    function releaseWakeLock() {
+        if (wakeLock !== null) {
+            wakeLock.release().then(() => {
+                wakeLock = null;
+            });
+        }
+    }
+
+    // Re-lock if the user tab-switches or backgrounds app and returns
+    document.addEventListener('visibilitychange', async () => {
+        if (wakeLock !== null && document.visibilityState === 'visible' && isArmed) {
+            await requestWakeLock();
+        }
+    });
+
+    document.body.addEventListener('pointerdown', (e) => {
         if (e.target.closest('.time-field') || e.target.tagName === 'BUTTON' || e.target.tagName === 'A' || e.target.tagName === 'INPUT') return;
         holdTimer = setTimeout(() => {
             const overlay = document.getElementById('clock-overlay');
@@ -148,6 +176,7 @@
         document.getElementById('clock-overlay').classList.add('hidden-ui');
         document.getElementById('top-bar').classList.add('hidden-ui');
         document.documentElement.requestFullscreen?.().catch(() => {});
+        requestWakeLock();
     }
 
     function switchClock(nextPlayer) {
@@ -204,6 +233,7 @@
         document.querySelectorAll('.delay-display').forEach(d => { d.classList.remove('delay-active'); d.innerText = "0"; });
         updateClock();
         showToast("Settings Saved");
+        releaseWakeLock();
     }
 </script>
 </body>
