@@ -102,6 +102,15 @@ function showProfile(name, reg, quick, blitz) {
 }
 
 function closeModal() { document.getElementById('profile-modal').style.display = 'none'; }
+    function forceAndroidFullscreen() {
+    const elem = document.documentElement;
+    if (elem.requestFullscreen) {
+        elem.requestFullscreen().catch(err => console.log(err));
+    }
+}
+
+// Triggers full layout expansion when the user taps anywhere on the screen
+document.body.addEventListener('click', forceAndroidFullscreen, { once: true });
 window.onload = loadPlayers;
 </script>
 </body>
