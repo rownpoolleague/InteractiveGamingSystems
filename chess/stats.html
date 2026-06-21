@@ -54,10 +54,23 @@
             display: block;
             margin-top: 5px;
         }
+        .menu-btn {
+            position: fixed;
+            bottom: 20px;
+            right: 20px;
+            padding: 12px 24px;
+            background: #1e90ff;
+            color: #fff;
+            text-decoration: none;
+            border-radius: 10px;
+            font-weight: bold;
+            box-shadow: 0 4px 6px rgba(0,0,0,0.3);
+            z-index: 1000;
+        }
     </style>
 </head>
 <body>
-
+<a href="index.html" class="menu-btn">Home</a>
     <h2>League Stats Dashboard</h2>
     <div class="controls">
         <select id="playerFilter"><option value="">Select Player</option></select>
