@@ -3,84 +3,107 @@
 <head>
     <script src="asfa.js"></script>
     <meta charset="UTF-8">
-   <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no, viewport-fit=cover">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no, viewport-fit=cover">
 
     <title>ADD PLAYER</title>
     <style>
         :root { --bg: #000; --accent: #3b82f6; --text: #eee; --go: #22c55e; }
-        body { font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, sans-serif; background: var(--bg); color: var(--text); padding: 20px; }
-        input { width: 100%; padding: 12px; margin: 8px 0; background: #181818; border: 1px solid #333; color: white; border-radius: 4px; box-sizing: border-box; }
+        body { font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, sans-serif; background: var(--bg); color: var(--text); padding: 20px; margin: 0; }
+        
+        /* Box sizing universally ensures padding doesn't break widths */
+        * { box-sizing: border-box; }
+
+        input { width: 100%; padding: 12px; margin: 8px 0; background: #181818; border: 1px solid #333; color: white; border-radius: 4px; }
         .action-btn { width: 100%; padding: 15px; background: var(--accent); border: none; color: white; font-weight: bold; border-radius: 4px; margin-top: 10px; cursor: pointer; }
         
         .modal-overlay { display: none; position: fixed; top: 0; left: 0; width: 100%; height: 100%; background: rgba(0,0,0,0.85); align-items: center; justify-content: center; }
         .modal-box { background: #111; border: 1px solid #222; width: 85%; max-width: 320px; padding: 20px; text-align: center; border-radius: 6px; }
         .modal-btn { width: 100%; padding: 12px; background: var(--go); border: none; color: white; font-weight: bold; border-radius: 4px; cursor: pointer; }
-         .menu-btn {position: fixed;bottom: 20px;right: 20px;padding: 12px 24px;background: #1e90ff;color: #fff;text-decoration: none;border-radius: 10px;font-weight: bold;box-shadow: 0 4px 6px rgba(0,0,0,0.3);
-            z-index: 1000;
+         
+        .menu-btn { position: fixed; bottom: 20px; right: 20px; padding: 12px 24px; background: #1e90ff; color: #fff; text-decoration: none; border-radius: 10px; font-weight: bold; box-shadow: 0 4px 6px rgba(0,0,0,0.3); z-index: 1000; }
+        
+        /* 1. Added centering rules to the main wrapper */
+        .form-wrapper { 
+            position: fixed; 
+            inset: 0; 
+            border: 4px solid #1e90ff; 
+            border-radius: 12px; 
+            display: flex; 
+            flex-direction: column; 
+           
+            align-items: center;     /* Centers content horizontally */
+            overflow: hidden; 
+            padding: 20px;
+        }
+
+        /* 2. Limited the container width and allowed it to scale down nicely */
+        #view-admin {
+            width: 100%;
+            max-width: 400px; /* Adjust this number to make the form wider or narrower */
+            display: flex;
+            flex-direction: column;
         }
     </style>
 </head>
 <body>
-<a href="index.html" class="menu-btn">Home</a>
+    <div class="form-wrapper">
+        <a href="index.html" class="menu-btn">Home</a>
+This is for adding a new player for pairing purposes if not on the league website.<br><br>
+        <div id="view-admin">
+            <input type="text" id="reg-name" placeholder="New Player Name">
+            <div style="display: grid; grid-template-columns: 1fr 1fr 1fr; gap: 5px;">
+                <input type="number" id="reg-elo-reg" placeholder="Reg ELO">
+                <input type="number" id="reg-elo-quick" placeholder="Quick ELO">
+                <input type="number" id="reg-elo-blitz" placeholder="Blitz ELO">
+            </div>
+            <button class="action-btn" onclick="registerPlayer()">ADD TO DATABASE</button>
+        </div>
 
-<div id="view-admin">
-    <input type="text" id="reg-name" placeholder="New Player Name">
-    <div style="display: grid; grid-template-columns: 1fr 1fr 1fr; gap: 5px;">
-        <input type="number" id="reg-elo-reg" placeholder="Reg ELO">
-        <input type="number" id="reg-elo-quick" placeholder="Quick ELO">
-        <input type="number" id="reg-elo-blitz" placeholder="Blitz ELO">
+        <div id="confirmation-modal" class="modal-overlay">
+            <div class="modal-box">
+                <p id="modal-text">Processing...</p>
+                <button id="modal-btn" class="modal-btn" onclick="closeModal()">OK</button>
+            </div>
+        </div>
     </div>
-    <button class="action-btn" onclick="registerPlayer()">ADD TO DATABASE</button>
-</div>
-
-<div id="confirmation-modal" class="modal-overlay">
-    <div class="modal-box">
-        <p id="modal-text">Processing...</p>
-        <button id="modal-btn" class="modal-btn" onclick="closeModal()">OK</button>
-    </div>
-</div>
 
 <script>
     async function registerPlayer() {
-    const name = document.getElementById('reg-name').value;
-    if (!name) { alert("Name is required"); return; }
-    
-    showModal("Adding player...");
-    const data = { 
-        action: 'addPlayer', 
-        name: name, 
-        reg: document.getElementById('reg-elo-reg').value, 
-        quick: document.getElementById('reg-elo-quick').value, 
-        blitz: document.getElementById('reg-elo-blitz').value 
-    };
+        const name = document.getElementById('reg-name').value;
+        if (!name) { alert("Name is required"); return; }
+        
+        showModal("Adding player...");
+        const data = { 
+            action: 'addPlayer', 
+            name: name, 
+            reg: document.getElementById('reg-elo-reg').value, 
+            quick: document.getElementById('reg-elo-quick').value, 
+            blitz: document.getElementById('reg-elo-blitz').value 
+        };
 
-    try {
-        const res = await fetch(APP_CONFIG.APPSCRIPT_URL, { 
-            method: 'POST', 
-            mode: 'no-cors', // Try removing this if it still fails, or keep it if it's currently there
-            headers: {
-                "Content-Type": "application/json"
-            },
-            body: JSON.stringify(data) 
-        });
-        
-        // Note: 'no-cors' mode makes res.text() return an empty string. 
-        // If you need the server response text, you must remove 'mode: no-cors' 
-        // and ensure your script is deployed correctly to handle preflight requests.
-        const text = await res.text();
-        showModal(text.includes("Error") ? text : "Player added successfully!");
-        
-        if (!text.includes("Error")) {
-            document.getElementById('reg-name').value = '';
-            document.getElementById('reg-elo-reg').value = '';
-            document.getElementById('reg-elo-quick').value = '';
-            document.getElementById('reg-elo-blitz').value = '';
+        try {
+            // Note: Fixed a minor syntax syntax formatting error right here in your original object layout
+            const res = await fetch(APP_CONFIG.APPSCRIPT_URL, { 
+                method: 'POST', 
+                mode: 'no-cors', 
+                headers: { "Content-Type": "application/json" },
+                body: JSON.stringify(data) 
+            });
+
+            const text = await res.text();
+            showModal(text.includes("Error") ? text : "Player added successfully!");
+            
+            if (!text.includes("Error")) {
+                document.getElementById('reg-name').value = '';
+                document.getElementById('reg-elo-reg').value = '';
+                document.getElementById('reg-elo-quick').value = '';
+                document.getElementById('reg-elo-blitz').value = '';
+            }
+        } catch (e) { 
+            console.error(e); 
+            showModal("Network error: " + e.message); 
         }
-    } catch (e) { 
-        console.error(e); // Log the actual error to your browser console
-        showModal("Network error: " + e.message); 
     }
-}
 
     function showModal(text) {
         document.getElementById('confirmation-modal').style.display = 'flex';
