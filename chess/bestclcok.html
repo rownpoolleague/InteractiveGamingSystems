@@ -48,6 +48,38 @@
             background: #333; color: #fff; padding: 10px 20px; border-radius: 5px;
             z-index: 1000; pointer-events: none; transition: opacity 0.2s; opacity: 0;
         }
+        .read-btn {
+  background: url('images/read.png') no-repeat center center;
+  background-size: contain;
+  width: 75px;
+  height: 75px;
+  border: none;
+}
+
+.set-btn {
+  background: url('images/set.png') no-repeat center center;
+  background-size: contain;
+  width: 75px;
+  height: 75px;
+  border: none;
+}
+
+.mode-btn {
+  background: url('images/mode.png') no-repeat center center;
+  background-size: contain;
+  width: 75px;
+  height: 75px;
+  border: none;
+}
+
+.start-btn {
+  background: url('images/start.png') no-repeat center center;
+  background-size: contain;
+  width: 75px;
+  height: 75px;
+  border: none;
+}
+
     </style>
 </head>
 <body>
@@ -82,10 +114,11 @@
        </div>
     </div>
     <div id="clock-overlay">
-        <a class="menu-btn" href="clockinstructions.html">Read</a>
-        <button class="side-btn" onclick="resetClock()">SET</button>
-        <button id="mode-btn" class="side-btn" onclick="toggleMode()">Dual</button>
-        <button id="pause-btn" class="side-btn" onclick="armClock()">START</button>
+        <a class="menu-btn read-btn" href="clockinstructions.html"></a>
+<button class="side-btn set-btn" onclick="resetClock()"></button>
+<button id="mode-btn" class="side-btn mode-btn" onclick="toggleMode()"></button>
+<button id="pause-btn" class="side-btn start-btn" onclick="armClock()"></button>
+
        
     </div>
 </div>
