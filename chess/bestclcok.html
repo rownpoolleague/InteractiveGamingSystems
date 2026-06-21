@@ -34,12 +34,10 @@
         .clock-face.timed-out { background: var(--stop) !important; }
         .clock-face.timed-out .time-container { color: #fff !important; }
 
-        #clock-overlay { position: absolute; bottom: 70px; right: 5px; width: 70px; display: flex; flex-direction: column; gap: 8px; z-index: 30; }
-        .side-btn, .menu-btn { height: 60px; width: 100%; border: none; color: white; font-weight: bold; border-radius: 8px; cursor: pointer; display: flex; align-items: center; justify-content: center; font-size: 0.8rem; }
-        .side-btn { background-color: #ff0000; }
-        .menu-btn { background: #1e90ff; text-decoration: none; }
-        #pause-btn { background: var(--go); }
-        #mode-btn { background: #6b7280; }
+        /* Structural Panel dimensions for custom layout buttons */
+        #clock-overlay { position: absolute; bottom: 70px; right: 5px; width: 75px; display: flex; flex-direction: column; gap: 8px; z-index: 30; }
+        
+        .side-btn, .menu-btn { width: 100%; border: none; color: white; font-weight: bold; border-radius: 8px; cursor: pointer; display: flex; align-items: center; justify-content: center; font-size: 0.8rem; }
         
         .hidden-ui { display: none !important; }
 
@@ -48,38 +46,39 @@
             background: #333; color: #fff; padding: 10px 20px; border-radius: 5px;
             z-index: 1000; pointer-events: none; transition: opacity 0.2s; opacity: 0;
         }
+        
+        /* Fixed Photo Asset Bindings via explicit CSS priority overrides */
         .read-btn {
-  background: url('photos/read.png') no-repeat center center;
-  background-size: contain;
-  width: 75px;
-  height: 75px;
-  border: none;
-}
+            background: url('photos/read.png') no-repeat center center !important;
+            background-size: contain !important;
+            width: 75px;
+            height: 75px;
+            border: none;
+        }
 
-.set-btn {
-  background: url('photos/set.png') no-repeat center center;
-  background-size: contain;
-  width: 75px;
-  height: 75px;
-  border: none;
-}
+        .set-btn {
+            background: url('photos/set.png') no-repeat center center !important;
+            background-size: contain !important;
+            width: 75px;
+            height: 75px;
+            border: none;
+        }
 
-.mode-btn {
-  background: url('photos/mode.png') no-repeat center center;
-  background-size: contain;
-  width: 75px;
-  height: 75px;
-  border: none;
-}
+        .mode-btn {
+            background: url('photos/mode.png') no-repeat center center !important;
+            background-size: contain !important;
+            width: 75px;
+            height: 75px;
+            border: none;
+        }
 
-.start-btn {
-  background: url('photos/start.png') no-repeat center center;
-  background-size: contain;
-  width: 75px;
-  height: 75px;
-  border: none;
-}
-
+        .start-btn {
+            background: url('photos/start.png') no-repeat center center !important;
+            background-size: contain !important;
+            width: 75px;
+            height: 75px;
+            border: none;
+        }
     </style>
 </head>
 <body>
@@ -115,11 +114,9 @@
     </div>
     <div id="clock-overlay">
         <a class="menu-btn read-btn" href="clockinstructions.html"></a>
-<button class="side-btn set-btn" onclick="resetClock()"></button>
-<button id="mode-btn" class="side-btn mode-btn" onclick="toggleMode()"></button>
-<button id="pause-btn" class="side-btn start-btn" onclick="armClock()"></button>
-
-       
+        <button class="side-btn set-btn" onclick="resetClock()"></button>
+        <button id="mode-btn" class="side-btn mode-btn" onclick="toggleMode()"></button>
+        <button id="pause-btn" class="side-btn start-btn" onclick="armClock()"></button>
     </div>
 </div>
 
@@ -182,14 +179,13 @@
     }
 
     function toggleEditability(enable) {
-        if(currentMode === 'single-up') return; // Cannot edit active stopwatch running fields
+        if(currentMode === 'single-up') return; 
         document.querySelectorAll('.time-field').forEach(el => el.contentEditable = enable);
     }
 
     function toggleMode() {
         stopTicker();
         resetClock();
-        const modeBtn = document.getElementById('mode-btn');
         const whiteTimer = document.getElementById('white-timer');
         const blackTimer = document.getElementById('black-timer');
         const configInc = document.getElementById('setting-label-2');
@@ -197,29 +193,23 @@
 
         if (currentMode === 'dual') {
             currentMode = 'single-down';
-            modeBtn.innerText = "Count Down Mode";
-            modeBtn.style.backgroundColor = "#7c3aed";
-            whiteTimer.style.display = "none"; // Hide second clock face completely
+            whiteTimer.style.display = "none"; 
             configInc.style.visibility = "hidden";
             configDelay.style.visibility = "hidden";
             blackTimer.classList.add('active');
             showToast("Single Countdown Mode");
         } else if (currentMode === 'single-down') {
             currentMode = 'single-up';
-            modeBtn.innerText = "Stopwatch Mode";
-            modeBtn.style.backgroundColor = "#0284c7";
             whiteTimer.style.display = "none";
             configInc.style.visibility = "hidden";
             configDelay.style.visibility = "hidden";
-            document.getElementById('black-ms').style.display = "inline-block"; // Show stopwatch hundredths field
+            document.getElementById('black-ms').style.display = "inline-block"; 
             blackTimer.classList.add('active');
             showToast("Stopwatch (Count Up) Mode");
             updateClock();
         } else {
             currentMode = 'dual';
-            modeBtn.innerText = "Chess Mode";
-            modeBtn.style.backgroundColor = "#6b7280";
-            whiteTimer.style.display = "flex"; // Restore standard layout
+            whiteTimer.style.display = "flex"; 
             configInc.style.visibility = "visible";
             configDelay.style.visibility = "visible";
             document.getElementById('black-ms').style.display = "none";
@@ -247,18 +237,16 @@
     function switchClock(nextPlayer) {
         if (!document.getElementById('clock-overlay').classList.contains('hidden-ui')) return;
         
-        // Single Mode (Both countdown or stopwatch count up) behavior 
         if (currentMode !== 'dual') {
             if (ticker) {
-                stopTicker(); // If touched while running, pause the single clock face
+                stopTicker(); 
             } else {
                 lastTimestamp = performance.now();
-                startTicker(); // If touched while paused, resume running
+                startTicker(); 
             }
             return;
         }
 
-        // Standard Chess Match behavior
         if (active && timers[active] <= 0) return;
         if (!ticker) { 
             active = nextPlayer; 
@@ -282,7 +270,6 @@
         lastTimestamp = performance.now();
 
         if (currentMode === 'single-up') {
-            // High refresh accurate loops for stopwatch mode fraction tracking
             function loop(now) {
                 if(!ticker) return;
                 let dt = now - lastTimestamp;
@@ -293,7 +280,6 @@
             }
             ticker = requestAnimationFrame(loop);
         } else {
-            // Standard second ticks for countdown timers
             ticker = setInterval(() => { 
                 if (!active) return;
                 const delayEl = document.getElementById(active + '-delay');
