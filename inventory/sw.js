@@ -1,4 +1,4 @@
-const version = 'v1'; // INCREMENT THIS (v3, v4, etc.) whenever you update your code
+const version = 'v2'; // INCREMENT THIS (v3, v4, etc.) whenever you update your code
 const cacheName = `inventory-${version}`;
 const assets = [
   './',
