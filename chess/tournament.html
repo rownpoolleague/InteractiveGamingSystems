@@ -207,674 +207,703 @@
         </div>
     </div>
 
-    <script>
+<script>
+let masterRoster = [],
+players = [],
+pairings = [],
+currentRound = 1,
+totalRounds = 0,
+format = '',
+history = [];
+let tournamentName = '',
+timeControl = 'regular';
+let playedPairs = new Set();
+let receivedBye = new Set();
+let rrSchedules = [];
+
+// Screen Wake Lock API reference
+let wakeLock = null;
+
+async function requestWakeLock() {
+  try {
+    if ('wakeLock' in navigator) {
+      wakeLock = await navigator.wakeLock.request('screen');
+      console.log('Screen Wake Lock active.');
       
+      // Handle the wake lock releasing unexpectedly
+      wakeLock.addEventListener('release', () => {
+        console.log('Screen Wake Lock released.');
+      });
+    }
+  } catch (err) {
+    console.warn(`Wake Lock failed: ${err.name}, ${err.message}`);
+  }
+}
 
-       
-        let masterRoster = [],
-            players = [],
-            pairings = [],
-            currentRound = 1,
-            totalRounds = 0,
-            format = '',
-            history = [];
-        let tournamentName = '',
-            timeControl = 'regular';
-        let playedPairs = new Set();
-        let receivedBye = new Set();
-        let rrSchedules = [];
+// Re-request wake lock when page becomes visible again
+document.addEventListener('visibilitychange', async () => {
+  if (wakeLock !== null && document.visibilityState === 'visible') {
+    await requestWakeLock();
+  }
+});
 
-        async function load() {
-            try {
-                const response = await fetch(APP_CONFIG.APPSCRIPT_URL);
-                const data = await response.json();
+async function load() {
+try {
+// Attempt to lock screen on initial app load
+await requestWakeLock();
 
-                masterRoster = data.map(p => {
-                    return {
-                        id: p[0],
-                        name: p[0],
-                        ratings: {
-                            regular: parseRating(p[1]),
-                            quick: parseRating(p[2]),
-                            blitz: parseRating(p[3])
-                        },
-                        rating: 0,
-                        score: 0,
-                        colorScore: 0,
-                        colorHistory: []
-                    };
-                });
+const response = await fetch(APP_CONFIG.APPSCRIPT_URL);
+const data = await response.json();
 
-                loadState();
-                if (players.length === 0) {
-                    updateRosterRatings();
-                }
-            } catch (e) {
-                console.error("Error loading roster data:", e);
-                loadState();
-                if (players.length === 0) {
-                    updateRosterRatings();
-                }
-            }
-        }
+masterRoster = data.map(p => {
+return {
+id: p[0],
+name: p[0],
+ratings: {
+regular: parseRating(p[1]),
+quick: parseRating(p[2]),
+blitz: parseRating(p[3])
+},
+rating: 0,
+score: 0,
+colorScore: 0,
+colorHistory: []
+};
+});
 
-        function parseRating(val) {
-            if (val === undefined || val === null || val === '') return 0;
-            const parsed = parseInt(val);
-            return isNaN(parsed) ? 0 : parsed;
-        }
+loadState();
+if (players.length === 0) {
+updateRosterRatings();
+}
+} catch (e) {
+console.error("Error loading roster data:", e);
+loadState();
+if (players.length === 0) {
+updateRosterRatings();
+}
+}
+}
 
-        function updateRosterRatings() {
-            timeControl = document.getElementById('tc-select').value;
+function parseRating(val) {
+if (val === undefined || val === null || val === '') return 0;
+const parsed = parseInt(val);
+return isNaN(parsed) ? 0 : parsed;
+}
 
-            masterRoster.forEach(p => {
-                p.rating = p.ratings[timeControl];
-            });
+function updateRosterRatings() {
+timeControl = document.getElementById('tc-select').value;
 
-            const checkedMap = {};
-            document.querySelectorAll('.p-select').forEach(cb => {
-                checkedMap[cb.value] = cb.checked;
-            });
+masterRoster.forEach(p => {
+p.rating = p.ratings[timeControl];
+});
 
-            document.getElementById('roster-list').innerHTML = masterRoster.map(p => {
-                const displayRating = p.rating === 0 ? 'UNR' : p.rating;
-                const isChecked = checkedMap[p.id] ? 'checked' : '';
-                return `<label class="p-label"><input type="checkbox" class="p-select" value="${p.id}" ${isChecked}> ${p.name} (${displayRating})</label>`;
-            }).join('');
-        }
+const checkedMap = {};
+document.querySelectorAll('.p-select').forEach(cb => {
+checkedMap[cb.value] = cb.checked;
+});
 
-        function toggleRounds() {
-            document.getElementById('rnd-count').style.display = document.getElementById('fmt').value === 'rr' ? 'none' : 'block';
-        }
+document.getElementById('roster-list').innerHTML = masterRoster.map(p => {
+const displayRating = p.rating === 0 ? 'UNR' : p.rating;
+const isChecked = checkedMap[p.id] ? 'checked' : '';
+return `<label class="p-label"><input type="checkbox" class="p-select" value="${p.id}" ${isChecked}> ${p.name} (${displayRating})</label>`;
+}).join('');
+}
 
-        function saveState() {
-            const state = {
-                tournamentName,
-                timeControl,
-                players,
-                pairings,
-                currentRound,
-                totalRounds,
-                format,
-                history,
-                playedPairs: Array.from(playedPairs),
-                receivedBye: Array.from(receivedBye),
-                rrSchedules
-            };
-            localStorage.setItem('chess_tournament_state', JSON.stringify(state));
-        }
+function toggleRounds() {
+document.getElementById('rnd-count').style.display = document.getElementById('fmt').value === 'rr' ? 'none' : 'block';
+}
 
-        function loadState() {
-            const saved = localStorage.getItem('chess_tournament_state');
-            if (!saved) return;
+function saveState() {
+const state = {
+tournamentName,
+timeControl,
+players,
+pairings,
+currentRound,
+totalRounds,
+format,
+history,
+playedPairs: Array.from(playedPairs),
+receivedBye: Array.from(receivedBye),
+rrSchedules
+};
+localStorage.setItem('chess_tournament_state', JSON.stringify(state));
+}
 
-            try {
-                const state = JSON.parse(saved);
-                tournamentName = state.tournamentName || '';
-                timeControl = state.timeControl || 'regular';
-                players = state.players || [];
-                pairings = state.pairings || [];
-                currentRound = state.currentRound || 1;
-                totalRounds = state.totalRounds || 0;
-                format = state.format || 'swiss';
-                history = state.history || [];
-                playedPairs = new Set(state.playedPairs || []);
-                receivedBye = new Set(state.receivedBye || []);
-                rrSchedules = state.rrSchedules || [];
+function loadState() {
+const saved = localStorage.getItem('chess_tournament_state');
+if (!saved) return;
 
-                document.getElementById('t-name-input').value = tournamentName;
-                document.getElementById('tc-select').value = timeControl;
+try {
+const state = JSON.parse(saved);
+tournamentName = state.tournamentName || '';
+timeControl = state.timeControl || 'regular';
+players = state.players || [];
+pairings = state.pairings || [];
+currentRound = state.currentRound || 1;
+totalRounds = state.totalRounds || 0;
+format = state.format || 'swiss';
+history = state.history || [];
+playedPairs = new Set(state.playedPairs || []);
+receivedBye = new Set(state.receivedBye || []);
+rrSchedules = state.rrSchedules || [];
 
-                if (players.length > 0) {
-                    document.getElementById('setup-view').style.display = 'none';
-                    document.getElementById('active-view').style.display = 'block';
-                    document.getElementById('t-name-display').innerText = tournamentName;
-                    document.getElementById('t-meta-display').innerText = `${timeControl} · ${format}`;
-                    render();
-                } else {
-                    updateRosterRatings();
-                }
-            } catch (e) {
-                console.error("Failed to parse restored tournament state", e);
-                updateRosterRatings();
-            }
-        }
+document.getElementById('t-name-input').value = tournamentName;
+document.getElementById('tc-select').value = timeControl;
+
+if (players.length > 0) {
+document.getElementById('setup-view').style.display = 'none';
+document.getElementById('active-view').style.display = 'block';
+document.getElementById('t-name-display').innerText = tournamentName;
+document.getElementById('t-meta-display').innerText = `${timeControl} · ${format}`;
+render();
+} else {
+updateRosterRatings();
+}
+} catch (e) {
+console.error("Failed to parse restored tournament state", e);
+updateRosterRatings();
+}
+}
 
 // Update the function signature to 'async'
 async function startTournament() {
-    const selectedIds = Array.from(document.querySelectorAll('.p-select:checked')).map(cb => cb.value);
-    if (selectedIds.length < 2) return alert("Select at least 2 players");
+const selectedIds = Array.from(document.querySelectorAll('.p-select:checked')).map(cb => cb.value);
+if (selectedIds.length < 2) return alert("Select at least 2 players");
 
-    tournamentName = document.getElementById('t-name-input').value.trim() || 'CHESS TOURNAMENT';
-    timeControl = document.getElementById('tc-select').value;
-    format = document.getElementById('fmt').value;
+tournamentName = document.getElementById('t-name-input').value.trim() || 'CHESS TOURNAMENT';
+timeControl = document.getElementById('tc-select').value;
+format = document.getElementById('fmt').value;
 
-    players = masterRoster.filter(p => selectedIds.includes(p.id)).map(p => ({
-        id: p.id,
-        name: p.name,
-        rating: p.ratings[timeControl],
-        score: 0,
-        colorScore: 0,
-        colorHistory: []
-    }));
+players = masterRoster.filter(p => selectedIds.includes(p.id)).map(p => ({
+id: p.id,
+name: p.name,
+rating: p.ratings[timeControl],
+score: 0,
+colorScore: 0,
+colorHistory: []
+}));
 
-    currentRound = 1;
-    history = [];
-    playedPairs.clear();
-    receivedBye.clear();
-    rrSchedules = [];
+currentRound = 1;
+history = [];
+playedPairs.clear();
+receivedBye.clear();
+rrSchedules = [];
 
-    if (format === 'rr') {
-        totalRounds = players.length % 2 === 0 ? players.length - 1 : players.length;
-        generateRoundRobinSchedules();
-    } else {
-        totalRounds = parseInt(document.getElementById('rnd-count').value) || 3;
-    }
-
-    pairings = generatePairings();
-    document.getElementById('setup-view').style.display = 'none';
-    document.getElementById('active-view').style.display = 'block';
-    document.getElementById('t-name-display').innerText = tournamentName;
-    document.getElementById('t-meta-display').innerText = `${timeControl} · ${format}`;
-    document.getElementById('dl-btn').style.display = 'none';
-
-    // --- NEW: CALL THE SAVING FUNCTION HERE ---
-    await saveCurrentRoundToSheet();
-
-    const elem = document.documentElement;
-    if (elem.requestFullscreen) {
-        elem.requestFullscreen().catch(() => {});
-    } else if (elem.webkitRequestFullscreen) {
-        elem.webkitRequestFullscreen();
-    }
-
-    saveState();
-    render();
+if (format === 'rr') {
+totalRounds = players.length % 2 === 0 ? players.length - 1 : players.length;
+generateRoundRobinSchedules();
+} else {
+totalRounds = parseInt(document.getElementById('rnd-count').value) || 3;
 }
 
-        function generateRoundRobinSchedules() {
-            let list = [...players].sort((a, b) => b.rating - a.rating);
-            if (list.length % 2 !== 0) {
-                list.push({
-                    name: "BYE",
-                    id: "BYE_DUMMY",
-                    rating: 0,
-                    score: 0
-                });
-            }
-            const roundsCount = list.length - 1;
-            const half = list.length / 2;
+pairings = generatePairings();
+document.getElementById('setup-view').style.display = 'none';
+document.getElementById('active-view').style.display = 'block';
+document.getElementById('t-name-display').innerText = tournamentName;
+document.getElementById('t-meta-display').innerText = `${timeControl} · ${format}`;
+document.getElementById('dl-btn').style.display = 'none';
 
-            for (let r = 0; r < roundsCount; r++) {
-                let roundPairings = [];
-                for (let i = 0; i < half; i++) {
-                    const p1 = list[i];
-                    const p2 = list[list.length - 1 - i];
+// --- NEW: CALL THE SAVING FUNCTION HERE ---
+await saveCurrentRoundToSheet();
 
-                    if (p1.id !== "BYE_DUMMY" && p2.id !== "BYE_DUMMY") {
-                        if ((i + r) % 2 === 0) {
-                            roundPairings.push({
-                                w: p1,
-                                b: p2,
-                                res: null
-                            });
-                        } else {
-                            roundPairings.push({
-                                w: p2,
-                                b: p1,
-                                res: null
-                            });
-                        }
-                    } else {
-                        const receiver = p1.id === "BYE_DUMMY" ? p2 : p1;
-                        roundPairings.push({
-                            w: receiver,
-                            b: {
-                                name: "BYE",
-                                id: "BYE_DUMMY",
-                                rating: 0
-                            },
-                            res: "bye_win"
-                        });
-                    }
-                }
-                rrSchedules.push(roundPairings);
-                list.splice(1, 0, list.pop());
-            }
-        }
+const elem = document.documentElement;
+if (elem.requestFullscreen) {
+elem.requestFullscreen().catch(() => {});
+} else if (elem.webkitRequestFullscreen) {
+elem.webkitRequestFullscreen();
+}
 
-        function generatePairings() {
-            if (format === 'rr') {
-                let scheduleTemplate = rrSchedules[currentRound - 1] || [];
-                return scheduleTemplate.map(m => {
-                    let liveW = players.find(p => p.id === m.w.id) || m.w;
-                    let liveB = players.find(p => p.id === m.b.id) || m.b;
-                    return { w: liveW, b: liveB, res: m.res };
-                });
-            }
+// Re-verify screen lock engagement on user interaction
+await requestWakeLock();
 
-            let pool = [...players].sort((a, b) => b.rating - a.rating);
-            let roundPairings = [];
+saveState();
+render();
+}
 
-            if (pool.length % 2 !== 0) {
-                pool.sort((a, b) => {
-                    if (a.score !== b.score) return a.score - b.score;
-                    return a.rating - b.rating;
-                });
+function generateRoundRobinSchedules() {
+let list = [...players].sort((a, b) => b.rating - a.rating);
+if (list.length % 2 !== 0) {
+list.push({
+name: "BYE",
+id: "BYE_DUMMY",
+rating: 0,
+score: 0
+});
+}
+const roundsCount = list.length - 1;
+const half = list.length / 2;
 
-                let byeIndex = pool.findIndex(p => !receivedBye.has(p.id));
-                if (byeIndex === -1) byeIndex = 0;
+for (let r = 0; r < roundsCount; r++) {
+let roundPairings = [];
+for (let i = 0; i < half; i++) {
+const p1 = list[i];
+const p2 = list[list.length - 1 - i];
 
-                let byePlayer = pool.splice(byeIndex, 1)[0];
-                roundPairings.push({
-                    w: byePlayer,
-                    b: {
-                        name: "BYE",
-                        id: "BYE_DUMMY",
-                        rating: 0
-                    },
-                    res: "bye_win"
-                });
-            }
+if (p1.id !== "BYE_DUMMY" && p2.id !== "BYE_DUMMY") {
+if ((i + r) % 2 === 0) {
+roundPairings.push({
+w: p1,
+b: p2,
+res: null
+});
+} else {
+roundPairings.push({
+w: p2,
+b: p1,
+res: null
+});
+}
+} else {
+const receiver = p1.id === "BYE_DUMMY" ? p2 : p1;
+roundPairings.push({
+w: receiver,
+b: {
+name: "BYE",
+id: "BYE_DUMMY",
+rating: 0
+},
+res: "bye_win"
+});
+}
+}
+rrSchedules.push(roundPairings);
+list.splice(1, 0, list.pop());
+}
+}
 
-            let scoreGroupsMap = {};
-            pool.forEach(p => {
-                if (!scoreGroupsMap[p.score]) scoreGroupsMap[p.score] = [];
-                scoreGroupsMap[p.score].push(p);
-            });
+function generatePairings() {
+if (format === 'rr') {
+let scheduleTemplate = rrSchedules[currentRound - 1] || [];
+return scheduleTemplate.map(m => {
+let liveW = players.find(p => p.id === m.w.id) || m.w;
+let liveB = players.find(p => p.id === m.b.id) || m.b;
+return { w: liveW, b: liveB, res: m.res };
+});
+}
 
-            let sortedScores = Object.keys(scoreGroupsMap).map(Number).sort((a, b) => b - a);
-            let formattedPoolGroups = sortedScores.map(score => {
-                return scoreGroupsMap[score].sort((a, b) => b.rating - a.rating);
-            });
+let pool = [...players].sort((a, b) => b.rating - a.rating);
+let roundPairings = [];
 
-            let success = backtrackSwissBrackets(formattedPoolGroups, 0, roundPairings);
+if (pool.length % 2 !== 0) {
+pool.sort((a, b) => {
+if (a.score !== b.score) return a.score - b.score;
+return a.rating - b.rating;
+});
 
-            if (!success) {
-                let finalFlatPool = [];
-                formattedPoolGroups.forEach(g => finalFlatPool.push(...g));
-                finalFlatPool.sort((a, b) => b.score - a.score || b.rating - a.rating);
+let byeIndex = pool.findIndex(p => !receivedBye.has(p.id));
+if (byeIndex === -1) byeIndex = 0;
 
-                for (let i = 0; i < finalFlatPool.length; i += 2) {
-                    if (finalFlatPool[i + 1]) {
-                        let p1 = finalFlatPool[i];
-                        let p2 = finalFlatPool[i + 1];
-                        let colors = determineColors(p1, p2);
-                        roundPairings.unshift({
-                            w: colors.w,
-                            b: colors.b,
-                            res: null
-                        });
-                    }
-                }
-            }
+let byePlayer = pool.splice(byeIndex, 1)[0];
+roundPairings.push({
+w: byePlayer,
+b: {
+name: "BYE",
+id: "BYE_DUMMY",
+rating: 0
+},
+res: "bye_win"
+});
+}
 
-            return roundPairings;
-        }
+let scoreGroupsMap = {};
+pool.forEach(p => {
+if (!scoreGroupsMap[p.score]) scoreGroupsMap[p.score] = [];
+scoreGroupsMap[p.score].push(p);
+});
 
-        function backtrackSwissBrackets(groups, groupIdx, currentPairings) {
-            if (groupIdx >= groups.length) return true;
-            if (groups[groupIdx].length === 0) return backtrackSwissBrackets(groups, groupIdx + 1, currentPairings);
+let sortedScores = Object.keys(scoreGroupsMap).map(Number).sort((a, b) => b - a);
+let formattedPoolGroups = sortedScores.map(score => {
+return scoreGroupsMap[score].sort((a, b) => b.rating - a.rating);
+});
 
-            let currentGroup = groups[groupIdx];
+let success = backtrackSwissBrackets(formattedPoolGroups, 0, roundPairings);
 
-            if (currentGroup.length % 2 !== 0) {
-                if (groupIdx === groups.length - 1) return false;
+if (!success) {
+let finalFlatPool = [];
+formattedPoolGroups.forEach(g => finalFlatPool.push(...g));
+finalFlatPool.sort((a, b) => b.score - a.score || b.rating - a.rating);
 
-                for (let i = currentGroup.length - 1; i >= 0; i--) {
-                    let bumpedPlayer = currentGroup.splice(i, 1)[0];
-                    groups[groupIdx + 1].unshift(bumpedPlayer);
-                    groups[groupIdx + 1].sort((a, b) => b.rating - a.rating);
+for (let i = 0; i < finalFlatPool.length; i += 2) {
+if (finalFlatPool[i + 1]) {
+let p1 = finalFlatPool[i];
+let p2 = finalFlatPool[i + 1];
+let colors = determineColors(p1, p2);
+roundPairings.unshift({
+w: colors.w,
+b: colors.b,
+res: null
+});
+}
+}
+}
 
-                    if (pairSingleBracket(currentGroup, 0, [], (bracketPairs) => {
-                            currentPairings.push(...bracketPairs);
-                            if (backtrackSwissBrackets(groups, groupIdx + 1, currentPairings)) return true;
-                            for (let k = 0; k < bracketPairs.length; k++) currentPairings.pop();
-                            return false;
-                        })) {
-                        return true;
-                    }
+return roundPairings;
+}
 
-                    groups[groupIdx + 1] = groups[groupIdx + 1].filter(p => p.id !== bumpedPlayer.id);
-                    currentGroup.splice(i, 0, bumpedPlayer);
-                    currentGroup.sort((a, b) => b.rating - a.rating);
-                }
-                return false;
-            }
+function backtrackSwissBrackets(groups, groupIdx, currentPairings) {
+if (groupIdx >= groups.length) return true;
+if (groups[groupIdx].length === 0) return backtrackSwissBrackets(groups, groupIdx + 1, currentPairings);
 
-            return pairSingleBracket(currentGroup, 0, [], (bracketPairs) => {
-                currentPairings.push(...bracketPairs);
-                if (backtrackSwissBrackets(groups, groupIdx + 1, currentPairings)) return true;
-                for (let k = 0; k < bracketPairs.length; k++) currentPairings.pop();
-                return false;
-            });
-        }
+let currentGroup = groups[groupIdx];
 
-        function pairSingleBracket(group, targetIdx, localPairs, successCallback) {
-            while (targetIdx < group.length && localPairs.some(p => p.w.id === group[targetIdx].id || p.b.id === group[targetIdx].id)) {
-                targetIdx++;
-            }
+if (currentGroup.length % 2 !== 0) {
+if (groupIdx === groups.length - 1) return false;
 
-            if (targetIdx >= group.length) return successCallback(localPairs);
+for (let i = currentGroup.length - 1; i >= 0; i--) {
+let bumpedPlayer = currentGroup.splice(i, 1)[0];
+groups[groupIdx + 1].unshift(bumpedPlayer);
+groups[groupIdx + 1].sort((a, b) => b.rating - a.rating);
 
-            let p1 = group[targetIdx];
-            let midOffset = Math.floor(group.length / 2);
-            let idealPartnerIdx = targetIdx + midOffset;
+if (pairSingleBracket(currentGroup, 0, [], (bracketPairs) => {
+currentPairings.push(...bracketPairs);
+if (backtrackSwissBrackets(groups, groupIdx + 1, currentPairings)) return true;
+for (let k = 0; k < bracketPairs.length; k++) currentPairings.pop();
+return false;
+})) {
+return true;
+}
 
-            let searchOrder = [];
-            if (idealPartnerIdx < group.length && !localPairs.some(p => p.w.id === group[idealPartnerIdx].id || p.b.id === group[idealPartnerIdx].id)) {
-                searchOrder.push(idealPartnerIdx);
-            }
-            for (let i = 0; i < group.length; i++) {
-                if (i !== targetIdx && i !== idealPartnerIdx) searchOrder.push(i);
-            }
+groups[groupIdx + 1] = groups[groupIdx + 1].filter(p => p.id !== bumpedPlayer.id);
+currentGroup.splice(i, 0, bumpedPlayer);
+currentGroup.sort((a, b) => b.rating - a.rating);
+}
+return false;
+}
 
-            for (let idx of searchOrder) {
-                let p2 = group[idx];
-                if (localPairs.some(p => p.w.id === p2.id || p.b.id === p2.id)) continue;
-                if (playedPairs.has(`${p1.id}-${p2.id}`) || playedPairs.has(`${p2.id}-${p1.id}`)) continue;
+return pairSingleBracket(currentGroup, 0, [], (bracketPairs) => {
+currentPairings.push(...bracketPairs);
+if (backtrackSwissBrackets(groups, groupIdx + 1, currentPairings)) return true;
+for (let k = 0; k < bracketPairs.length; k++) currentPairings.pop();
+return false;
+});
+}
 
-                let colors = determineColors(p1, p2);
-                localPairs.push({
-                    w: colors.w,
-                    b: colors.b,
-                    res: null
-                });
+function pairSingleBracket(group, targetIdx, localPairs, successCallback) {
+while (targetIdx < group.length && localPairs.some(p => p.w.id === group[targetIdx].id || p.b.id === group[targetIdx].id)) {
+targetIdx++;
+}
 
-                if (pairSingleBracket(group, targetIdx + 1, localPairs, successCallback)) return true;
-                localPairs.pop();
-            }
-            return false;
-        }
+if (targetIdx >= group.length) return successCallback(localPairs);
 
-        function determineColors(p1, p2) {
-            let diff1 = p1.colorScore;
-            let diff2 = p2.colorScore;
+let p1 = group[targetIdx];
+let midOffset = Math.floor(group.length / 2);
+let idealPartnerIdx = targetIdx + midOffset;
 
-            if (diff1 !== diff2) return diff1 > diff2 ? {
-                w: p2,
-                b: p1
-            } : {
-                w: p1,
-                b: p2
-            };
+let searchOrder = [];
+if (idealPartnerIdx < group.length && !localPairs.some(p => p.w.id === group[idealPartnerIdx].id || p.b.id === group[idealPartnerIdx].id)) {
+searchOrder.push(idealPartnerIdx);
+}
+for (let i = 0; i < group.length; i++) {
+if (i !== targetIdx && i !== idealPartnerIdx) searchOrder.push(i);
+}
 
-            let lastColor1 = p1.colorHistory[p1.colorHistory.length - 1];
-            let lastColor2 = p2.colorHistory[p2.colorHistory.length - 1];
+for (let idx of searchOrder) {
+let p2 = group[idx];
+if (localPairs.some(p => p.w.id === p2.id || p.b.id === p2.id)) continue;
+if (playedPairs.has(`${p1.id}-${p2.id}`) || playedPairs.has(`${p2.id}-${p1.id}`)) continue;
 
-            if (lastColor1 === 'W' && lastColor2 !== 'W') return {
-                w: p2,
-                b: p1
-            };
-            if (lastColor1 === 'B' && lastColor2 !== 'B') return {
-                w: p1,
-                b: p2
-            };
+let colors = determineColors(p1, p2);
+localPairs.push({
+w: colors.w,
+b: colors.b,
+res: null
+});
 
-            return Math.random() < 0.5 ? {
-                w: p1,
-                b: p2
-            } : {
-                w: p2,
-                b: p1
-            };
-        }
+if (pairSingleBracket(group, targetIdx + 1, localPairs, successCallback)) return true;
+localPairs.pop();
+}
+return false;
+}
 
-        function formatScore(score) {
-            if (score === 0) return "0";
-            if (score % 1 === 0) return score.toString();
-            let whole = Math.floor(score);
-            return whole > 0 ? `${whole} 1/2` : "1/2";
-        }
+function determineColors(p1, p2) {
+let diff1 = p1.colorScore;
+let diff2 = p2.colorScore;
 
-        function render() {
-            if (currentRound <= totalRounds) {
-                document.getElementById('round-title').innerText = `Round ${currentRound} of ${totalRounds}`;
-                document.getElementById('next-btn').style.display = pairings.every(m => m.res !== null) && pairings.length > 0 ? 'block' : 'none';
-                document.getElementById('dl-btn').style.display = 'none';
+if (diff1 !== diff2) return diff1 > diff2 ? {
+w: p2,
+b: p1
+} : {
+w: p1,
+b: p2
+};
 
-                document.getElementById('pairings-list').innerHTML = pairings.map((m, i) => {
-                    if (m.res === "bye_win") {
-                        return `
-                    <div class="match-card" style="border-left-color: var(--go);">
-                        <div><strong>${m.w.name}</strong> (${m.w.rating === 0 ? 'UNR' : m.w.rating}) has a <strong>BYE</strong></div>
-                        <div style="font-size: 0.85rem; color: var(--go); margin-top: 5px;">+1.0 Point Auto-Assigned</div>
-                    </div>`;
-                    }
-                    return `
-                <div class="match-card">
-                    <div>
-                        <strong>${m.w.name}</strong> (${m.w.rating === 0 ? 'UNR' : m.w.rating}) <span style="color:#888;">(W)</span>
-                        vs 
-                        <strong>${m.b.name}</strong> (${m.b.rating === 0 ? 'UNR' : m.b.rating}) <span style="color:#888;">(B)</span>
-                    </div>
-                    <div style="display:flex; gap:5px; margin-top:10px;">
-                        <button class="res-btn ${m.res === 'w' ? 'active' : ''}" onclick="setRes(${i}, 'w')">1 - 0</button>
-                        <button class="res-btn ${m.res === 'd' ? 'active' : ''}" onclick="setRes(${i}, 'd')">1/2 - 1/2</button>
-                        <button class="res-btn ${m.res === 'b' ? 'active' : ''}" onclick="setRes(${i}, 'b')">0 - 1</button>
-                    </div>
-                </div>`;
-                }).join('');
-            } else {
-                document.getElementById('round-title').innerText = "Tournament Complete";
-                document.getElementById('pairings-list').innerHTML = "";
-                document.getElementById('next-btn').style.display = 'none';
-                document.getElementById('dl-btn').style.display = 'block';
-            }
+let lastColor1 = p1.colorHistory[p1.colorHistory.length - 1];
+let lastColor2 = p2.colorHistory[p2.colorHistory.length - 1];
 
-            document.getElementById('standings-list').innerHTML = [...players].sort((a, b) => {
-                if (b.score !== a.score) return b.score - a.score;
-                return b.rating - a.rating;
-            }).map(p => `
-            <div style="display:flex; justify-content:space-between; padding:4px 0;">
-                <span>${p.name} (${p.rating === 0 ? 'UNR' : p.rating})</span>
-                <span>${formatScore(p.score)}</span>
-            </div>`).join('');
-        }
+if (lastColor1 === 'W' && lastColor2 !== 'W') return {
+w: p2,
+b: p1
+};
+if (lastColor1 === 'B' && lastColor2 !== 'B') return {
+w: p1,
+b: p2
+};
 
-        function setRes(i, res) {
-            pairings[i].res = res;
-            if (format === 'rr' && rrSchedules[currentRound - 1]) {
-                rrSchedules[currentRound - 1][i].res = res;
-            }
-            saveState();
-            render();
-        }
+return Math.random() < 0.5 ? {
+w: p1,
+b: p2
+} : {
+w: p2,
+b: p1
+};
+}
+
+function formatScore(score) {
+if (score === 0) return "0";
+if (score % 1 === 0) return score.toString();
+let whole = Math.floor(score);
+return whole > 0 ? `${whole} 1/2` : "1/2";
+}
+
+function render() {
+if (currentRound <= totalRounds) {
+document.getElementById('round-title').innerText = `Round ${currentRound} of ${totalRounds}`;
+document.getElementById('next-btn').style.display = pairings.every(m => m.res !== null) && pairings.length > 0 ? 'block' : 'none';
+document.getElementById('dl-btn').style.display = 'none';
+
+document.getElementById('pairings-list').innerHTML = pairings.map((m, i) => {
+if (m.res === "bye_win") {
+return `
+<div class="match-card" style="border-left-color: var(--go);">
+<div><strong>${m.w.name}</strong> (${m.w.rating === 0 ? 'UNR' : m.w.rating}) has a <strong>BYE</strong></div>
+<div style="font-size: 0.85rem; color: var(--go); margin-top: 5px;">+1.0 Point Auto-Assigned</div>
+</div>`;
+}
+return `
+<div class="match-card">
+<div>
+<strong>${m.w.name}</strong> (${m.w.rating === 0 ? 'UNR' : m.w.rating}) <span style="color:#888;">(W)</span>
+vs 
+<strong>${m.b.name}</strong> (${m.b.rating === 0 ? 'UNR' : m.b.rating}) <span style="color:#888;">(B)</span>
+</div>
+<div style="display:flex; gap:5px; margin-top:10px;">
+<button class="res-btn ${m.res === 'w' ? 'active' : ''}" onclick="setRes(${i}, 'w')">1 - 0</button>
+<button class="res-btn ${m.res === 'd' ? 'active' : ''}" onclick="setRes(${i}, 'd')">1/2 - 1/2</button>
+<button class="res-btn ${m.res === 'b' ? 'active' : ''}" onclick="setRes(${i}, 'b')">0 - 1</button>
+</div>
+</div>`;
+}).join('');
+} else {
+document.getElementById('round-title').innerText = "Tournament Complete";
+document.getElementById('pairings-list').innerHTML = "";
+document.getElementById('next-btn').style.display = 'none';
+document.getElementById('dl-btn').style.display = 'block';
+}
+
+document.getElementById('standings-list').innerHTML = [...players].sort((a, b) => {
+if (b.score !== a.score) return b.score - a.score;
+return b.rating - a.rating;
+}).map(p => `
+<div style="display:flex; justify-content:space-between; padding:4px 0;">
+<span>${p.name} (${p.rating === 0 ? 'UNR' : p.rating})</span>
+<span>${formatScore(p.score)}</span>
+</div>`).join('');
+}
+
+function setRes(i, res) {
+pairings[i].res = res;
+if (format === 'rr' && rrSchedules[currentRound - 1]) {
+rrSchedules[currentRound - 1][i].res = res;
+}
+saveState();
+render();
+}
 
 
 function processRound() {
 
-    // 1. Save the JUST-FINISHED round into history
-    history.push({
-        round: currentRound,
-        matches: JSON.parse(JSON.stringify(pairings))
-    });
+// 1. Save the JUST-FINISHED round into history
+history.push({
+round: currentRound,
+matches: JSON.parse(JSON.stringify(pairings))
+});
 
-    // 2. Apply results to players
-    pairings.forEach(m => {
-        let matchW = players.find(p => p.id === m.w.id);
-        let matchB = players.find(p => p.id === m.b.id);
+// 2. Apply results to players
+pairings.forEach(m => {
+let matchW = players.find(p => p.id === m.w.id);
+let matchB = players.find(p => p.id === m.b.id);
 
-        if (matchB && matchB.id !== "BYE_DUMMY") {
-            playedPairs.add(`${matchW.id}-${matchB.id}`);
-            matchW.colorHistory.push('W');
-            matchW.colorScore += 1;
-            matchB.colorHistory.push('B');
-            matchB.colorScore -= 1;
-        } else if (matchW) {
-            receivedBye.add(matchW.id);
-        }
-
-        if (m.res === 'w' || m.res === 'bye_win') {
-            if (matchW) matchW.score += 1;
-        } else if (m.res === 'b') {
-            if (matchB) matchB.score += 1;
-        } else if (m.res === 'd') {
-            if (matchW) matchW.score += 0.5;
-            if (matchB) matchB.score += 0.5;
-        }
-    });
-
-    // 3. Capture the JUST-FINISHED round's results
-    const finishedResults = pairings.map(m => ({
-        white: m.w.name,
-        black: m.b.name,
-        result: m.res
-    }));
-
-    // 4. FINAL ROUND CHECK
-    if (currentRound >= totalRounds) {
-
-        // Determine winner
-        const sorted = [...players].sort((a, b) => b.score - a.score);
-        const winner = sorted[0];
-
-        // ⭐ SEND FINAL SUMMARY ROW — NO PAIRINGS
-        saveCurrentRoundToSheet({
-            action: "saveRound",
-            roundNumber: "Final",
-            pairings: [],              // <-- EMPTY
-            results: finishedResults,  // <-- LAST ROUND RESULTS ONLY
-            scores: players.map(p => ({
-                name: p.name,
-                score: p.score
-            }))
-        });
-
-        currentRound++;
-        saveState();
-        render();
-        return;
-    }
-
-    // 5. NOT FINAL ROUND → generate next round
-    currentRound++;
-
-    const nextPairings = generatePairings();
-    pairings = nextPairings;
-
-    // 6. Send normal round data
-    saveCurrentRoundToSheet({
-        action: "saveRound",
-        roundNumber: currentRound - 1,
-        pairings: nextPairings.map(m => ({
-            white: m.w.name,
-            black: m.b.name
-        })),
-        results: finishedResults,
-        scores: players.map(p => ({
-            name: p.name,
-            score: p.score
-        }))
-    });
-
-    saveState();
-    render();
+if (matchB && matchB.id !== "BYE_DUMMY") {
+playedPairs.add(`${matchW.id}-${matchB.id}`);
+matchW.colorHistory.push('W');
+matchW.colorScore += 1;
+matchB.colorHistory.push('B');
+matchB.colorScore -= 1;
+} else if (matchW) {
+receivedBye.add(matchW.id);
 }
 
-        function downloadResults() {
-            let content = `TOURNAMENT REPORT: ${tournamentName.toUpperCase()}\n`;
-            content += `TIME CONTROL TYPE: ${timeControl.toUpperCase()}\n`;
-            content += "=".repeat(content.length - 2) + "\n\n";
+if (m.res === 'w' || m.res === 'bye_win') {
+if (matchW) matchW.score += 1;
+} else if (m.res === 'b') {
+if (matchB) matchB.score += 1;
+} else if (m.res === 'd') {
+if (matchW) matchW.score += 0.5;
+if (matchB) matchB.score += 0.5;
+}
+});
 
-            history.forEach(r => {
-                content += `ROUND ${r.round}\n`;
-                r.matches.forEach(m => {
-                    let displayRes = m.res;
-                    if (m.res === 'w') displayRes = "1-0";
-                    if (m.res === 'd') displayRes = "1/2-1/2";
-                    if (m.res === 'b') displayRes = "0-1";
-                    if (m.res === 'bye_win') displayRes = "BYE (1-0)";
+// 3. Capture the JUST-FINISHED round's results
+const finishedResults = pairings.map(m => ({
+white: m.w.name,
+black: m.b.name,
+result: m.res
+}));
 
-                    const wRating = m.w.rating === 0 ? 'UNR' : m.w.rating;
-                    const bRating = m.b.rating === 0 ? 'UNR' : m.b.rating;
-                    content += `${m.w.name} (${wRating}) vs ${m.b.name} (${bRating}) - Result: ${displayRes}\n`;
-                });
-                content += "\n";
-            });
+// 4. FINAL ROUND CHECK
+if (currentRound >= totalRounds) {
 
-            content += "FINAL STANDINGS\n" + [...players].sort((a, b) => {
-                if (b.score !== a.score) return b.score - a.score;
-                return b.rating - a.rating;
-            }).map(p => `${p.name} (${p.rating === 0 ? 'UNR' : p.rating}): ${formatScore(p.score)}`).join("\n");
+// Determine winner
+const sorted = [...players].sort((a, b) => b.score - a.score);
+const winner = sorted[0];
 
-            const blob = new Blob([content], {
-                type: 'text/plain'
-            });
-            const a = document.createElement('a');
-            a.href = URL.createObjectURL(blob);
+// ⭐ SEND FINAL SUMMARY ROW — NO PAIRINGS
+saveCurrentRoundToSheet({
+action: "saveRound",
+roundNumber: "Final",
+pairings: [],// <-- EMPTY
+results: finishedResults,// <-- LAST ROUND RESULTS ONLY
+scores: players.map(p => ({
+name: p.name,
+score: p.score
+}))
+});
 
-            const safeName = tournamentName.toLowerCase().replace(/[^a-z0-9]/gi, '_');
-            a.download = `${safeName}_results.txt`;
-
-            document.body.appendChild(a);
-            a.click();
-            document.body.removeChild(a);
-        }
-
-        function goToMainMenu() {
-            window.location.href = 'index.html';
-        }
-        async function saveCurrentRoundToSheet() {
-    // 1. Prepare the data structure
-    const payload = {
-        action: 'saveRound',
-        roundNumber: currentRound,
-        // Map pairings to names for readability in the sheet
-        pairings: pairings.map(m => ({
-            white: m.w.name,
-            black: m.b.name,
-            result: m.res
-        })),
-        // Send current player scores
-        scores: players.map(p => ({
-            name: p.name,
-            score: p.score
-        }))
-    };
-
-    // 2. Send to the script
-    try {
-        const response = await fetch(APP_CONFIG.APPSCRIPT_URL, {
-            method: 'POST',
-            body: JSON.stringify(payload)
-        });
-        
-        const result = await response.text();
-        console.log("Server response:", result);
-        // Optional: show a small toast or log to indicate success
-    } catch (e) {
-        console.error("Failed to save round:", e);
-    }
+currentRound++;
+saveState();
+render();
+return;
 }
 
-        function resetTournament() {
-            if (!confirm("Are you sure you want to reset and clear all data?")) return;
+// 5. NOT FINAL ROUND → generate next round
+currentRound++;
 
-            localStorage.removeItem('chess_tournament_state');
+const nextPairings = generatePairings();
+pairings = nextPairings;
 
-            document.getElementById('active-view').style.display = 'none';
-            document.getElementById('setup-view').style.display = 'block';
-            document.getElementById('dl-btn').style.display = 'none';
-            document.getElementById('t-name-input').value = '';
-            document.getElementById('t-name-display').innerText = '';
-            document.getElementById('t-meta-display').innerText = '';
-            document.getElementById('tc-select').value = 'regular';
+// 6. Send normal round data
+saveCurrentRoundToSheet({
+action: "saveRound",
+roundNumber: currentRound - 1,
+pairings: nextPairings.map(m => ({
+white: m.w.name,
+black: m.b.name
+})),
+results: finishedResults,
+scores: players.map(p => ({
+name: p.name,
+score: p.score
+}))
+});
 
-            tournamentName = '';
-            timeControl = 'regular';
-            currentRound = 1;
-            players = [];
-            pairings = [];
-            history = [];
-            playedPairs.clear();
-            receivedBye.clear();
-            rrSchedules = [];
-            updateRosterRatings();
-        }
+saveState();
+render();
+}
 
-        window.onload = load;
-    </script>
+function downloadResults() {
+let content = `TOURNAMENT REPORT: ${tournamentName.toUpperCase()}\n`;
+content += `TIME CONTROL TYPE: ${timeControl.toUpperCase()}\n`;
+content += "=".repeat(content.length - 2) + "\n\n";
+
+history.forEach(r => {
+content += `ROUND ${r.round}\n`;
+r.matches.forEach(m => {
+let displayRes = m.res;
+if (m.res === 'w') displayRes = "1-0";
+if (m.res === 'd') displayRes = "1/2-1/2";
+if (m.res === 'b') displayRes = "0-1";
+if (m.res === 'bye_win') displayRes = "BYE (1-0)";
+
+const wRating = m.w.rating === 0 ? 'UNR' : m.w.rating;
+const bRating = m.b.rating === 0 ? 'UNR' : m.b.rating;
+content += `${m.w.name} (${wRating}) vs ${m.b.name} (${bRating}) - Result: ${displayRes}\n`;
+});
+content += "\n";
+});
+
+content += "FINAL STANDINGS\n" + [...players].sort((a, b) => {
+if (b.score !== a.score) return b.score - a.score;
+return b.rating - a.rating;
+}).map(p => `${p.name} (${p.rating === 0 ? 'UNR' : p.rating}): ${formatScore(p.score)}`).join("\n");
+
+const blob = new Blob([content], {
+type: 'text/plain'
+});
+const a = document.createElement('a');
+a.href = URL.createObjectURL(blob);
+
+const safeName = tournamentName.toLowerCase().replace(/[^a-z0-9]/gi, '_');
+a.download = `${safeName}_results.txt`;
+
+document.body.appendChild(a);
+a.click();
+document.body.removeChild(a);
+}
+
+function goToMainMenu() {
+window.location.href = 'index.html';
+}
+async function saveCurrentRoundToSheet() {
+// 1. Prepare the data structure
+const payload = {
+action: 'saveRound',
+roundNumber: currentRound,
+// Map pairings to names for readability in the sheet
+pairings: pairings.map(m => ({
+white: m.w.name,
+black: m.b.name,
+result: m.res
+})),
+// Send current player scores
+scores: players.map(p => ({
+name: p.name,
+score: p.score
+}))
+};
+
+// 2. Send to the script
+try {
+const response = await fetch(APP_CONFIG.APPSCRIPT_URL, {
+method: 'POST',
+body: JSON.stringify(payload)
+});
+
+const result = await response.text();
+console.log("Server response:", result);
+// Optional: show a small toast or log to indicate success
+} catch (e) {
+console.error("Failed to save round:", e);
+}
+}
+
+function resetTournament() {
+if (!confirm("Are you sure you want to reset and clear all data?")) return;
+
+localStorage.removeItem('chess_tournament_state');
+
+document.getElementById('active-view').style.display = 'none';
+document.getElementById('setup-view').style.display = 'block';
+document.getElementById('dl-btn').style.display = 'none';
+document.getElementById('t-name-input').value = '';
+document.getElementById('t-name-display').innerText = '';
+document.getElementById('t-meta-display').innerText = '';
+document.getElementById('tc-select').value = 'regular';
+
+tournamentName = '';
+timeControl = 'regular';
+currentRound = 1;
+players = [];
+pairings = [];
+history = [];
+playedPairs.clear();
+receivedBye.clear();
+rrSchedules = [];
+updateRosterRatings();
+}
+
+window.onload = load;
+</script>
 </body>
 
 </html>
