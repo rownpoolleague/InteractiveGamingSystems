@@ -58,7 +58,7 @@
         <div>DELAY<br><input type="number" id="cfg-delay" value="0"></div>
     </div>
     <div class="clock-main">
-       <div id="black-timer" class="clock-face" onclick="switchClock('white')">
+       <div id="black-timer" class="clock-face" onpointerdown="switchClock('white')">
             <div class="time-stack">
                 <div id="black-delay" class="delay-display">0</div>
                 <div class="time-container">
@@ -68,7 +68,7 @@
                 </div>
             </div>
        </div>
-       <div id="white-timer" class="clock-face active" onclick="switchClock('black')">
+       <div id="white-timer" class="clock-face active" onpointerdown="switchClock('black')">
             <div class="time-stack">
                 <div id="white-delay" class="delay-display">0</div>
                 <div class="time-container">
@@ -81,8 +81,8 @@
     </div>
     <div id="clock-overlay">
         <a class="menu-btn" href="clockinstructions.html">Read</a>
-        <button class="side-btn" onclick="resetClock()">SET</button>
-        <button id="pause-btn" class="side-btn" onclick="armClock()">START</button>
+        <button class="side-btn" onpointerdown="resetClock()">SET</button>
+        <button id="pause-btn" class="side-btn" onpointerdown="armClock()">START</button>
         <a class="menu-btn" href="index.html">Menu</a>
     </div>
 </div>
@@ -112,7 +112,7 @@
         }, 2000);
     }
 
-    document.body.addEventListener('pointerdown', (e) => {
+    document.body.addEventListener('onpointerdown', (e) => {
         if (e.target.closest('.time-field') || e.target.tagName === 'BUTTON' || e.target.tagName === 'A' || e.target.tagName === 'INPUT') return;
         holdTimer = setTimeout(() => {
             const overlay = document.getElementById('clock-overlay');
