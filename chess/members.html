@@ -7,10 +7,9 @@
     <style>
         :root { --bg: #000; --card: #111; --accent: #3b82f6; --text: #eee; }
         * { box-sizing: border-box; }
-        html, body { margin: 0; padding: 0; width: 100%; height: 100dvh; background-color: #000; overflow: hidden; font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, sans-serif;overscroll-behavior-y: none; }
-        .form-wrapper { position: fixed; top: 0; left: 0; right: 0; bottom: 0; height: 100dvh; border: 4px solid #1e90ff; border-radius: 12px; display: flex; flex-direction: column; overflow: hidden; }
-        .engine-box { flex: 1; background: var(--bg); padding: 15px; display: flex; flex-direction: column; overflow-y: auto;-webkit-overflow-scrolling: touch;
-    overscroll-behavior: contain; }
+        html, body { margin: 0; padding: 0; height: 100dvh; background-color: #000; overflow: hidden; font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, sans-serif; overscroll-behavior-y: none; }
+        .form-wrapper { position: fixed; inset: 0; border: 4px solid #1e90ff; border-radius: 12px; display: flex; flex-direction: column; overflow: hidden; }
+        .engine-box { flex: 1; background: var(--bg); padding: 15px; display: flex; flex-direction: column; overflow-y: auto; overscroll-behavior: contain; }
         header { padding-bottom: 12px; border-bottom: 1px solid #222; margin-bottom: 15px; display: flex; justify-content: space-between; align-items: center; }
         h1 { margin: 0; font-size: 1.2rem; color: var(--accent); }
         .nav-button { background: #1e90ff; color: white; text-decoration: none; font-size: 0.9rem; font-weight: bold; padding: 6px 12px; border-radius: 4px; }
@@ -51,15 +50,10 @@ function getPhotoPath(name) { return `photos/${name.replace(',', '').trim()}.jpg
 function parseCSV(text) {
     const lines = text.split('\n');
     const result = [];
-    // Skip header and iterate
     for(let i = 1; i < lines.length; i++) {
         const line = lines[i].trim();
         if(!line) continue;
-        
-        // This regex splits by comma ONLY if it's NOT inside quotes
-        // Google Sheets publishes names with commas as "Last, First"
         const row = line.match(/(".*?"|[^",]+)(?=\s*,|\s*$)/g).map(s => s.replace(/"/g, '').trim());
-        
         if(row.length >= 4) {
             result.push({ name: row[0], reg: row[1], quick: row[2], blitz: row[3] });
         }
@@ -91,33 +85,23 @@ function showProfile(name, reg, quick, blitz) {
     const modal = document.getElementById('profile-modal');
     const nameEl = document.getElementById('modal-player-name');
     const ratingsEl = document.getElementById('modal-ratings');
-
-    const photoPath = getPhotoPath(name);   // <-- real path, no placeholder
-
-    const img = new Image();                // <-- real browser image object
-    img.src = photoPath;                    // <-- tries to load actual file
+    const photoPath = getPhotoPath(name);
+    const img = new Image();
+    img.src = photoPath;
 
     img.onload = () => {
-        // Photo exists → show it
         nameEl.innerHTML = `
-            <img src="${photoPath}"
-                 style="width:80px; height:80px; border-radius:50%; object-fit:cover; margin-right:15px; border:2px solid var(--accent);">
+            <img src="${photoPath}" style="width:80px; height:80px; border-radius:50%; object-fit:cover; margin-right:15px; border:2px solid var(--accent);">
             ${name}
         `;
     };
 
-    img.onerror = () => {
-        // Photo missing → show name only
-        nameEl.innerText = name;
-    };
-
+    img.onerror = () => { nameEl.innerText = name; };
     ratingsEl.innerText = `Reg: ${reg} | Quick: ${quick} | Blitz: ${blitz}`;
     modal.style.display = 'block';
 }
 
-
 function closeModal() { document.getElementById('profile-modal').style.display = 'none'; }
-
 window.onload = loadPlayers;
 </script>
 </body>
