@@ -90,7 +90,7 @@
         <div id="setting-label-3">DELAY<br><input type="number" id="cfg-delay" value="0"></div>
     </div>
     <div class="clock-main">
-       <div id="black-timer" class="clock-face" onclick="switchClock('white')">
+      <div id="black-timer" class="clock-face" onpointerdown="switchClock('white')">
             <div class="time-stack">
                 <div id="black-delay" class="delay-display">0</div>
                 <div class="time-container">
@@ -101,7 +101,7 @@
                 </div>
             </div>
        </div>
-       <div id="white-timer" class="clock-face active" onclick="switchClock('black')">
+       <div id="white-timer" class="clock-face active" onpointerdown="switchClock('black')">
             <div class="time-stack">
                 <div id="white-delay" class="delay-display">0</div>
                 <div class="time-container">
