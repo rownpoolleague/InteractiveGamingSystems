@@ -501,16 +501,32 @@ function closeCalcModal() {
 }
 
 if ('serviceWorker' in navigator) {
-  navigator.serviceWorker.register('sw.js').then(reg => {
+  // 1. Force reload ONLY when the new worker officially takes over control
+  let refreshing = false;
+  navigator.serviceWorker.addEventListener('controllerchange', () => {
+    if (!refreshing) {
+      refreshing = true;
+      window.location.reload();
+    }
+  });
+
+  // 2. Cache-bust GitHub Pages HTTP cache by adding a unique version timestamp
+  const cacheBustToken = new Date().getTime();
+  
+  navigator.serviceWorker.register(`sw.js?v=${cacheBustToken}`).then(reg => {
+    // 3. Keep checking for updates in the background
     reg.addEventListener('updatefound', () => {
       const newWorker = reg.installing;
+      if (!newWorker) return;
+
       newWorker.addEventListener('statechange', () => {
         if (newWorker.state === 'installed' && navigator.serviceWorker.controller) {
-          window.location.reload(); // Automatically refreshes the app when an update is ready
+          console.log('New version installed! Activating...');
+          // Your sw.js has self.skipWaiting(), which instantly triggers 'controllerchange' above
         }
       });
     });
-  });
+  }).catch(err => console.error('Service Worker registration failed:', err));
 }
 </script>
 </body>
