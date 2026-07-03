@@ -13,32 +13,29 @@
     </style>
 </head>
 <body>
-
-    <div class="board-container">
-        <!-- This is where the game will render -->
-        <ct-pgn-viewer id="my-board">
-            [Event "Test Game"]
-            [Result "1-0"]
-            1. e4 e5 2. Nf3 Nc6 3. Bc4 Nf6 4. Ng5 d5 5. exd5 Nxd5 6. Nxf7 Kxf7 7. Qf3+ Ke6 8. Nc3 Nb4 9. Qe4 c6 10. a3 Na6 11. d4 Nc7 12. Qxe5+ Kf7 13. O-O Bd6 14. Qh5+ g6 15. Qf3+ Kg7 16. Ne4 Rf8 17. Qd3 Bf5 18. f3 b5 19. Ba2 Nf4 20. Qd1 Bxe4 21. fxe4 Qh4 22. e5 Qg5 23. Bxf4 Rxf4 24. Rxf4 Qxf4 25. exd6 Qxd6 26. c3 Re8 27. Qf3 Nd5 28. Rf1 Re7 29. Qf8# 1-0
-        </ct-pgn-viewer>
+    <div id="wrapper" style="max-width: 600px; margin: 20px auto;">
+        <!-- The board will be injected here -->
     </div>
 
+    <script>
+        window.addEventListener('load', () => {
+            const savedPgn = sessionStorage.getItem('pendingPgn');
+            const wrapper = document.getElementById('wrapper');
+
+            if (savedPgn) {
+                // Create the element dynamically so it is forced to read the new PGN
+                const viewer = document.createElement('ct-pgn-viewer');
+                viewer.id = 'my-board';
+                // Set the PGN directly as content
+                viewer.textContent = savedPgn;
+                wrapper.appendChild(viewer);
+            } else {
+                wrapper.innerHTML = "<h2 style='color:white'>No game data found. Go back and click a game.</h2>";
+            }
+        });
+    </script>
+    
     <!-- The viewer engine -->
     <script defer src="https://c1a.chesstempo.com/pgnviewer/v2.5/pgnviewerext.bundle.vers1.js" crossorigin></script>
-    
-   <script>
-    window.addEventListener('load', () => {
-        // This picks up the PGN you just saved from the dashboard
-        const savedPgn = sessionStorage.getItem('pendingPgn');
-        
-        if (savedPgn) {
-            const viewer = document.getElementById('my-board');
-            viewer.textContent = savedPgn;
-            
-            // Optional: Clean up after loading
-            // sessionStorage.removeItem('pendingPgn');
-        }
-    });
-</script>
 </body>
 </html>
