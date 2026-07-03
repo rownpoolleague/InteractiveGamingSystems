@@ -449,7 +449,7 @@
         renderFilteredTable();
     }
 
-    function renderFilteredTable() {
+   function renderFilteredTable() {
         const tbody = document.getElementById('archiveTableBody');
         tbody.innerHTML = '';
 
@@ -467,19 +467,14 @@
             if (g.swing.startsWith("+")) swingStyleColor = "var(--chess-green)";
             if (g.swing.startsWith("-")) swingStyleColor = "var(--chess-red)";
 
-            // 1. Encode the PGN for the URL right here
-            const encodedPgn = encodeURIComponent(g.pgn);
-           const viewerUrl = `your-new-filename.html#pgn=${encodedPgn}`; 
-row.onclick = () => {
-    window.open(viewerUrl, '_blank');
-};
-
-            // 2. Build the row as an HTML anchor string to destroy the popup blocker
             const row = document.createElement('tr');
             row.style.cursor = "pointer";
             row.title = "Click to load this game into the viewer";
             
-            // Native browser link behavior:
+            // Build the URL using Query Parameters for reliable parsing
+            const encodedPgn = encodeURIComponent(g.pgn);
+            const viewerUrl = `analysis.html?pgn=${encodedPgn}`; 
+            
             row.onclick = () => {
                 window.open(viewerUrl, '_blank');
             };
