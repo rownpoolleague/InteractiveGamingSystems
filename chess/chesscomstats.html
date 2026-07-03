@@ -144,10 +144,11 @@
             td::before { content: attr(data-label); font-weight: bold; color: var(--text-main); font-size: 0.8rem; text-transform: uppercase; margin-right: 15px; }
         }
 
-        .feed-list { display: flex; flex-direction: column; gap: 10px; }
-        .feed-item { background-color: var(--bg-sub); padding: 12px; border-radius: 6px; display: flex; justify-content: space-between; align-items: center; font-size: 0.9rem; border: 1px solid var(--border-color); }
-        .feed-main { font-weight: bold; color: var(--text-bright); }
-        .feed-meta { font-size: 0.8rem; color: var(--text-main); margin-top: 3px; }
+        .filter-section { display: flex; flex-direction: column; gap: 12px; }
+        .filter-btn { background-color: var(--bg-sub); border: 1px solid var(--border-color); color: var(--text-main); padding: 12px; border-radius: 6px; font-weight: bold; cursor: pointer; text-align: left; display: flex; justify-content: space-between; align-items: center; transition: all 0.2s; }
+        .filter-btn:hover { border-color: var(--text-main); }
+        .filter-btn.active { border-color: var(--chess-green); background-color: rgba(129, 182, 76, 0.05); color: var(--text-bright); }
+        .filter-count { font-size: 0.8rem; background: var(--bg-main); padding: 2px 8px; border-radius: 10px; color: var(--chess-gold); }
 
         #globalLoading { position: fixed; bottom: 16px; right: 16px; background-color: var(--chess-gold); color: black; padding: 12px 24px; border-radius: 30px; font-weight: bold; box-shadow: 0 4px 16px rgba(0,0,0,0.4); display: none; z-index: 9999; font-size: 0.9rem; }
     </style>
@@ -172,7 +173,7 @@
                 <label for="targetYear">Year</label>
                 <input type="number" id="targetYear" placeholder="2026" value="2026">
             </div>
-            <div id="targetMonthWrapper" class="input-group">
+            <div id="targetUsernameWrapper" class="input-group" style="flex: 1; min-width: 70px;">
                 <label for="targetMonth">Month</label>
                 <input type="number" id="targetMonth" placeholder="MM" value="7" min="1" max="12">
             </div>
@@ -229,7 +230,7 @@
                 <table>
                     <thead>
                         <tr>
-                            <th>Rules</th>
+                            <th>Format</th>
                             <th>White Player</th>
                             <th>Black Player</th>
                             <th>Your Rating (Swing)</th>
@@ -244,20 +245,28 @@
         </div>
 
         <div class="panel">
-            <div class="tab-menu">
-                <button class="tab-btn active" onclick="switchRightTab('games', this)">Daily Boards</button>
-                <button class="tab-btn" onclick="switchRightTab('clubs', this)">Clubs Feed</button>
-                <button class="tab-btn" onclick="switchRightTab('tournaments', this)">Tournaments</button>
-            </div>
-
-            <div id="tabGames" class="tab-content feed-list">
-                <div style="text-align: center; padding: 20px; color: var(--border-color);">No active arrays loaded.</div>
-            </div>
-            <div id="tabClubs" class="tab-content feed-list" style="display: none;">
-                <div style="text-align: center; padding: 20px; color: var(--border-color);">No group metadata evaluated.</div>
-            </div>
-            <div id="tabTournaments" class="tab-content feed-list" style="display: none;">
-                <div style="text-align: center; padding: 20px; color: var(--border-color);">No tournament placements parsed.</div>
+            <div class="panel-heading">Archive Format Filtering</div>
+            <div class="filter-section">
+                <button class="filter-btn active" id="filterAll" onclick="setFormatFilter('all')">
+                    <span>All Formats Loaded</span>
+                    <span class="filter-count" id="countAll">0</span>
+                </button>
+                <button class="filter-btn" id="filterBlitz" onclick="setFormatFilter('blitz')">
+                    <span style="color: var(--blitz-color);">⚡ Blitz</span>
+                    <span class="filter-count" id="countBlitz">0</span>
+                </button>
+                <button class="filter-btn" id="filterBullet" onclick="setFormatFilter('bullet')">
+                    <span style="color: var(--bullet-color);">🚀 Bullet</span>
+                    <span class="filter-count" id="countBullet">0</span>
+                </button>
+                <button class="filter-btn" id="filterRapid" onclick="setFormatFilter('rapid')">
+                    <span style="color: var(--rapid-color);">⏱️ Rapid</span>
+                    <span class="filter-count" id="countRapid">0</span>
+                </button>
+                <button class="filter-btn" id="filterDaily" onclick="setFormatFilter('daily')">
+                    <span style="color: var(--chess-gold);">📅 Daily</span>
+                    <span class="filter-count" id="countDaily">0</span>
+                </button>
             </div>
         </div>
 
@@ -266,6 +275,8 @@
 
 <script>
     const userAgentConfig = { headers: { 'User-Agent': 'ChessAnalyticsProDashboard/3.0 (dev-contact@example.com)' } };
+    let globalParsedGames = [];
+    let currentActiveFilter = 'all';
 
     async function executeFullDiagnostic() {
         const username = document.getElementById('targetUsername').value.trim();
@@ -280,12 +291,9 @@
         document.getElementById('logMonthYear').innerText = `${year}-${month}`;
 
         try {
-            const [statusData, statsData, activeGames, clubMeta, tournamentMeta, monthRecords] = await Promise.all([
+            const [statusData, statsData, monthRecords] = await Promise.all([
                 fetchJsonSafe(`https://api.chess.com/pub/player/${username}/is-online`),
                 fetchJsonSafe(`https://api.chess.com/pub/player/${username}/stats`),
-                fetchJsonSafe(`https://api.chess.com/pub/player/${username}/games`),
-                fetchJsonSafe(`https://api.chess.com/pub/player/${username}/clubs`),
-                fetchJsonSafe(`https://api.chess.com/pub/player/${username}/tournaments`),
                 fetchJsonSafe(`https://api.chess.com/pub/player/${username}/games/${year}/${month}`)
             ]);
 
@@ -314,12 +322,9 @@
                 document.getElementById('rushVal').innerText = "Puzzle Rush: Inactive";
             }
 
-            // Extract rating changes and game statuses natively from array stream
-            processMonthlyGames(monthRecords, username);
-
-            populateActiveGameList(activeGames, username);
-            populateClubMetaList(clubMeta);
-            populateTournamentMetaList(tournamentMeta);
+            parseAndCacheGames(monthRecords, username);
+            updateFilterInterfaceCounts();
+            renderFilteredTable();
 
         } catch (error) {
             console.error("Dashboard engine handling failure:", error);
@@ -355,23 +360,21 @@
         }
     }
 
-    function processMonthlyGames(monthRecords, currentUsername) {
-        const tbody = document.getElementById('archiveTableBody');
-        tbody.innerHTML = '';
+    function transmitPgnToViewer(pgnString, whitePlayer, blackPlayer) {
+        if(!pgnString) return alert("No valid PGN data map extracted for this entry.");
+        console.log("Transmitting PGN structural frame to parent runtime...");
+        window.parent.postMessage({ type: 'LOAD_CHESS_GAME', pgn: pgnString }, '*');
+        alert(`PGN Map Injected! Dispatched [${whitePlayer} vs ${blackPlayer}] straight into viewer environment.`);
+    }
 
-        if (!monthRecords || !monthRecords.games || monthRecords.games.length === 0) {
-            tbody.innerHTML = `<tr><td colspan="5" style="text-align:center; padding: 20px 0;">No matching history arrays found for this specific month window.</td></tr>`;
-            return;
-        }
+    function parseAndCacheGames(monthRecords, currentUsername) {
+        globalParsedGames = [];
+        if (!monthRecords || !monthRecords.games || monthRecords.games.length === 0) return;
 
-        // 1. Arrange array stream into clear chronological timelines using end_time
         const sortedGames = [...monthRecords.games].sort((a, b) => a.end_time - b.end_time);
-
-        // 2. Track incremental delta state per isolated matching format
         const previousRatingsTracker = { blitz: null, bullet: null, rapid: null, daily: null, match: null };
 
-        // Process full list timeline sequentially to maintain mathematical delta precision
-        const annotatedGames = sortedGames.map((game) => {
+        globalParsedGames = sortedGames.map((game) => {
             const wName = game.white.username;
             const bName = game.black.username;
             const wRating = game.white.rating;
@@ -385,19 +388,14 @@
                 gameType = "match";
             }
 
-            // Derive rating delta via local cache comparative lookup
-            let computedSwing = "Base";
+            let computedSwing = "☠️";
             const baselineRating = previousRatingsTracker[gameType];
-
             if (baselineRating !== null) {
                 const absoluteDiff = userRatingPost - baselineRating;
                 computedSwing = absoluteDiff >= 0 ? `+${absoluteDiff}` : `${absoluteDiff}`;
             }
-
-            // Save rating forward as future baseline context
             previousRatingsTracker[gameType] = userRatingPost;
 
-            // Resolve true textual game outcomes mapping
             let matchOutcome = "";
             let outcomeColor = "var(--text-main)";
             const userResultStatus = isUserWhite ? game.white.result : game.black.result;
@@ -414,7 +412,8 @@
             }
 
             return {
-                rules: game.rules || 'chess',
+                rawType: gameType,
+                displayRules: `${gameType} (${game.time_control})`,
                 whiteName: wName,
                 blackName: bName,
                 whiteRating: wRating,
@@ -423,138 +422,65 @@
                 userRatingPost: userRatingPost,
                 swing: computedSwing,
                 outcomeText: matchOutcome,
-                outcomeColor: outcomeColor
+                outcomeColor: outcomeColor,
+                pgn: game.pgn
             };
-        });
+        }).reverse();
+    }
 
-        // Inverse rendering priority so the most recent data rows show at top position
-        const viewableSlice = annotatedGames.reverse().slice(0, 15);
+    function updateFilterInterfaceCounts() {
+        document.getElementById('countAll').innerText = globalParsedGames.length;
+        document.getElementById('countBlitz').innerText = globalParsedGames.filter(g => g.rawType === 'blitz').length;
+        document.getElementById('countBullet').innerText = globalParsedGames.filter(g => g.rawType === 'bullet').length;
+        document.getElementById('countRapid').innerText = globalParsedGames.filter(g => g.rawType === 'rapid').length;
+        document.getElementById('countDaily').innerText = globalParsedGames.filter(g => g.rawType === 'daily').length;
+    }
 
-        viewableSlice.forEach(g => {
+    function setFormatFilter(type) {
+        currentActiveFilter = type;
+        document.querySelectorAll('.filter-btn').forEach(btn => btn.classList.remove('active'));
+        
+        if(type === 'all') document.getElementById('filterAll').classList.add('active');
+        if(type === 'blitz') document.getElementById('filterBlitz').classList.add('active');
+        if(type === 'bullet') document.getElementById('filterBullet').classList.add('active');
+        if(type === 'rapid') document.getElementById('filterRapid').classList.add('active');
+        if(type === 'daily') document.getElementById('filterDaily').classList.add('active');
+
+        renderFilteredTable();
+    }
+
+    function renderFilteredTable() {
+        const tbody = document.getElementById('archiveTableBody');
+        tbody.innerHTML = '';
+
+        const displayedGames = currentActiveFilter === 'all' 
+            ? globalParsedGames 
+            : globalParsedGames.filter(g => g.rawType === currentActiveFilter);
+
+        if (displayedGames.length === 0) {
+            tbody.innerHTML = `<tr><td colspan="5" style="text-align:center; padding: 20px 0;">No matching history arrays found for this filter type.</td></tr>`;
+            return;
+        }
+
+        displayedGames.slice(0, 25).forEach(g => {
             let swingStyleColor = "var(--text-main)";
             if (g.swing.startsWith("+")) swingStyleColor = "var(--chess-green)";
             if (g.swing.startsWith("-")) swingStyleColor = "var(--chess-red)";
 
             const row = document.createElement('tr');
+            row.style.cursor = "pointer";
+            row.title = "Click to feed this historical frame into the viewer layout";
+            row.onclick = () => transmitPgnToViewer(g.pgn, g.whiteName, g.blackName);
+            
             row.innerHTML = `
-                <td data-label="Rules"><strong style="color:var(--chess-gold); font-size:0.8rem; text-transform:uppercase;">${g.rules}</strong></td>
+                <td data-label="Format"><strong style="color:var(--chess-gold); font-size:0.75rem; text-transform:uppercase;">${g.displayRules}</strong></td>
                 <td data-label="White Player"><span style="${g.isUserWhite ? 'color:var(--text-bright); font-weight:bold;' : ''}">${g.whiteName}</span> (${g.whiteRating})</td>
                 <td data-label="Black Player"><span style="${!g.isUserWhite ? 'color:var(--text-bright); font-weight:bold;' : ''}">${g.blackName}</span> (${g.blackRating})</td>
                 <td data-label="Your Rating (Swing)">${g.userRatingPost} (<span style="color:${swingStyleColor}; font-weight:bold;">${g.swing}</span>)</td>
-                <td data-label="Outcome Details" style="color:${g.outcomeColor}; font-weight:500;">${g.outcomeText}</td>
+                <td data-label="Outcome Details" style="color:${g.outcomeColor}; font-weight:500;">${g.outcomeText} 🗲</td>
             `;
             tbody.appendChild(row);
         });
-    }
-
-  function populateActiveGameList(gamesData, username) {
-    const container = document.getElementById('tabGames');
-    container.innerHTML = '';
-
-    if (!gamesData || !gamesData.games || gamesData.games.length === 0) {
-        container.innerHTML = `<div style="text-align:center; padding:20px; font-size:0.85rem; color:var(--text-main);">No active long-term Daily matches running for this player.</div>`;
-        return;
-    }
-
-    gamesData.games.slice(0, 5).forEach(g => {
-        const wPlayer = (typeof g.white === 'object') ? g.white.username : g.white.split('/').pop();
-        const bPlayer = (typeof g.black === 'object') ? g.black.username : g.black.split('/').pop();
-        
-        // 1. Identify what color you are playing on this specific board
-        const userColor = (username.toLowerCase() === wPlayer.toLowerCase()) ? 'white' : 'black';
-        
-        // 2. Check if your color matches the exact color string inside Chess.com's live turn tracker
-        const isSelfTurn = g.turn && g.turn.toLowerCase() === userColor;
-
-        // Clean up time control strings safely
-        let displayTimeControl = g.time_control || 'Unknown';
-        if (displayTimeControl.includes('/')) {
-            const seconds = parseInt(displayTimeControl.split('/')[1], 10);
-            if (!isNaN(seconds)) {
-                const days = seconds / 86400;
-                displayTimeControl = days >= 1 ? `${Math.round(days)} Day${days > 1 ? 's' : ''}` : `${Math.round(seconds / 3600)} Hour${seconds / 3600 > 1 ? 's' : ''}`;
-            }
-        }
-
-        const card = document.createElement('div');
-        card.className = 'feed-item';
-        card.innerHTML = `
-            <div style="min-width: 0; flex: 1; padding-right: 8px;">
-                <div class="feed-main" style="white-space: nowrap; overflow: hidden; text-overflow: ellipsis; font-size:0.85rem;">${wPlayer} vs ${bPlayer}</div>
-                <div class="feed-meta">Time Limit: ${displayTimeControl}</div>
-            </div>
-            <span class="badge" style="background-color: ${isSelfTurn ? 'rgba(129, 182, 76, 0.15)' : 'rgba(255,255,255,0.03)'}; color: ${isSelfTurn ? 'var(--chess-green)' : 'var(--text-main)'}; border: 1px solid ${isSelfTurn ? 'var(--chess-green)' : 'transparent'}; font-size: 0.7rem; padding: 4px 8px; white-space: nowrap;">
-                ${isSelfTurn ? 'Your Turn ⚡' : 'Waiting'}
-            </span>
-        `;
-        container.appendChild(card);
-    });
-}
-
-    function populateClubMetaList(clubMeta) {
-        const container = document.getElementById('tabClubs');
-        container.innerHTML = '';
-
-        if (!clubMeta || !clubMeta.clubs || clubMeta.clubs.length === 0) {
-            container.innerHTML = `<div style="text-align:center; padding:20px;">No club memberships records found.</div>`;
-            return;
-        }
-
-        clubMeta.clubs.slice(0, 5).forEach(c => {
-            const joinedDate = new Date(c.joined * 1000).toLocaleDateString();
-            const card = document.createElement('div');
-            card.className = 'feed-item';
-            card.innerHTML = `
-                <div style="min-width: 0; flex: 1; padding-right: 8px;">
-                    <div class="feed-main" style="white-space: nowrap; overflow: hidden; text-overflow: ellipsis;">${c.name}</div>
-                    <div class="feed-meta">Joined: ${joinedDate}</div>
-                </div>
-                <a href="${c.url}" target="_blank" style="color:var(--chess-green); text-decoration:none; font-size:0.8rem; font-weight:bold; white-space: nowrap;">View →</a>
-            `;
-            container.appendChild(card);
-        });
-    }
-
-    function populateTournamentMetaList(tournamentMeta) {
-        const container = document.getElementById('tabTournaments');
-        container.innerHTML = '';
-
-        const finishedList = tournamentMeta?.finished || [];
-        const currentList = tournamentMeta?.in_progress || [];
-
-        if (finishedList.length === 0 && currentList.length === 0) {
-            container.innerHTML = `<div style="text-align:center; padding:20px;">No competitive matching logs.</div>`;
-            return;
-        }
-
-        const combinedFeed = [...currentList.map(t => ({...t, statusClass: 'Active'})), ...finishedList.map(t => ({...t, statusClass: 'Ended'}))].slice(0, 5);
-
-        combinedFeed.forEach(t => {
-            const tournamentId = t.url.split('/').pop() || 'Tournament';
-            const placementLabel = t.placement ? `#${t.placement} / ${t.total_players}` : 'In Progress';
-
-            const card = document.createElement('div');
-            card.className = 'feed-item';
-            card.innerHTML = `
-                <div style="min-width: 0; flex: 1; padding-right: 8px;">
-                    <div class="feed-main" style="white-space: nowrap; overflow: hidden; text-overflow: ellipsis;">${tournamentId.replace(/-/g, ' ')}</div>
-                    <div class="feed-meta">Place: ${placementLabel}</div>
-                </div>
-                <span class="badge" style="background-color:rgba(255,255,255,0.03); color:var(--chess-gold); font-size:0.7rem; padding: 4px 8px;">${t.statusClass}</span>
-            `;
-            container.appendChild(card);
-        });
-    }
-
-    function switchRightTab(targetContext, eventTrigger) {
-        document.querySelectorAll('.tab-content').forEach(el => el.style.display = 'none');
-        document.querySelectorAll('.tab-btn').forEach(el => el.classList.remove('active'));
-        
-        if(targetContext === 'games') document.getElementById('tabGames').style.display = 'flex';
-        if(targetContext === 'clubs') document.getElementById('tabClubs').style.display = 'flex';
-        if(targetContext === 'tournaments') document.getElementById('tabTournaments').style.display = 'flex';
-
-        eventTrigger.classList.add('active');
     }
 </script>
 
