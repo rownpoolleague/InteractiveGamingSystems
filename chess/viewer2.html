@@ -45,15 +45,15 @@
     </div>
 
 <script>
-    window.addEventListener('DOMContentLoaded', () => {
-        const urlParams = new URLSearchParams(window.location.search);
-        const pgn = urlParams.get('pgn');
-        const iframe = document.getElementById('lichessFrame');
-
-        if (pgn) {
-            // Lichess embeds use the 'pgn' parameter in the URL to load a specific game
-            // We encode the PGN and add it to the embed URL
-            iframe.src = `https://lichess.org/embed/analysis#?pgn=${encodeURIComponent(pgn)}`;
+    window.addEventListener('load', () => {
+        // Get the PGN from the URL hash (e.g., #pgn=...)
+        const hash = window.location.hash;
+        if (hash.includes('pgn=')) {
+            const pgn = decodeURIComponent(hash.split('pgn=')[1]);
+            const iframe = document.querySelector('.iframe-container iframe');
+            
+            // Reconstruct the src with the PGN in the Lichess expected format
+            iframe.src = `https://lichess.org/embed/analysis#${hash.substring(1)}`;
         }
     });
 </script>
