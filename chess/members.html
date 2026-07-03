@@ -1,122 +1,280 @@
 <!DOCTYPE html>
 <html lang="en">
+
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no, viewport-fit=cover">
     <title>SSCC MEMBERS</title>
     <style>
-        :root { --bg: #000; --card: #111; --accent: #3b82f6; --text: #eee; }
-        * { box-sizing: border-box; }
-        html, body { margin: 0; padding: 0; width: 100%; height: 100%; background-color: #000; overflow: hidden; font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, sans-serif; overscroll-behavior-y: none; }
-        .form-wrapper { position: fixed; inset: 0; border: 4px solid #1e90ff; border-radius: 12px; display: flex; flex-direction: column; overflow: hidden; }
-        .engine-box { flex: 1; background: var(--bg); padding: 15px; display: flex; flex-direction: column; overflow-y: auto; overscroll-behavior: contain; }
-        header { padding-bottom: 12px; border-bottom: 1px solid #222; margin-bottom: 15px; display: flex; justify-content: space-between; align-items: center; }
-        h1 { margin: 0; font-size: 1.2rem; color: var(--accent); }
-        .nav-button { background: #1e90ff; color: white; text-decoration: none; font-size: 0.9rem; font-weight: bold; padding: 6px 12px; border-radius: 4px; }
-        #player-list-container { display: flex; flex-direction: column; gap: 5px; width: 100%; }
-        .player-row { background: #0a0a0a; padding: 15px; border-bottom: 1px solid #222; border-radius: 4px; display: flex; justify-content: space-between; align-items: center; gap: 10px; cursor: pointer; }
-        .player-name { font-weight: bold; font-size: 1rem; color: var(--text); display: flex; align-items: center; }
-        .player-stats { font-size: 0.75rem; color: #888; text-align: right; }
-        
-        /* Modal Styles */
-        .modal-content { background:#1a1a1a; padding:20px; border-radius:8px; border:1px solid #444; max-width: 500px; margin: auto; color: white; }
-        .filter-select { background: #111; color: white; border: 1px solid #333; padding: 10px; border-radius: 8px; width: 100%; margin-top: 10px; }
-        .stat-box { background: #111; padding: 10px; margin-top: 10px; border-radius: 8px; border: 1px solid #333; }
-        .stat-value { color: #1e90ff; font-weight: bold; font-size: 1.2em; display: block; }
-        button { background: #1e90ff; color: white; border: none; padding: 10px; width: 100%; border-radius: 4px; margin-top: 15px; font-weight: bold; }
+        :root {
+            --bg: #000;
+            --card: #111;
+            --accent: #3b82f6;
+            --text: #eee;
+        }
+
+        * {
+            box-sizing: border-box;
+        }
+
+        html,
+        body {
+            margin: 0;
+            padding: 0;
+            width: 100%;
+            height: 100%;
+            background-color: #000;
+            overflow: hidden;
+            font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, sans-serif;
+            overscroll-behavior-y: none;
+        }
+
+        .form-wrapper {
+            position: fixed;
+            inset: 0;
+            border: 4px solid #1e90ff;
+            border-radius: 12px;
+            display: flex;
+            flex-direction: column;
+            overflow: hidden;
+        }
+
+        .engine-box {
+            flex: 1;
+            background: var(--bg);
+            padding: 15px;
+            display: flex;
+            flex-direction: column;
+            overflow-y: auto;
+            overscroll-behavior: contain;
+        }
+
+        header {
+            padding-bottom: 12px;
+            border-bottom: 1px solid #222;
+            margin-bottom: 15px;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+        }
+
+        h1 {
+            margin: 0;
+            font-size: 1.2rem;
+            color: var(--accent);
+        }
+
+        .nav-button {
+            background: #1e90ff;
+            color: white;
+            text-decoration: none;
+            font-size: 0.9rem;
+            font-weight: bold;
+            padding: 6px 12px;
+            border-radius: 4px;
+        }
+
+        #player-list-container {
+            display: flex;
+            flex-direction: column;
+            gap: 5px;
+            width: 100%;
+        }
+
+        .player-row {
+            background: #0a0a0a;
+            padding: 15px;
+            border-bottom: 1px solid #222;
+            border-radius: 4px;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            gap: 10px;
+            cursor: pointer;
+        }
+
+        .player-name {
+            font-weight: bold;
+            font-size: 1rem;
+            color: var(--text);
+            display: flex;
+            align-items: center;
+        }
+
+        .player-stats {
+            font-size: 0.75rem;
+            color: #888;
+            text-align: right;
+        }
+
+        /* Increased Modal Vertical Size */
+        .modal-content {
+            background: #1a1a1a;
+            padding: 25px;
+            border-radius: 12px;
+            border: 1px solid #444;
+            width: 95%;
+            height: 85vh;
+            margin: 5vh auto;
+            color: white;
+            display: flex;
+            flex-direction: column;
+        }
+
+        .filter-select {
+            background: #111;
+            color: white;
+            border: 1px solid #333;
+            padding: 12px;
+            border-radius: 8px;
+            width: 100%;
+            margin-top: 12px;
+        }
+
+        .stat-box {
+            background: #111;
+            padding: 15px;
+            margin-top: 15px;
+            border-radius: 8px;
+            border: 1px solid #333;
+            flex-shrink: 0;
+        }
+
+        .stat-value {
+            color: #1e90ff;
+            font-weight: bold;
+            font-size: 1.4em;
+            display: block;
+        }
+
+        button {
+            background: #1e90ff;
+            color: white;
+            border: none;
+            padding: 15px;
+            width: 100%;
+            border-radius: 8px;
+            margin-top: auto;
+            font-weight: bold;
+        }
     </style>
 </head>
+
 <body>
 
-<div id="profile-modal" style="display:none; position:fixed; inset:0; background:rgba(0,0,0,0.95); z-index:100; padding:20px; overflow-y:auto;">
-    <div class="modal-content">
-        <h2 id="modal-player-name" style="color:var(--accent); display: flex; align-items: center;"></h2>
-        <div id="modal-ratings" style="margin-bottom:10px; font-size: 0.9rem;"></div>
-        
-        <select id="f-opening" class="filter-select" onchange="applyFilters()"><option value="">All Openings</option></select>
-        <select id="f-opponent" class="filter-select" onchange="applyFilters()"><option value="">All Opponents</option></select>
-        <select id="f-color" class="filter-select" onchange="applyFilters()">
-            <option value="">All Colors</option>
-            <option value="White">White</option>
-            <option value="Black">Black</option>
-        </select>
+    <div id="profile-modal" style="display:none; position:fixed; inset:0; background:rgba(0,0,0,0.95); z-index:100; overflow-y:auto;">
+        <div class="modal-content">
+            <h2 id="modal-player-name" style="color:var(--accent); margin-top:0;"></h2>
+            <div id="modal-ratings" style="margin-bottom:15px; font-size: 1rem; color: #aaa;"></div>
 
-        <div id="stats-insert"></div>
-        <button onclick="closeModal()">Close</button>
-    </div>
-</div>
+            <select id="f-opening" class="filter-select" onchange="applyFilters()">
+                <option value="">All Openings</option>
+            </select>
+            <select id="f-opponent" class="filter-select" onchange="applyFilters()">
+                <option value="">All Opponents</option>
+            </select>
+            <select id="f-color" class="filter-select" onchange="applyFilters()">
+                <option value="">All Colors</option>
+                <option value="White">White</option>
+                <option value="Black">Black</option>
+            </select>
 
-<div class="form-wrapper">
-    <div class="engine-box">
-        <header>
-            <h1>SSCC MEMBERS</h1>
-            <a class="nav-button" href="index.html">Main Menu</a>
-        </header>
-        <div id="player-list-container">
-            <div style="text-align:center; color:#555; margin-top:50px;">Loading...</div>
+            <div id="stats-insert"></div>
+            <button onclick="closeModal()">Close</button>
         </div>
     </div>
-</div>
 
-<script>
-const CSV_URL = "https://docs.google.com/spreadsheets/d/e/2PACX-1vSiSgB9rf7i6bHLJn7_QLI8sBIBPWWV0WSQgWb867bIu_PHMOxxiuXD93Qrg1Kb5IuZd4BzkzMmfQnJ/pub?output=csv";
-const MATCH_URL = "https://docs.google.com/spreadsheets/d/e/2PACX-1vSiSgB9rf7i6bHLJn7_QLI8sBIBPWWV0WSQgWb867bIu_PHMOxxiuXD93Qrg1Kb5IuZd4BzkzMmfQnJ/pub?gid=1304642458&single=true&output=csv";
+    <div class="form-wrapper">
+        <div class="engine-box">
+            <header>
+                <h1>SSCC MEMBERS</h1>
+                <a class="nav-button" href="index.html">Main Menu</a>
+            </header>
+            <a style="color: gold; display: block; text-align: center; margin: 10px auto;">
+  Click a Player to View Club Stats
+</a>
+            <div id="player-list-container">
+                <div style="text-align:center; color:#555; margin-top:50px;">Loading...</div>
+            </div>
+        </div>
+    </div>
 
-let matchData = [], currentName = "";
+    <script>
+        const CSV_URL = "https://docs.google.com/spreadsheets/d/e/2PACX-1vSiSgB9rf7i6bHLJn7_QLI8sBIBPWWV0WSQgWb867bIu_PHMOxxiuXD93Qrg1Kb5IuZd4BzkzMmfQnJ/pub?output=csv";
+        const MATCH_URL = "https://docs.google.com/spreadsheets/d/e/2PACX-1vSiSgB9rf7i6bHLJn7_QLI8sBIBPWWV0WSQgWb867bIu_PHMOxxiuXD93Qrg1Kb5IuZd4BzkzMmfQnJ/pub?gid=1304642458&single=true&output=csv";
 
-async function loadData() {
-    const [resp, mResp] = await Promise.all([fetch(CSV_URL), fetch(MATCH_URL)]);
-    const players = (await resp.text()).split('\n').slice(1).map(l => {
-        const row = l.match(/(".*?"|[^",]+)(?=\s*,|\s*$)/g)?.map(s => s.replace(/"/g, '').trim());
-        return row ? { name: row[0], reg: row[1], quick: row[2], blitz: row[3] } : null;
-    }).filter(n => n);
-    
-    const regex = /,(?=(?:(?:[^"]*"){2})*[^"]*$)/;
-    matchData = (await mResp.text()).split('\n').slice(1).map(r => r.split(regex).map(c => c.replace(/^"|"$/g, '').trim()));
-    
-    document.getElementById('player-list-container').innerHTML = players.map(p => `
+        let matchData = [],
+            currentName = "";
+
+        async function loadData() {
+            const [resp, mResp] = await Promise.all([fetch(CSV_URL), fetch(MATCH_URL)]);
+            const players = (await resp.text()).split('\n').slice(1).map(l => {
+                const row = l.match(/(".*?"|[^",]+)(?=\s*,|\s*$)/g)?.map(s => s.replace(/"/g, '').trim());
+                return row ? {
+                    name: row[0],
+                    reg: row[1],
+                    quick: row[2],
+                    blitz: row[3]
+                } : null;
+            }).filter(n => n);
+
+            const regex = /,(?=(?:(?:[^"]*"){2})*[^"]*$)/;
+            matchData = (await mResp.text()).split('\n').slice(1).map(r => r.split(regex).map(c => c.replace(/^"|"$/g, '').trim()));
+
+            document.getElementById('player-list-container').innerHTML = players.map(p => `
         <div class="player-row" onclick="showProfile('${p.name.replace(/'/g, "\\'")}', '${p.reg}', '${p.quick}', '${p.blitz}')">
             <div class="player-name"><img src="photos/${p.name.replace(',', '').trim()}.jpg" onerror="this.style.display='none'" style="width:40px; height:40px; border-radius:50%; margin-right:15px;">${p.name}</div>
             <div class="player-stats">Reg: ${p.reg} | Q: ${p.quick} | B: ${p.blitz}</div>
         </div>`).join('');
-}
-
-function showProfile(name, reg, quick, blitz) {
-    currentName = name;
-    document.getElementById('modal-player-name').innerText = name;
-    document.getElementById('modal-ratings').innerText = `Reg: ${reg} | Quick: ${quick} | Blitz: ${blitz}`;
-    
-    const openings = new Set(matchData.map(r => r[6]).filter(n => n));
-    const opponents = new Set(matchData.filter(r => r[4] === name || r[5] === name).map(r => r[4] === name ? r[5] : r[4]));
-    
-    document.getElementById('f-opening').innerHTML = '<option value="">All Openings</option>' + Array.from(openings).map(o => `<option value="${o}">${o}</option>`).join('');
-    document.getElementById('f-opponent').innerHTML = '<option value="">All Opponents</option>' + Array.from(opponents).map(o => `<option value="${o}">${o}</option>`).join('');
-    
-    applyFilters();
-    document.getElementById('profile-modal').style.display = 'block';
-}
-
-function applyFilters() {
-    const p = currentName, o = document.getElementById('f-opening').value, opp = document.getElementById('f-opponent').value, c = document.getElementById('f-color').value;
-    let wins = 0, losses = 0, draws = 0;
-    matchData.forEach(row => {
-        const white = row[4], black = row[5], opening = row[6], result = row[7];
-        if (((c===""||c==="White") && white===p) || ((c===""||c==="Black") && black===p)) {
-            if ((o==="" || opening===o) && (opp==="" || (white===p ? black===opp : white===opp))) {
-                if (result==="1-0") (white===p ? wins++ : losses++);
-                else if (result==="0-1") (black===p ? wins++ : losses++);
-                else draws++;
-            }
         }
-    });
-    const total = wins+losses+draws;
-    document.getElementById('stats-insert').innerHTML = `
+
+        function showProfile(name, reg, quick, blitz) {
+            currentName = name;
+            document.getElementById('modal-player-name').innerText = name;
+            document.getElementById('modal-ratings').innerText = `Reg: ${reg} | Quick: ${quick} | Blitz: ${blitz}`;
+
+            const openings = new Set(matchData.map(r => r[6]).filter(n => n));
+            const opponents = new Set(matchData.filter(r => r[4] === name || r[5] === name).map(r => r[4] === name ? r[5] : r[4]));
+
+            document.getElementById('f-opening').innerHTML = '<option value="">All Openings</option>' + Array.from(openings).map(o => `<option value="${o}">${o}</option>`).join('');
+            document.getElementById('f-opponent').innerHTML = '<option value="">All Opponents</option>' + Array.from(opponents).map(o => `<option value="${o}">${o}</option>`).join('');
+
+            applyFilters();
+            document.getElementById('profile-modal').style.display = 'block';
+        }
+
+        function applyFilters() {
+            const p = currentName,
+                o = document.getElementById('f-opening').value,
+                opp = document.getElementById('f-opponent').value,
+                c = document.getElementById('f-color').value;
+            let wins = 0,
+                losses = 0,
+                draws = 0;
+            matchData.forEach(row => {
+                const white = row[4],
+                    black = row[5],
+                    opening = row[6],
+                    result = row[7];
+                if (((c === "" || c === "White") && white === p) || ((c === "" || c === "Black") && black === p)) {
+                    if ((o === "" || opening === o) && (opp === "" || (white === p ? black === opp : white === opp))) {
+                        if (result === "1-0")(white === p ? wins++ : losses++);
+                        else if (result === "0-1")(black === p ? wins++ : losses++);
+                        else draws++;
+                    }
+                }
+            });
+            const total = wins + losses + draws;
+            document.getElementById('stats-insert').innerHTML = `
         <div class="stat-box">Total <span class="stat-value">${total}</span></div>
         <div class="stat-box">W/L/D <span class="stat-value">${wins}/${losses}/${draws}</span></div>`;
-}
+        }
 
-function closeModal() { document.getElementById('profile-modal').style.display = 'none'; }
-window.onload = loadData;
-</script>
+        function closeModal() {
+            document.getElementById('profile-modal').style.display = 'none';
+        }
+        window.onload = loadData;
+    </script>
 </body>
+
 </html>
