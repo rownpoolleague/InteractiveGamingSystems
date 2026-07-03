@@ -467,10 +467,19 @@
             if (g.swing.startsWith("+")) swingStyleColor = "var(--chess-green)";
             if (g.swing.startsWith("-")) swingStyleColor = "var(--chess-red)";
 
+            // 1. Encode the PGN for the URL right here
+            const encodedPgn = encodeURIComponent(g.pgn);
+            const viewerUrl = `viewer2.html?pgn=${encodedPgn}`;
+
+            // 2. Build the row as an HTML anchor string to destroy the popup blocker
             const row = document.createElement('tr');
             row.style.cursor = "pointer";
-            row.title = "Click to feed this historical frame into the viewer layout";
-            row.onclick = () => transmitPgnToViewer(g.pgn, g.whiteName, g.blackName);
+            row.title = "Click to load this game into the viewer";
+            
+            // Native browser link behavior:
+            row.onclick = () => {
+                window.open(viewerUrl, '_blank');
+            };
             
             row.innerHTML = `
                 <td data-label="Format"><strong style="color:var(--chess-gold); font-size:0.75rem; text-transform:uppercase;">${g.displayRules}</strong></td>
