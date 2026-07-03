@@ -106,23 +106,26 @@
             color: #888;
             text-align: right;
         }
+/* Update this in your <style> block */
+.modal-content {
+    background: #1a1a1a;
+    padding: 20px;
+    border-radius: 12px;
+    border: 1px solid #444;
+    width: 95%;
+    max-height: 90vh; /* Limits the modal to 90% of screen height */
+    margin: 5vh auto;
+    color: white;
+    display: flex;
+    flex-direction: column;
+    overflow-y: auto; /* Allows the modal to scroll */
+    -webkit-overflow-scrolling: touch; /* Ensures smooth momentum scrolling on mobile */
+}
 
-        /* Increased Modal Vertical Size */
-        .modal-content {
-            background: #1a1a1a;
-            padding: 25px;
-            border-radius: 12px;
-            border: 1px solid #444;
-            width: 95%;
-            height: 85vh;
-            margin: 5vh auto;
-            color: white;
-            display: flex;
-            flex-direction: column;
-        }
 
         .filter-select {
             background: #111;
+             flex-shrink: 0; 
             color: white;
             border: 1px solid #333;
             padding: 12px;
@@ -162,27 +165,25 @@
 
 <body>
 
-    <div id="profile-modal" style="display:none; position:fixed; inset:0; background:rgba(0,0,0,0.95); z-index:100; overflow-y:auto;">
-        <div class="modal-content">
-            <h2 id="modal-player-name" style="color:var(--accent); margin-top:0;"></h2>
-            <div id="modal-ratings" style="margin-bottom:15px; font-size: 1rem; color: #aaa;"></div>
+    <!-- Ensure your HTML looks exactly like this -->
+<div id="profile-modal" style="display:none; position:fixed; inset:0; background:rgba(0,0,0,0.95); z-index:100; overflow-y: scroll;">
+    <div class="modal-content">
+        <!-- Everything else inside stays the same -->
+        <h2 id="modal-player-name" style="color:var(--accent); margin-top:0;"></h2>
+        <div id="modal-ratings" style="margin-bottom:15px; font-size: 1rem; color: #aaa;"></div>
+        
+        <select id="f-opening" class="filter-select" onchange="applyFilters()"><option value="">All Openings</option></select>
+        <select id="f-opponent" class="filter-select" onchange="applyFilters()"><option value="">All Opponents</option></select>
+        <select id="f-color" class="filter-select" onchange="applyFilters()">
+            <option value="">All Colors</option>
+            <option value="White">White</option>
+            <option value="Black">Black</option>
+        </select>
 
-            <select id="f-opening" class="filter-select" onchange="applyFilters()">
-                <option value="">All Openings</option>
-            </select>
-            <select id="f-opponent" class="filter-select" onchange="applyFilters()">
-                <option value="">All Opponents</option>
-            </select>
-            <select id="f-color" class="filter-select" onchange="applyFilters()">
-                <option value="">All Colors</option>
-                <option value="White">White</option>
-                <option value="Black">Black</option>
-            </select>
-
-            <div id="stats-insert"></div>
-            <button onclick="closeModal()">Close</button>
-        </div>
+        <div id="stats-insert"></div>
+        <button onclick="closeModal()">Close</button>
     </div>
+</div>
 
     <div class="form-wrapper">
         <div class="engine-box">
@@ -229,19 +230,26 @@
         }
 
         function showProfile(name, reg, quick, blitz) {
-            currentName = name;
-            document.getElementById('modal-player-name').innerText = name;
-            document.getElementById('modal-ratings').innerText = `Reg: ${reg} | Quick: ${quick} | Blitz: ${blitz}`;
+    currentName = name;
+    document.getElementById('modal-player-name').innerText = name;
+    document.getElementById('modal-ratings').innerText = `Reg: ${reg} | Quick: ${quick} | Blitz: ${blitz}`;
 
-            const openings = new Set(matchData.map(r => r[6]).filter(n => n));
-            const opponents = new Set(matchData.filter(r => r[4] === name || r[5] === name).map(r => r[4] === name ? r[5] : r[4]));
+    // Get unique, sorted lists for filters
+    const openings = Array.from(new Set(matchData.map(r => r[6]).filter(n => n))).sort();
+    const opponents = Array.from(new Set(matchData
+        .filter(r => r[4] === name || r[5] === name)
+        .map(r => r[4] === name ? r[5] : r[4])
+        .filter(n => n))).sort();
 
-            document.getElementById('f-opening').innerHTML = '<option value="">All Openings</option>' + Array.from(openings).map(o => `<option value="${o}">${o}</option>`).join('');
-            document.getElementById('f-opponent').innerHTML = '<option value="">All Opponents</option>' + Array.from(opponents).map(o => `<option value="${o}">${o}</option>`).join('');
+    document.getElementById('f-opening').innerHTML = '<option value="">All Openings</option>' + 
+        openings.map(o => `<option value="${o}">${o}</option>`).join('');
+    
+    document.getElementById('f-opponent').innerHTML = '<option value="">All Opponents</option>' + 
+        opponents.map(o => `<option value="${o}">${o}</option>`).join('');
 
-            applyFilters();
-            document.getElementById('profile-modal').style.display = 'block';
-        }
+    applyFilters();
+    document.getElementById('profile-modal').style.display = 'block';
+}
 
         function applyFilters() {
             const p = currentName,
