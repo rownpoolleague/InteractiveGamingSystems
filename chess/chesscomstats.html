@@ -469,7 +469,10 @@
 
             // 1. Encode the PGN for the URL right here
             const encodedPgn = encodeURIComponent(g.pgn);
-            const viewerUrl = `viewer2.html?pgn=${encodedPgn}`;
+           const viewerUrl = `your-new-filename.html#pgn=${encodedPgn}`; 
+row.onclick = () => {
+    window.open(viewerUrl, '_blank');
+};
 
             // 2. Build the row as an HTML anchor string to destroy the popup blocker
             const row = document.createElement('tr');
