@@ -471,13 +471,11 @@
             row.style.cursor = "pointer";
             row.title = "Click to load this game into the viewer";
             
-            // Build the URL using Query Parameters for reliable parsing
-            const encodedPgn = encodeURIComponent(g.pgn);
-            const viewerUrl = `analysis.html?pgn=${encodedPgn}`; 
-            
-            row.onclick = () => {
-                window.open(viewerUrl, '_blank');
-            };
+           
+row.onclick = () => {
+    sessionStorage.setItem('pendingPgn', g.pgn);
+    window.open('analysis.html', '_blank');
+};
             
             row.innerHTML = `
                 <td data-label="Format"><strong style="color:var(--chess-gold); font-size:0.75rem; text-transform:uppercase;">${g.displayRules}</strong></td>
