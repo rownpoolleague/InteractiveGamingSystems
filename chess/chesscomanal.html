@@ -1,0 +1,374 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Chess.com Analytics Dashboard</title>
+
+<style>
+    body {
+        margin: 0;
+        background: #000;
+        color: #eee;
+        font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, sans-serif;
+        padding: 20px;
+    }
+
+    h1 {
+        color: #3b82f6;
+        text-align: center;
+        margin-bottom: 20px;
+    }
+
+    .input-box {
+        background: #111;
+        padding: 15px;
+        border-radius: 10px;
+        border: 1px solid #333;
+        margin-bottom: 20px;
+    }
+
+    input, select, button {
+        width: 100%;
+        padding: 12px;
+        margin-top: 10px;
+        border-radius: 8px;
+        border: 1px solid #333;
+        background: #222;
+        color: #eee;
+        font-size: 1rem;
+    }
+
+    button {
+        background: #3b82f6;
+        font-weight: bold;
+        cursor: pointer;
+    }
+
+    .filter-box {
+        display: flex;
+        gap: 10px;
+        margin-top: 10px;
+    }
+
+    .filter-btn {
+        flex: 1;
+        padding: 10px;
+        background: #222;
+        border: 1px solid #333;
+        border-radius: 8px;
+        cursor: pointer;
+        text-align: center;
+    }
+
+    .filter-btn:hover {
+        background: #333;
+    }
+
+    .section {
+        background: #111;
+        padding: 15px;
+        border-radius: 10px;
+        border: 1px solid #333;
+        margin-top: 20px;
+    }
+
+    .list-item {
+        padding: 8px;
+        border-bottom: 1px solid #333;
+        cursor: pointer;
+    }
+
+    .list-item:hover {
+        background: #222;
+    }
+
+    .game-box {
+        background: #222;
+        padding: 10px;
+        border-radius: 8px;
+        border: 1px solid #333;
+        margin-top: 10px;
+    }
+
+    .game-link {
+        color: #3b82f6;
+        text-decoration: none;
+    }
+
+    details {
+        margin-top: 8px;
+    }
+
+    details > summary {
+        cursor: pointer;
+        padding: 6px 0;
+        font-weight: bold;
+    }
+</style>
+</head>
+
+<body>
+
+<h1>Chess.com Analytics Dashboard</h1>
+
+<div class="input-box">
+    <label>Chess.com Username:</label>
+    <input id="username" placeholder="Enter username (e.g. michaeltuhlean)">
+
+    <label>Time Control:</label>
+    <select id="timeControl">
+        <option value="300">5-Min Blitz (300)</option>
+        <option value="600">10-Min Rapid (600)</option>
+    </select>
+
+    <button onclick="loadStats()">Load Stats</button>
+</div>
+
+<div id="results"></div>
+<div id="games"></div>
+
+<script>
+let GLOBAL_GAMES = [];
+let GLOBAL_USER = "";
+
+let OPENING_FAMILIES_ALL = {};
+let OPENING_FAMILIES_WHITE = {};
+let OPENING_FAMILIES_BLACK = {};
+
+let OPP_ALL = {};
+let OPP_WHITE = {};
+let OPP_BLACK = {};
+
+let CURRENT_FILTER = "all";
+
+function cleanOpening(url) {
+    let slug = url.replace("https://www.chess.com/openings/", "");
+    slug = slug.split(/-[0-9]|\.{3}/)[0];
+    return slug.replace(/-/g, " ").trim();
+}
+
+function getOpeningFamily(url) {
+    let name = cleanOpening(url);
+    let parts = name.split(" ");
+    let family = parts[0];
+    let variation = parts.slice(1).join(" ").trim();
+    return { family, variation };
+}
+
+function showGames(filterFn, title) {
+    const filtered = GLOBAL_GAMES.filter(filterFn);
+
+    let html = `
+        <div class="section">
+            <h3>${title} — ${filtered.length} games</h3>
+    `;
+
+    filtered.forEach(g => {
+        const isWhite = g.white.username.toLowerCase() === GLOBAL_USER.toLowerCase();
+        const acc = g.accuracies ? (isWhite ? g.accuracies.white : g.accuracies.black) : "N/A";
+        const opp = isWhite ? g.black.username : g.white.username;
+        const result = isWhite ? g.white.result : g.black.result;
+
+        html += `
+            <div class="game-box">
+                <p><strong>Opponent:</strong> ${opp}</p>
+                <p><strong>Result:</strong> ${result}</p>
+                <p><strong>Accuracy:</strong> ${acc}</p>
+                <a class="game-link" href="${g.url}" target="_blank">View Game</a>
+            </div>
+        `;
+    });
+
+    html += "</div>";
+
+    document.getElementById("games").innerHTML = html;
+    document.getElementById("games").scrollIntoView({ behavior: "smooth" });
+}
+
+function escapeStr(s) {
+    return s.replace(/'/g, "\\'");
+}
+
+function showOpeningGames(family, variation) {
+    showGames(g => {
+        if (!g.eco) return false;
+        const o = getOpeningFamily(g.eco);
+        return o.family === family && o.variation === variation;
+    }, `${family} ${variation}`);
+}
+
+function renderFilteredStats() {
+    let openings = CURRENT_FILTER === "white" ? OPENING_FAMILIES_WHITE :
+                   CURRENT_FILTER === "black" ? OPENING_FAMILIES_BLACK :
+                   OPENING_FAMILIES_ALL;
+
+    let opponents = CURRENT_FILTER === "white" ? OPP_WHITE :
+                    CURRENT_FILTER === "black" ? OPP_BLACK :
+                    OPP_ALL;
+
+    let html = `
+        <div class="filter-box">
+            <div class="filter-btn" onclick="CURRENT_FILTER='all'; renderFilteredStats()">All Games</div>
+            <div class="filter-btn" onclick="CURRENT_FILTER='white'; renderFilteredStats()">White</div>
+            <div class="filter-btn" onclick="CURRENT_FILTER='black'; renderFilteredStats()">Black</div>
+        </div>
+    `;
+
+    html += `
+        <div class="section">
+            <h3>Opening Families</h3>
+            <details>
+                <summary>Show Opening Families (${Object.keys(openings).length})</summary>
+                ${Object.entries(openings).map(([family, vars]) => {
+                    const total = vars.reduce((a,b)=>a+b.count,0);
+                    const famEsc = escapeStr(family);
+                    return `
+                        <details>
+                            <summary>${family} — ${total} games</summary>
+                         ${vars.map(v => {
+    const varEsc = escapeStr(v.variation);
+
+    // Calculate win %
+    let wins = 0;
+    let total = 0;
+
+    GLOBAL_GAMES.forEach(g => {
+        if (!g.eco) return;
+
+        const o = getOpeningFamily(g.eco);
+        const isWhite = g.white.username.toLowerCase() === GLOBAL_USER.toLowerCase();
+        const result = isWhite ? g.white.result : g.black.result;
+
+        // Respect current filter
+        if (CURRENT_FILTER === "white" && !isWhite) return;
+        if (CURRENT_FILTER === "black" && isWhite) return;
+
+        // Match this variation
+        if (o.family === family && o.variation === v.variation) {
+            total++;
+            if (result === "win") wins++;
+        }
+    });
+
+    const winPct = total ? ((wins / total) * 100).toFixed(1) : "0.0";
+
+    return `
+        <div class="list-item"
+             onclick="showOpeningGames('${famEsc}', '${varEsc}')">
+            ${v.name} — ${v.count} games — <strong>${winPct}%</strong>
+        </div>
+    `;
+}).join("")}
+
+
+                        </details>
+                    `;
+                }).join("")}
+            </details>
+        </div>
+    `;
+
+    html += `
+        <div class="section">
+            <h3>Opponents</h3>
+            <details>
+                <summary>Opponents (${Object.keys(opponents).length})</summary>
+                ${Object.entries(opponents).sort((a,b)=>b[1]-a[1]).map(o => `
+                    <div class="list-item"
+                         onclick="showGames(g => 
+                             (g.white.username === '${escapeStr(o[0])}' || g.black.username === '${escapeStr(o[0])}'),
+                             'Games vs ${escapeStr(o[0])}')">
+                        ${o[0]} — ${o[1]} games
+                    </div>
+                `).join("")}
+            </details>
+        </div>
+    `;
+
+    document.getElementById("results").innerHTML = html;
+}
+
+async function loadStats() {
+    const user = document.getElementById("username").value.trim();
+    const tc = document.getElementById("timeControl").value;
+
+    GLOBAL_USER = user;
+    document.getElementById("games").innerHTML = "";
+
+    OPENING_FAMILIES_ALL = {};
+    OPENING_FAMILIES_WHITE = {};
+    OPENING_FAMILIES_BLACK = {};
+
+    OPP_ALL = {};
+    OPP_WHITE = {};
+    OPP_BLACK = {};
+
+    CURRENT_FILTER = "all";
+
+    if (!user) {
+        alert("Enter a username.");
+        return;
+    }
+
+    const url = `https://api.chess.com/pub/player/${user}/games/live/${tc}/0`;
+
+    document.getElementById("results").innerHTML =
+        "<div class='section'>Loading...</div>";
+
+    try {
+        const resp = await fetch(url);
+        if (!resp.ok) {
+            document.getElementById("results").innerHTML =
+                "<div class='section'>User not found or no games available.</div>";
+            return;
+        }
+
+        const data = await resp.json();
+        GLOBAL_GAMES = data.games || [];
+
+        if (GLOBAL_GAMES.length === 0) {
+            document.getElementById("results").innerHTML =
+                "<div class='section'>No games found for this time control.</div>";
+            return;
+        }
+
+        GLOBAL_GAMES.forEach(g => {
+            const isWhite = g.white.username.toLowerCase() === user.toLowerCase();
+            const opp = isWhite ? g.black.username : g.white.username;
+
+            // Opponents
+            OPP_ALL[opp] = (OPP_ALL[opp] || 0) + 1;
+            if (isWhite) OPP_WHITE[opp] = (OPP_WHITE[opp] || 0) + 1;
+            else OPP_BLACK[opp] = (OPP_BLACK[opp] || 0) + 1;
+
+            // Openings
+            if (g.eco) {
+                const { family, variation } = getOpeningFamily(g.eco);
+                const displayName = variation || "Main Line";
+
+                function addTo(obj) {
+                    if (!obj[family]) obj[family] = [];
+                    let existing = obj[family].find(v => v.variation === variation);
+                    if (existing) existing.count++;
+                    else obj[family].push({ name: displayName, variation, count: 1 });
+                }
+
+                addTo(OPENING_FAMILIES_ALL);
+                if (isWhite) addTo(OPENING_FAMILIES_WHITE);
+                else addTo(OPENING_FAMILIES_BLACK);
+            }
+        });
+
+        renderFilteredStats();
+
+    } catch (err) {
+        document.getElementById("results").innerHTML =
+            "<div class='section'>Error loading data.</div>";
+    }
+}
+</script>
+
+</body>
+</html>
