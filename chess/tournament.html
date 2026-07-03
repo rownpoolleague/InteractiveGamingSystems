@@ -202,7 +202,7 @@
 
             <div class="util-row">
                 <button class="util-btn" onclick="goToMainMenu()">Main Menu</button>
-                <button class="util-btn reset-color" onclick="resetTournament()">Reset Tournament</button>
+                <button class="util-btn reset-color" onclick="rnament()">Reset Tournament</button>
             </div>
         </div>
     </div>
@@ -877,29 +877,44 @@ console.error("Failed to save round:", e);
 }
 }
 
-function resetTournament() {
-if (!confirm("Are you sure you want to reset and clear all data?")) return;
+async function resetTournament() {
+  if (!confirm("Are you sure you want to reset and clear all data?")) return;
 
-localStorage.removeItem('chess_tournament_state');
+  // 1. Notify the backend to clear the sheets
+  try {
+    await fetch(APP_CONFIG.APPSCRIPT_URL, {
+      method: 'POST',
+      body: JSON.stringify({ action: 'resetTournament' })
+    });
+  } catch (e) {
+    console.error("Failed to reset backend:", e);
+    alert("Warning: Local data cleared, but could not connect to server to clear Sheets.");
+  }
 
-document.getElementById('active-view').style.display = 'none';
-document.getElementById('setup-view').style.display = 'block';
-document.getElementById('dl-btn').style.display = 'none';
-document.getElementById('t-name-input').value = '';
-document.getElementById('t-name-display').innerText = '';
-document.getElementById('t-meta-display').innerText = '';
-document.getElementById('tc-select').value = 'regular';
+  // 2. Clear local data
+  localStorage.removeItem('chess_tournament_state');
 
-tournamentName = '';
-timeControl = 'regular';
-currentRound = 1;
-players = [];
-pairings = [];
-history = [];
-playedPairs.clear();
-receivedBye.clear();
-rrSchedules = [];
-updateRosterRatings();
+  // 3. Reset UI state
+  document.getElementById('active-view').style.display = 'none';
+  document.getElementById('setup-view').style.display = 'block';
+  document.getElementById('dl-btn').style.display = 'none';
+  document.getElementById('t-name-input').value = '';
+  document.getElementById('t-name-display').innerText = '';
+  document.getElementById('t-meta-display').innerText = '';
+  document.getElementById('tc-select').value = 'regular';
+
+  // 4. Reset variables
+  tournamentName = '';
+  timeControl = 'regular';
+  currentRound = 1;
+  players = [];
+  pairings = [];
+  history = [];
+  playedPairs.clear();
+  receivedBye.clear();
+  rrSchedules = [];
+  
+  updateRosterRatings();
 }
 
 window.onload = load;
