@@ -26,15 +26,19 @@
     <!-- The viewer engine -->
     <script defer src="https://c1a.chesstempo.com/pgnviewer/v2.5/pgnviewerext.bundle.vers1.js" crossorigin></script>
     
-    <script>
-        // When your dashboard is ready, you can inject the dynamic PGN here:
-        window.addEventListener('load', () => {
-            const savedPgn = sessionStorage.getItem('pendingPgn');
-            if (savedPgn) {
-                const viewer = document.getElementById('my-board');
-                viewer.textContent = savedPgn;
-            }
-        });
-    </script>
+   <script>
+    window.addEventListener('load', () => {
+        // This picks up the PGN you just saved from the dashboard
+        const savedPgn = sessionStorage.getItem('pendingPgn');
+        
+        if (savedPgn) {
+            const viewer = document.getElementById('my-board');
+            viewer.textContent = savedPgn;
+            
+            // Optional: Clean up after loading
+            // sessionStorage.removeItem('pendingPgn');
+        }
+    });
+</script>
 </body>
 </html>
