@@ -2,34 +2,27 @@
 <html lang="en">
 <head>
     <meta charset="UTF-8">
-    <title>Analysis Viewer</title>
-    <!-- Load PGNViewerJS CSS -->
     <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/@mliebelt/pgn-viewer/lib/pgn-viewer.min.css">
 </head>
 <body>
-
-    <!-- This div is where the board and move list will appear -->
     <div id="board" style="width: 100%; height: 100vh;"></div>
 
-    <!-- Load PGNViewerJS library -->
     <script src="https://cdn.jsdelivr.net/npm/@mliebelt/pgn-viewer/lib/pgn-viewer.min.js"></script>
-
     <script>
         window.addEventListener('DOMContentLoaded', () => {
-            const params = new URLSearchParams(window.location.search);
-            const pgn = params.get('pgn');
+            // Get the PGN from session memory
+            const pgn = sessionStorage.getItem('pendingPgn');
 
             if (pgn) {
-                // Initialize the viewer directly on the page
-                // It renders the board and handles the PGN parsing for you
                 pgnv.pgnView("board", {
                     pgn: pgn,
-                    pieceStyle: 'wikipedia', // You can change this to 'merida' or 'chesscom'
-                    theme: 'blue',           // Board color theme
-                    showFen: true
+                    pieceStyle: 'merida',
+                    theme: 'blue'
                 });
+                // Optional: Clear it so it doesn't reload if refreshed
+                sessionStorage.removeItem('pendingPgn');
             } else {
-                document.getElementById('board').innerText = "No PGN data found in URL.";
+                document.getElementById('board').innerText = "No game data found. Please open from the dashboard.";
             }
         });
     </script>
