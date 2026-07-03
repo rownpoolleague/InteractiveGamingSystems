@@ -2,43 +2,36 @@
 <html lang="en">
 <head>
     <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Analysis Viewer</title>
-    <style>
-        body, html { margin: 0; padding: 0; width: 100%; height: 100%; background: #000; overflow: hidden; }
-        .page-wrapper { display: flex; flex-direction: column; height: 100vh; }
-        .iframe-container { flex-grow: 1; position: relative; }
-        iframe { width: 100%; height: 100%; border: 0; }
-        .control-area { background: #1a1a1a; padding: 20px; display: flex; justify-content: center; }
-        button { padding: 12px 24px; background: #1e90ff; color: #fff; border: none; border-radius: 10px; cursor: pointer; }
-    </style>
+    <!-- Load PGNViewerJS CSS -->
+    <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/@mliebelt/pgn-viewer/lib/pgn-viewer.min.css">
 </head>
 <body>
 
-    <div class="page-wrapper">
-        <div class="iframe-container">
-            <!-- ID is used to inject the URL via JS -->
-            <iframe id="lichessFrame" allowfullscreen></iframe>
-        </div>
-        <div class="control-area">
-            <button onclick="window.close()">Close Viewer</button>
-        </div>
-    </div>
+    <!-- This div is where the board and move list will appear -->
+    <div id="board" style="width: 100%; height: 100vh;"></div>
 
-<script>
-    window.addEventListener('DOMContentLoaded', () => {
-        const urlParams = new URLSearchParams(window.location.search);
-        const pgn = urlParams.get('pgn');
-        const iframe = document.getElementById('lichessFrame');
+    <!-- Load PGNViewerJS library -->
+    <script src="https://cdn.jsdelivr.net/npm/@mliebelt/pgn-viewer/lib/pgn-viewer.min.js"></script>
 
-        if (pgn) {
-            // Lichess expects the PGN after the #
-            iframe.src = `https://lichess.org/embed/analysis#pgn=${encodeURIComponent(pgn)}`;
-        } else {
-            iframe.src = "https://lichess.org/embed/analysis";
-        }
-    });
-</script>
+    <script>
+        window.addEventListener('DOMContentLoaded', () => {
+            const params = new URLSearchParams(window.location.search);
+            const pgn = params.get('pgn');
 
+            if (pgn) {
+                // Initialize the viewer directly on the page
+                // It renders the board and handles the PGN parsing for you
+                pgnv.pgnView("board", {
+                    pgn: pgn,
+                    pieceStyle: 'wikipedia', // You can change this to 'merida' or 'chesscom'
+                    theme: 'blue',           // Board color theme
+                    showFen: true
+                });
+            } else {
+                document.getElementById('board').innerText = "No PGN data found in URL.";
+            }
+        });
+    </script>
 </body>
 </html>
