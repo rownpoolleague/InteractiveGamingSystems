@@ -501,8 +501,9 @@ function closeCalcModal() {
 }
 
 if ('serviceWorker' in navigator) {
-  // 1. Force reload ONLY when the new worker officially takes over control
   let refreshing = false;
+
+  // The 'controllerchange' event fires when a new Service Worker takes control
   navigator.serviceWorker.addEventListener('controllerchange', () => {
     if (!refreshing) {
       refreshing = true;
@@ -510,23 +511,10 @@ if ('serviceWorker' in navigator) {
     }
   });
 
-  // 2. Cache-bust GitHub Pages HTTP cache by adding a unique version timestamp
-  const cacheBustToken = new Date().getTime();
-  
-  navigator.serviceWorker.register(`sw.js?v=${cacheBustToken}`).then(reg => {
-    // 3. Keep checking for updates in the background
-    reg.addEventListener('updatefound', () => {
-      const newWorker = reg.installing;
-      if (!newWorker) return;
-
-      newWorker.addEventListener('statechange', () => {
-        if (newWorker.state === 'installed' && navigator.serviceWorker.controller) {
-          console.log('New version installed! Activating...');
-          // Your sw.js has self.skipWaiting(), which instantly triggers 'controllerchange' above
-        }
-      });
-    });
-  }).catch(err => console.error('Service Worker registration failed:', err));
+  // Register sw.js without the timestamp
+  navigator.serviceWorker.register('sw.js').catch(err => {
+    console.error('Service Worker registration failed:', err);
+  });
 }
 </script>
 </body>
