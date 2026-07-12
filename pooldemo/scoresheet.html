@@ -958,7 +958,7 @@ fetch("https://script.google.com/macros/s/AKfycbyRjXuYcYphBNsoYk5rD1h8PP1Ae4uph5
         players: scratchData 
     })
 });
-        await fetch("https://script.google.com/macros/s/AKfycbwleX_LvyFaQYgbXzjxNw6-i8cZlciguJnDB3KFmhZ1v8YBg5W4CZ-W3-dcUyTunejXCQ/exec", {
+        await fetch("https://script.google.com/macros/s/AKfycbz_10BHwxneKqUL8yTPZ1nGIlFqVsSy_W5sH_JVAJE98AQ2FJvjZgEEfPdfXtlTS5NDrQ/exec", {
             method: "POST",
             mode: "no-cors",
             body: JSON.stringify({ announcement: msg })
@@ -1469,7 +1469,7 @@ async function showScoreBoard() {
 }
     // --- ADMIN & PERSISTENCE LOGIC ---
 // --- LEAGUE-WIDE BROADCASTER LOGIC (Cell A1) ---
-const TICKER_SYNC_URL = "https://script.google.com/macros/s/AKfycbwleX_LvyFaQYgbXzjxNw6-i8cZlciguJnDB3KFmhZ1v8YBg5W4CZ-W3-dcUyTunejXCQ/exec";
+const TICKER_SYNC_URL = "https://script.google.com/macros/s/AKfycbz_10BHwxneKqUL8yTPZ1nGIlFqVsSy_W5sH_JVAJE98AQ2FJvjZgEEfPdfXtlTS5NDrQ/exec";
 let adminClicks = 0;
 let adminTimer;
 
@@ -1496,7 +1496,7 @@ function postAdminTicker() {
     // This adds your prefix to the message before sending it to Google
     const formattedMsg = `*** League Announcement *** ${msg} .`;
 
-    fetch("https://script.google.com/macros/s/AKfycbwleX_LvyFaQYgbXzjxNw6-i8cZlciguJnDB3KFmhZ1v8YBg5W4CZ-W3-dcUyTunejXCQ/exec", {
+    fetch("https://script.google.com/macros/s/AKfycbz_10BHwxneKqUL8yTPZ1nGIlFqVsSy_W5sH_JVAJE98AQ2FJvjZgEEfPdfXtlTS5NDrQ/exec", {
         method: "POST",
         mode: "no-cors", 
         body: JSON.stringify({ action: "setAnnouncement", message: formattedMsg })
@@ -1509,7 +1509,7 @@ function postAdminTicker() {
 // 3. The "LISTEN": All phones check A1 every 60 seconds
 async function syncLeagueBroadcast() {
     try {
-        const response = await fetch("https://script.google.com/macros/s/AKfycbwleX_LvyFaQYgbXzjxNw6-i8cZlciguJnDB3KFmhZ1v8YBg5W4CZ-W3-dcUyTunejXCQ/exec");
+        const response = await fetch("https://script.google.com/macros/s/AKfycbz_10BHwxneKqUL8yTPZ1nGIlFqVsSy_W5sH_JVAJE98AQ2FJvjZgEEfPdfXtlTS5NDrQ/exec");
         const text = await response.text();
         const cleanMsg = text.trim();
 
@@ -1536,13 +1536,13 @@ function clearTicker() {
     document.getElementById('ticker-container').style.display = 'none';
 }
 // 1. Set the URL of your Google Script (the one with the doGet function)
-const SCRIPT_URL = "https://script.google.com/macros/s/AKfycbwleX_LvyFaQYgbXzjxNw6-i8cZlciguJnDB3KFmhZ1v8YBg5W4CZ-W3-dcUyTunejXCQ/exec";
+const SCRIPT_URL = "https://script.google.com/macros/s/AKfycbz_10BHwxneKqUL8yTPZ1nGIlFqVsSy_W5sH_JVAJE98AQ2FJvjZgEEfPdfXtlTS5NDrQ/exec";
 
 let lastG1Value = ""; 
 
 async function watchG1() {
     try {
-        const response = await fetch(`https://script.google.com/macros/s/AKfycbwleX_LvyFaQYgbXzjxNw6-i8cZlciguJnDB3KFmhZ1v8YBg5W4CZ-W3-dcUyTunejXCQ/exec?type=leaders&cb=${Date.now()}`);
+        const response = await fetch(`https://script.google.com/macros/s/AKfycbz_10BHwxneKqUL8yTPZ1nGIlFqVsSy_W5sH_JVAJE98AQ2FJvjZgEEfPdfXtlTS5NDrQ/exec?type=leaders&cb=${Date.now()}`);
         const currentText = (await response.text()).trim();
 
         // 1. Pull the persistent memory from the phone's storage
