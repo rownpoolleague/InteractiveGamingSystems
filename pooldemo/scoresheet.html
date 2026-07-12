@@ -1273,7 +1273,7 @@ function processNextMessage() {
 let announcedFeats = JSON.parse(localStorage.getItem("announcedFeats")) || [];
 
 async function checkForFeats() {
-    const csvUrl = "https://docs.google.com/spreadsheets/d/e/2PACX-1vS_k0GqoHgGfyxHgIX-8tjbspkJ_ncZBSRCEdqf7lrfCYRFQVH3GUwxvqYGETT-ST0jswQ94V4DXsaH/pub?output=csv";
+    const csvUrl = "https://docs.google.com/spreadsheets/d/e/2PACX-1vQAHTkY48DPwmQs2V_Z_gLt_C_JBKXZjgEc0gWqjeEPEzlQtnG7xnNFnxRlZUhoH17mUYKBs7mXxa6O/pub?output=csv";
     
     // Get today's date in M/D/YYYY format to match Google Sheets default
     const today = new Date();
@@ -1387,7 +1387,7 @@ document.body.appendChild(boardContainer);
 // 2. THE LOGIC
 async function showScoreBoard() {
     const board = document.getElementById('score-board');
-    const csvUrl = "https://docs.google.com/spreadsheets/d/e/2PACX-1vS_k0GqoHgGfyxHgIX-8tjbspkJ_ncZBSRCEdqf7lrfCYRFQVH3GUwxvqYGETT-ST0jswQ94V4DXsaH/pub?output=csv";
+    const csvUrl = "https://docs.google.com/spreadsheets/d/e/2PACX-1vQAHTkY48DPwmQs2V_Z_gLt_C_JBKXZjgEc0gWqjeEPEzlQtnG7xnNFnxRlZUhoH17mUYKBs7mXxa6O/pub?output=csv";
     
     const today = new Date();
     const todayString = `${today.getMonth() + 1}/${today.getDate()}/${today.getFullYear()}`;
