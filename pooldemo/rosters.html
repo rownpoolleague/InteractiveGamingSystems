@@ -1,0 +1,243 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>R-Own Pool League - Winter 26 Rosters</title>
+
+<script src="history.js"></script>
+
+<style>
+  body {
+    font-family: Arial, Helvetica, sans-serif;
+    margin: 0;
+    padding: 1px;
+    background: #ffffff;
+    color: #000;
+    font-weight: bold;
+  }
+  .p-name {
+    color: #1e90ff;
+    text-decoration: underline;
+  }
+
+  h1 {
+    text-align: center;
+    font-size: 1.6rem;
+    margin-bottom: 20px;
+    color: #1e90ff;
+  }
+
+  .team {
+    margin-bottom: 28px;
+  }
+
+  .team h2 {
+    background: #000;
+    color: #fff;
+    padding: 10px;
+    font-size: 1.1rem;
+    margin: 0 0 6px 0;
+    text-align: center;
+  }
+
+  table {
+    width: 100%;
+    border-collapse: collapse;
+    font-size: 0.9rem;
+  }
+
+  th, td {
+    padding: 6px 4px;
+    border-bottom: 1px solid #ddd;
+    text-align: left;
+  }
+
+  th:nth-child(1), td:nth-child(1) { width: 40px; }
+  th:nth-child(3), td:nth-child(3) { width: 40px; }
+  th:nth-child(4), td:nth-child(4) { width: 40px; }
+  th:nth-child(5), td:nth-child(5) { width: 40px; }
+
+  .num { text-align: center; }
+
+  tr.player-row { cursor: pointer; }
+  tr.player-row:hover { background-color: #f0f0f0; }
+
+  .history-panel td { text-align: center; }
+  .history-table { width: 100%; background: #fff; border: 1px solid #000; margin-top: 5px; border-collapse: collapse; }
+  .history-table th, .history-table td { text-align: center !important; padding: 8px 4px; border: 1px solid #ddd; }
+  .history-table th { background: #eee; font-size: 0.75rem; }
+
+  .form-wrapper { width: 100%; border: 4px solid #000; box-sizing: border-box; }
+  @media (min-width: 768px) { body { max-width: 800px; margin: auto; } }
+
+  .back-button {
+    display: block;
+    margin: 30px auto 30px auto;
+    padding: 8px 16px;
+    background-color: #1e90ff;
+    color: #fff;
+    border-radius: 6px;
+    text-decoration: none;
+    font-size: 22px;
+    text-align: center;
+    line-height: 30px;
+  }
+</style>
+</head>
+
+<body>
+<div class="form-wrapper">
+<h1>R-Own Pool League - Winter 26 Session</h1>
+Click a name to view HC calculation.
+
+<div class="team"><h2>Team 1</h2><table><thead><tr><th>#</th><th>Player</th><th class="num">MP</th><th class="num">MW</th><th class="num">HC</th></tr></thead>
+<tbody>
+<tr class=player-row><td>1</td><td class=p-name>Aiden Miller</td><td class=num>10</td><td class=num>3</td><td class=num>3</td></tr>
+<tr class=player-row><td>2</td><td class=p-name>Benjamin Scott</td><td class=num>12</td><td class=num>7</td><td class=num>3</td></tr>
+<tr class=player-row><td>3</td><td class=p-name>Caleb Reed</td><td class=num>13</td><td class=num>5</td><td class=num>3</td></tr>
+<tr class=player-row><td>4</td><td class=p-name>Declan Hayes</td><td class=num>17</td><td class=num>12</td><td class=num>3</td></tr>
+<tr class=player-row><td>5</td><td class=p-name>Ethan Foster</td><td class=num>13</td><td class=num>7</td><td class=num>2</td></tr>
+<tr class=player-row><td>6</td><td class=p-name>Finn Callahan</td><td class=num>7</td><td class=num>4</td><td class=num>3</td></tr>
+<tr class=player-row><td>7</td><td class=p-name>Gavin Brooks</td><td class=num>9</td><td class=num>6</td><td class=num>5</td></tr>
+</tbody></table></div>
+
+<div class="team"><h2>Team 2</h2><table><thead><tr><th>#</th><th>Player</th><th class="num">MP</th><th class="num">MW</th><th class="num">HC</th></tr></thead>
+<tbody>
+<tr class=player-row><td>8</td><td class=p-name>Henry Bennett</td><td class=num>12</td><td class=num>8</td><td class=num>5</td></tr>
+<tr class=player-row><td>9</td><td class=p-name>Isaac Wright</td><td class=num>8</td><td class=num>3</td><td class=num>5</td></tr>
+<tr class=player-row><td>10</td><td class=p-name>Jack Harrison</td><td class=num>9</td><td class=num>2</td><td class=num>4</td></tr>
+<tr class=player-row><td>11</td><td class=p-name>Kieran Dawson</td><td class=num>15</td><td class=num>5</td><td class=num>6</td></tr>
+<tr class=player-row><td>12</td><td class=p-name>Liam Sullivan</td><td class=num>13</td><td class=num>7</td><td class=num>2</td></tr>
+<tr class=player-row><td>13</td><td class=p-name>Mason Clarke</td><td class=num>7</td><td class=num>2</td><td class=num>5</td></tr>
+<tr class=player-row><td>14</td><td class=p-name>Noah Sullivan</td><td class=num>5</td><td class=num>3</td><td class=num>4</td></tr>
+<tr class=player-row><td>15</td><td class=p-name>Owen Fletcher</td><td class=num>10</td><td class=num>3</td><td class=num>2</td></tr>
+</tbody></table></div>
+
+<div class="team"><h2>Team 3</h2><table><thead><tr><th>#</th><th>Player</th><th class="num">MP</th><th class="num">MW</th><th class="num">HC</th></tr></thead>
+<tbody>
+<tr class=player-row><td>16</td><td class=p-name>Parker James</td><td class=num>14</td><td class=num>7</td><td class=num>3</td></tr>
+<tr class=player-row><td>17</td><td class=p-name>Quinn Taylor</td><td class=num>4</td><td class=num>3</td><td class=num>3</td></tr>
+<tr class=player-row><td>18</td><td class=p-name>Riley Cooper</td><td class=num>12</td><td class=num>6</td><td class=num>4</td></tr>
+<tr class=player-row><td>19</td><td class=p-name>Samuel Evans</td><td class=num>12</td><td class=num>2</td><td class=num>4</td></tr>
+<tr class=player-row><td>20</td><td class=p-name>Thomas Grant</td><td class=num>11</td><td class=num>3</td><td class=num>3</td></tr>
+<tr class=player-row><td>21</td><td class=p-name>Ulysses Reed</td><td class=num>11</td><td class=num>2</td><td class=num>4</td></tr>
+</tbody></table></div>
+
+<div class="team"><h2>Team 4</h2><table><thead><tr><th>#</th><th>Player</th><th class="num">MP</th><th class="num">MW</th><th class="num">HC</th></tr></thead>
+<tbody>
+<tr class=player-row><td>22</td><td class=p-name>Victor Nash</td><td class=num>10</td><td class=num>6</td><td class=num>2</td></tr>
+<tr class=player-row><td>23</td><td class=p-name>Wyatt Stone</td><td class=num>9</td><td class=num>7</td><td class=num>3</td></tr>
+<tr class=player-row><td>24</td><td class=p-name>Xavier Price</td><td class=num>14</td><td class=num>9</td><td class=num>3</td></tr>
+<tr class=player-row><td>25</td><td class=p-name>Yosef Miller</td><td class=num>13</td><td class=num>8</td><td class=num>2</td></tr>
+<tr class=player-row><td>26</td><td class=p-name>Zachary Boyd</td><td class=num>13</td><td class=num>6</td><td class=num>4</td></tr>
+<tr class=player-row><td>27</td><td class=p-name>Adam West</td><td class=num>9</td><td class=num>6</td><td class=num>3</td></tr>
+<tr class=player-row><td>28</td><td class=p-name>Brian Ross</td><td class=num>9</td><td class=num>6</td><td class=num>4</td></tr>
+<tr class=player-row><td>29</td><td class=p-name>Charlie Day</td><td class=num>2</td><td class=num>2</td><td class=num>2</td></tr>
+</tbody></table></div>
+
+<div class="team"><h2>Team 5</h2><table><thead><tr><th>#</th><th>Player</th><th class="num">MP</th><th class="num">MW</th><th class="num">HC</th></tr></thead>
+<tbody>
+<tr class=player-row><td>30</td><td class=p-name>David Lee</td><td class=num>12</td><td class=num>5</td><td class=num>5</td></tr>
+<tr class=player-row><td>31</td><td class=p-name>Edward Kim</td><td class=num>14</td><td class=num>7</td><td class=num>2</td></tr>
+<tr class=player-row><td>32</td><td class=p-name>Frank Hall</td><td class=num>6</td><td class=num>3</td><td class=num>4</td></tr>
+<tr class=player-row><td>33</td><td class=p-name>George Hill</td><td class=num>8</td><td class=num>3</td><td class=num>3</td></tr>
+<tr class=player-row><td>34</td><td class=p-name>Harry Kent</td><td class=num>7</td><td class=num>4</td><td class=num>3</td></tr>
+<tr class=player-row><td>35</td><td class=p-name>Ian Long</td><td class=num>15</td><td class=num>8</td><td class=num>3</td></tr>
+<tr class=player-row><td>36</td><td class=p-name>James Moss</td><td class=num>10</td><td class=num>4</td><td class=num>3</td></tr>
+<tr class=player-row><td>37</td><td class=p-name>Kevin Nash</td><td class=num>9</td><td class=num>5</td><td class=num>3</td></tr>
+</tbody></table></div>
+
+<div class="team"><h2>Team 6</h2><table><thead><tr><th>#</th><th>Player</th><th class="num">MP</th><th class="num">MW</th><th class="num">HC</th></tr></thead>
+<tbody>
+<tr class=player-row><td>38</td><td class=p-name>Leo Owen</td><td class=num>15</td><td class=num>10</td><td class=num>2</td></tr>
+<tr class=player-row><td>39</td><td class=p-name>Mike Page</td><td class=num>12</td><td class=num>7</td><td class=num>3</td></tr>
+<tr class=player-row><td>40</td><td class=p-name>Nick Quinn</td><td class=num>5</td><td class=num>1</td><td class=num>3</td></tr>
+<tr class=player-row><td>41</td><td class=p-name>Oscar Reed</td><td class=num>1</td><td class=num>1</td><td class=num>2</td></tr>
+<tr class=player-row><td>42</td><td class=p-name>Paul Smith</td><td class=num>6</td><td class=num>1</td><td class=num>3</td></tr>
+<tr class=player-row><td>43</td><td class=p-name>Quentin Tate</td><td class=num>16</td><td class=num>8</td><td class=num>6</td></tr>
+<tr class=player-row><td>44</td><td class=p-name>Ryan Underhill</td><td class=num>14</td><td class=num>7</td><td class=num>4</td></tr>
+<tr class=player-row><td>45</td><td class=p-name>Steve Vance</td><td class=num>12</td><td class=num>6</td><td class=num>2</td></tr>
+</tbody></table></div>
+
+<div class="team"><h2>Team 7</h2><table><thead><tr><th>#</th><th>Player</th><th class="num">MP</th><th class="num">MW</th><th class="num">HC</th></tr></thead>
+<tbody>
+<tr class=player-row><td>46</td><td class=p-name>Tom White</td><td class=num>10</td><td class=num>5</td><td class=num>4</td></tr>
+<tr class=player-row><td>47</td><td class=p-name>Umar Xander</td><td class=num>15</td><td class=num>7</td><td class=num>2</td></tr>
+<tr class=player-row><td>48</td><td class=p-name>Victor Young</td><td class=num>12</td><td class=num>7</td><td class=num>6</td></tr>
+<tr class=player-row><td>49</td><td class=p-name>Walter Zane</td><td class=num>13</td><td class=num>7</td><td class=num>4</td></tr>
+<tr class=player-row><td>50</td><td class=p-name>Xavier Adams</td><td class=num>11</td><td class=num>6</td><td class=num>2</td></tr>
+<tr class=player-row><td>51</td><td class=p-name>Yuri Baker</td><td class=num>9</td><td class=num>6</td><td class=num>2</td></tr>
+<tr class=player-row><td>52</td><td class=p-name>Zachary Cole</td><td class=num>10</td><td class=num>2</td><td class=num>5</td></tr>
+</tbody></table></div>
+
+<div class="team"><h2>Team 8</h2><table><thead><tr><th>#</th><th>Player</th><th class="num">MP</th><th class="num">MW</th><th class="num">HC</th></tr></thead>
+<tbody>
+<tr class=player-row><td>53</td><td class=p-name>Aaron Davis</td><td class=num>15</td><td class=num>7</td><td class=num>3</td></tr>
+<tr class=player-row><td>54</td><td class=p-name>Blake Evans</td><td class=num>10</td><td class=num>3</td><td class=num>3</td></tr>
+<tr class=player-row><td>55</td><td class=p-name>Cody Fisher</td><td class=num>10</td><td class=num>2</td><td class=num>3</td></tr>
+<tr class=player-row><td>56</td><td class=p-name>Dale Green</td><td class=num>13</td><td class=num>7</td><td class=num>2</td></tr>
+<tr class=player-row><td>57</td><td class=p-name>Evan Harris</td><td class=num>11</td><td class=num>5</td><td class=num>3</td></tr>
+<tr class=player-row><td>58</td><td class=p-name>Felix Irons</td><td class=num>10</td><td class=num>3</td><td class=num>4</td></tr>
+</tbody></table></div>
+
+<div class="team"><h2>Team 9</h2><table><thead><tr><th>#</th><th>Player</th><th class="num">MP</th><th class="num">MW</th><th class="num">HC</th></tr></thead>
+<tbody>
+<tr class=player-row><td>59</td><td class=p-name>Grant Jones</td><td class=num>15</td><td class=num>13</td><td class=num>2</td></tr>
+<tr class=player-row><td>60</td><td class=p-name>Henry King</td><td class=num>4</td><td class=num>1</td><td class=num>4</td></tr>
+<tr class=player-row><td>61</td><td class=p-name>Isaac Lane</td><td class=num>5</td><td class=num>3</td><td class=num>2</td></tr>
+<tr class=player-row><td>62</td><td class=p-name>Jack Miller</td><td class=num>8</td><td class=num>5</td><td class=num>3</td></tr>
+<tr class=player-row><td>63</td><td class=p-name>Kyle Nash</td><td class=num>15</td><td class=num>8</td><td class=num>2</td></tr>
+<tr class=player-row><td>64</td><td class=p-name>Liam Owen</td><td class=num>14</td><td class=num>12</td><td class=num>5</td></tr>
+<tr class=player-row><td>65</td><td class=p-name>Miles Price</td><td class=num>13</td><td class=num>11</td><td class=num>4</td></tr>
+</tbody></table></div>
+
+<div class="team"><h2>Team 10</h2><table><thead><tr><th>#</th><th>Player</th><th class="num">MP</th><th class="num">MW</th><th class="num">HC</th></tr></thead>
+<tbody>
+<tr class=player-row><td>66</td><td class=p-name>Noah Quinn</td><td class=num>12</td><td class=num>5</td><td class=num>3</td></tr>
+<tr class=player-row><td>67</td><td class=p-name>Owen Ross</td><td class=num>12</td><td class=num>5</td><td class=num>5</td></tr>
+<tr class=player-row><td>68</td><td class=p-name>Paul Scott</td><td class=num>3</td><td class=num>3</td><td class=num>3</td></tr>
+<tr class=player-row><td>69</td><td class=p-name>Quinn Tate</td><td class=num>12</td><td class=num>7</td><td class=num>3</td></tr>
+<tr class=player-row><td>70</td><td class=p-name>Riley Underhill</td><td class=num>3</td><td class=num>0</td><td class=num>2</td></tr>
+<tr class=player-row><td>71</td><td class=p-name>Samuel Vance</td><td class=num>15</td><td class=num>8</td><td class=num>7</td></tr>
+<tr class=player-row><td>72</td><td class=p-name>Thomas White</td><td class=num>8</td><td class=num>2</td><td class=num>5</td></tr>
+<tr class=player-row><td>73</td><td class=p-name>Ulysses Xander</td><td class=num>7</td><td class=num>3</td><td class=num>3</td></tr>
+<tr class=player-row><td>74</td><td class=p-name>Victor Young</td><td class=num>7</td><td class=num>3</td><td class=num>4</td></tr>
+</tbody></table></div>
+
+</div>
+
+<a class="back-button" href="index.html">Main Menu</a>
+
+<script>
+document.addEventListener('DOMContentLoaded', () => {
+    const rows = document.querySelectorAll('.player-row');
+    rows.forEach(row => {
+        row.addEventListener('click', function() {
+            const nextRow = this.nextElementSibling;
+            if (nextRow && nextRow.classList.contains('history-panel')) {
+                nextRow.style.display = (nextRow.style.display === 'table-row') ? 'none' : 'table-row';
+                return;
+            }
+            const rawName = this.querySelector('.p-name').textContent.trim();
+            const searchName = rawName.replace('*', '').toLowerCase();
+            const playerData = history.find(p => p.name.replace('*', '').trim().toLowerCase() === searchName);
+            if (!playerData) return;
+            const panel = document.createElement('tr');
+            panel.classList.add('history-panel');
+            let historyHtml = `<td colspan="5" style="padding: 10px;">
+                <div style="margin-bottom: 5px;"><strong>Win %:</strong> ${playerData.winPct} | <strong>Current Hash:</strong> ${playerData.currentHash}</div>
+                <table class="history-table"><thead><tr><th>Date</th><th>Week</th><th>Won</th><th>Innings</th><th>Hash</th></tr></thead><tbody>`;
+            playerData.history.forEach(h => {
+                historyHtml += `<tr><td>${h.date}</td><td>${h.week}</td><td>${h.gw}</td><td>${h.innings}</td><td>${h.hash}</td></tr>`;
+            });
+            historyHtml += `</tbody></table></td>`;
+            panel.innerHTML = historyHtml;
+            this.after(panel);
+            panel.style.display = 'table-row';
+        });
+    });
+});
+</script>
+</body>
+</html>
