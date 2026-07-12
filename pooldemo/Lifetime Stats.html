@@ -1,0 +1,354 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Player Stats</title>
+<script src="playerdata.js"></script>
+<style>
+body {
+  font-family: Arial, sans-serif;
+  background-color: #000;
+}
+footer { text-align: center; padding: 20px; }
+  .footer-logo { max-width: 200px; height: auto; }
+h1 {
+  text-align: center;
+  color: #1e90ff;
+  font-size: 36px;
+}
+
+/* SEARCH BOX */
+.search-box {
+  display: flex;
+  flex-direction: column;
+  align-items: stretch;
+  margin-top: 35px;
+  position: relative;
+}
+
+input[type="text"] {
+  width: 80%;
+  font-size: 22px;
+  margin: 20px auto 0 auto;
+  padding: 10px;
+}
+
+/* AUTOCOMPLETE */
+.autocomplete-items:empty {
+  display: none;
+}
+
+.autocomplete-items {
+  width: 80%;
+  margin: 0 auto;
+  position: absolute;
+  left: 50%;
+  transform: translateX(-50%);
+  top: 70px;
+  z-index: 99;
+  max-height: 300px;
+  overflow-y: auto;
+  box-shadow: 0 4px 6px rgba(0,0,0,0.3);
+}
+
+.autocomplete-items div {
+  background-color: #fff;
+  color: #000;
+  width: 100%;
+  font-size: 22px;
+  cursor: pointer;
+  padding: 10px;
+  border-bottom: 1px solid #ddd;
+}
+
+.autocomplete-items div:hover {
+  background-color: #e9e9e9;
+}
+
+/* STATS BOX */
+.stats-box {
+  max-width: 800px;
+  margin: 20px auto;
+  background-color: white;
+  padding: 20px;
+  border-radius: 8px;
+  box-shadow: 0 0 10px rgba(0,0,0,0.1);
+  overflow-x: auto;
+}
+
+table {
+  border-collapse: collapse;
+  width: 100%;
+}
+
+th, td {
+  text-align: left;
+  padding: 8px;
+  border-bottom: 1px solid #ddd;
+}
+
+th {
+  background-color: #222;
+  color: white;
+  position: sticky;
+  top: 0;
+}
+
+/* MODAL */
+#statModal {
+  display: none;
+  position: fixed;
+  inset: 0;
+  background-color: #000;
+  z-index: 1000;
+  color: white;
+}
+
+#statModalContent {
+  max-width: 900px;
+  margin: 60px auto;
+  padding: 20px;
+  border-radius: 10px;
+  overflow-x: auto;
+}
+
+/* BUTTON */
+.back-button {
+  display: block;
+  padding: 8px 16px;
+  background-color: #1e90ff;
+  color: #fff;
+  border-radius: 6px;
+  text-decoration: none;
+  font-size: 22px;
+  text-align: center;
+  height: 30px;
+}
+  .col-left {
+  text-align: left;
+}
+
+.col-center {
+  text-align: center;
+}
+
+.col-right {
+  text-align: right;
+}
+  .form-wrapper {
+    width: 100%; /* Spans full width */
+    padding: 2px;
+    border: 4px solid #1e90ff;
+    border-radius: 0; /* Optional: remove radius for true edge-to-edge look */
+    box-sizing: border-box; /* Crucial: includes padding/border in 100% width */
+}
+</style>
+</head>
+  <body>
+<div class="form-wrapper">
+<!-- MODAL -->
+<div id="statModal">
+  <div id="statModalContent">
+    <h2 id="modalTitle"></h2>
+    <table id="modalTable" style="width:100%; border-collapse:collapse;"></table>
+
+    <div class="search-box">
+      <button onclick="closeModal()" style="
+        margin-top:20px;
+        padding:10px 20px;
+        font-size:18px;
+        cursor:pointer;
+        background-color:#1e90ff;
+        color:#000;
+      ">Close</button>
+    </div>
+  </div>
+</div>
+
+<h1>Player Profiles</h1>
+
+<!-- SEARCH -->
+<div class="search-box">
+  <input id="playerInput" type="text" placeholder="Type player name...">
+  <div id="autocomplete-list" class="autocomplete-items"></div>
+</div>
+
+<!-- STATS -->
+<div class="stats-box" id="statsBox" style="display:none;">
+  <div style="display: flex; align-items: center; gap: 20px; margin-bottom: 15px;">
+    <img id="playerPhoto" src="" style="width: 100px; height: 100px; border-radius: 50%; object-fit: cover; display: none; border: 2px solid #1e90ff;">
+    <h2 id="playerName" style="margin: 0; color: #000;"></h2>
+  </div>
+  Click any Stat to see the All Time Top 10
+  </p>
+  <table id="statsTable" style="background-color:#D3D3D3;"></table>
+</div>
+
+<script>
+function closeModal() {
+  document.getElementById('statModal').style.display = 'none';
+}
+
+// AUTOCOMPLETE LOGIC (fixed)
+const input = document.getElementById('playerInput');
+const list = document.getElementById('autocomplete-list');
+
+input.addEventListener('input', function () {
+  const val = this.value.toLowerCase();
+  list.innerHTML = '';
+  if (!val) return;
+
+  const matches = playerData
+    .map(p => p["Player Name"])
+    .filter(name => name.toLowerCase().startsWith(val))
+    .sort((a, b) => a.localeCompare(b));
+
+  matches.forEach(name => {
+    const item = document.createElement('div');
+    item.textContent = name;
+
+    const playerObj = playerData.find(p => p["Player Name"] === name);
+    item.addEventListener('click', () => selectPlayer(playerObj));
+
+    list.appendChild(item);
+  });
+});
+
+function selectPlayer(player) {
+  const name = player["Player Name"];
+  const photo = document.getElementById('playerPhoto');
+  const photoUrl = `photos/${encodeURIComponent(name)}.jpg`;
+
+  photo.src = photoUrl;
+  photo.style.display = 'block';
+
+  // Logic to expand the photo into the existing statModal
+  photo.onclick = function() {
+    const modalTitle = document.getElementById('modalTitle');
+    const modalTable = document.getElementById('modalTable');
+    
+    modalTitle.textContent = name;
+    // Clears any previous Top 10 table and inserts the image
+    modalTable.innerHTML = `<div style="text-align:center;"><img src="${photoUrl}" style="max-width:100%; max-height:70vh; border-radius:8px;"></div>`;
+    
+    document.getElementById('statModal').style.display = 'block';
+  };
+
+  photo.onerror = function() {
+    this.style.display = 'none';
+  };
+
+  // The rest of your existing table-building code remains the same...
+  document.getElementById('playerName').textContent = `${name} - HC ${player["Handicap"]}`;
+  const table = document.getElementById('statsTable');
+  table.innerHTML = '';
+  
+  for (const key in player) {
+    if (key === "Player Name" || key === "Handicap") continue;
+    const row = document.createElement('tr');
+    row.style.cursor = 'pointer';
+    row.addEventListener('click', () => showTop10(key));
+    const cellKey = document.createElement('th');
+    cellKey.textContent = key;
+    const cellVal = document.createElement('td');
+    cellVal.textContent = player[key];
+    row.appendChild(cellKey);
+    row.appendChild(cellVal);
+    table.appendChild(row);
+  }
+
+  document.getElementById('statsBox').style.display = 'block';
+  list.innerHTML = '';
+  input.value = '';
+}
+function showTop10(statKey) {
+
+  // Stats where LOWER is better
+  const lowerIsBetter = [
+    "Life Hash",
+    "White Washed"
+  ];
+
+  // Stats requiring minimum Matches Played
+  const minMPRequiredStats = [
+    "Match Win %",
+    "Game Win %",
+    "Life Hash",
+    "% Weeks w/8OB, BR or Rackless",
+    "White Washed"
+  ];
+
+  const ranked = playerData
+    .filter(p => {
+      // Enforce 25 MP rule ONLY for specific stats
+      if (minMPRequiredStats.includes(statKey)) {
+        return p["Matches Played"] >= 25;
+      }
+      return true;
+    })
+    .map(p => {
+      let raw = p[statKey];
+
+      // Normalize value
+      let value = parseFloat(
+        typeof raw === "string"
+          ? raw.replace('%', '')
+          : raw
+      );
+
+      return {
+        name: p["Player Name"],
+        value
+      };
+    })
+    // FINAL sanity filter — guarantees clean sorting
+    .filter(p => Number.isFinite(p.value))
+    .sort((a, b) => {
+      return lowerIsBetter.includes(statKey)
+        ? a.value - b.value   // ASC
+        : b.value - a.value;  // DESC
+    })
+    .slice(0, 10);
+
+  document.getElementById('modalTitle').textContent =
+  `Top 10 – ${statKey}` +
+  (minMPRequiredStats.includes(statKey) ? " (Min 25 MP)" : "");
+
+
+  const table = document.getElementById('modalTable');
+
+table.innerHTML = `
+<tr>
+  <th class="col-rank">Rank</th>
+  <th class="col-player">Player</th>
+  <th class="col-stat">${statKey}</th>
+</tr>
+${ranked.slice(0, 10).map((p, i) => `
+<tr>
+  <td class="col-center">${i + 1}</td>
+  <td class="col-left">${p.name}</td>
+  <td class="col-center">${p.value}</td>
+</tr>`).join('')}
+`;
+  document.getElementById('statModal').style.display = 'block';
+}
+  function openModal(data) {
+    console.log("Modal Opened!", data); // Troubleshooting line
+    
+    const modal = document.getElementById("statModal");
+    const title = document.getElementById("modalTitle");
+    
+    title.innerText = "Player Details";
+    modal.style.display = "block";
+}
+
+</script>
+
+<footer>
+    <img src="white transparent.png" style="margin-top:35px" alt="League Logo" class="footer-logo">
+</footer>
+   <a class="back-button" style="margin-top:50px;" href="allstatssplash.html">Back</a>
+</div>
+</body>
+</html>
