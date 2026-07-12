@@ -1,0 +1,178 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
+    <title>ROPL Badge Cabinet</title>
+    <style>
+        body { background: #000; color: #fff; font-family: sans-serif; text-align: center; margin: 0; padding: 10px; }
+        .cabinet-wrapper { max-width: 420px; margin: 0 auto; border: 3px solid #1e90ff; border-radius: 12px; padding: 15px; min-height: 95vh; background: #050505; box-sizing: border-box;}
+        
+        h1 { color: #1e90ff; text-transform: uppercase; letter-spacing: 1px; font-size: 1.5rem; margin: 10px 0; }
+        
+        .search-container { position: relative; margin-bottom: 15px; }
+        #player-search { width: 100%; padding: 12px; background: #222; color: #fff; border: 1px solid #444; border-radius: 8px; box-sizing: border-box; font-size: 1rem; outline: none; }
+        #autocomplete-list { position: absolute; z-index: 100; top: 100%; left: 0; right: 0; background: #fff; color: #000; border-radius: 0 0 8px 8px; max-height: 200px; overflow-y: auto; text-align: left; }
+        .autocomplete-item { padding: 12px; cursor: pointer; border-bottom: 1px solid #eee; font-weight: bold; }
+
+        .badge-grid { display: grid; grid-template-columns: repeat(3, 1fr); gap: 8px; margin-top: 10px; }
+        
+        .badge { background: #111; border: 1px solid #222; border-radius: 8px; padding: 10px 2px; opacity: 0.5; filter: grayscale(1); transition: all 0.4s ease; }
+        .badge.unlocked { opacity: 1; filter: grayscale(0); border-color: #ffd700; box-shadow: 0 0 10px rgba(255, 215, 0, 0.2); background: #151515; }
+        
+        .badge-icon { font-size: 1.8rem; margin-bottom: 4px; }
+        .badge-name { font-weight: bold; color: #fff; font-size: 0.55rem; text-transform: uppercase; display: block; height: 14px; overflow: hidden; white-space: nowrap; text-overflow: ellipsis;}
+        .badge-desc { font-size: 0.5rem; color: #aaa; margin-top: 2px; line-height: 1.1; }
+
+        .section-label { grid-column: span 3; color: #1e90ff; font-size: 0.7rem; text-transform: uppercase; letter-spacing: 2px; margin: 15px 0 5px; border-bottom: 1px solid #1e90ff; padding-bottom: 3px; text-align: left;}
+
+        .back-btn { display: inline-block; margin-top: 25px; color: #1e90ff; text-decoration: none; font-weight: bold; font-size: 0.8rem; border: 1px solid #1e90ff; padding: 8px 16px; border-radius: 4px; text-transform: uppercase; }
+    </style>
+</head>
+<body>
+
+<div class="cabinet-wrapper">
+    <h1>🏆 BADGE ROOM 🏆</h1>
+    
+    <div class="search-container">
+        <input type="text" id="player-search" placeholder="Type Name to see Earned Badges..." autocomplete="off">
+        <div id="autocomplete-list"></div>
+    </div>
+
+    <div id="badge-container" class="badge-grid">
+        <div class="section-label">Games Played</div>
+        <div id="badge-g-1" class="badge"><div class="badge-icon">🐣</div><span class="badge-name">Kindergartner</span><div class="badge-desc">1+ Games</div></div>
+        <div id="badge-g-25" class="badge"><div class="badge-icon">🎒</div><span class="badge-name">Grade Schooler</span><div class="badge-desc">25+ Games</div></div>
+        <div id="badge-g-100" class="badge"><div class="badge-icon">📚</div><span class="badge-name">High Schooler</span><div class="badge-desc">100+ Games</div></div>
+        <div id="badge-g-200" class="badge"><div class="badge-icon">🎓</div><span class="badge-name">Graduate</span><div class="badge-desc">200+ Games</div></div>
+        <div id="badge-g-300" class="badge"><div class="badge-icon">📜</div><span class="badge-name">Post-Grad</span><div class="badge-desc">300+ Games</div></div>
+        <div id="badge-g-400" class="badge"><div class="badge-icon">🧠</div><span class="badge-name">Professor</span><div class="badge-desc">400+ Games</div></div>
+        <div id="badge-g-500" class="badge"><div class="badge-icon">🏛️</div><span class="badge-name">Dean</span><div class="badge-desc">500+ Games</div></div>
+        <div id="badge-g-1000" class="badge"><div class="badge-icon">🏫</div><span class="badge-name">Chancellor</span><div class="badge-desc">1000+ Games</div></div>
+
+        <div class="section-label">Matches Won</div>
+        <div id="badge-w-1" class="badge"><div class="badge-icon">♟️</div><span class="badge-name">Beginner</span><div class="badge-desc">1+ Win</div></div>
+        <div id="badge-w-10" class="badge"><div class="badge-icon">🛡️</div><span class="badge-name">Intermediate</span><div class="badge-desc">10+ Wins</div></div>
+        <div id="badge-w-20" class="badge"><div class="badge-icon">⚔️</div><span class="badge-name">Advanced</span><div class="badge-desc">20+ Wins</div></div>
+        <div id="badge-w-50" class="badge"><div class="badge-icon">🥇</div><span class="badge-name">Expert</span><div class="badge-desc">50+ Wins</div></div>
+        <div id="badge-w-100" class="badge"><div class="badge-icon">💎</div><span class="badge-name">Master</span><div class="badge-desc">100+ Wins</div></div>
+        <div id="badge-w-200" class="badge"><div class="badge-icon">👑</div><span class="badge-name">Grandmaster</span><div class="badge-desc">200+ Wins</div></div>
+
+        <div class="section-label">Win Streak</div>
+        <div id="badge-s-5" class="badge"><div class="badge-icon">🌡️</div><span class="badge-name">Heating Up</span><div class="badge-desc">5+ Streak</div></div>
+        <div id="badge-s-10" class="badge"><div class="badge-icon">🔥</div><span class="badge-name">On Fire</span><div class="badge-desc">10+ Streak</div></div>
+        <div id="badge-s-15" class="badge"><div class="badge-icon">☄️</div><span class="badge-name">Burning Up</span><div class="badge-desc">15+ Streak</div></div>
+        <div id="badge-s-20" class="badge"><div class="badge-icon">🚫</div><span class="badge-name">Unstoppable</span><div class="badge-desc">20+ Streak</div></div>
+        <div id="badge-s-32" class="badge"><div class="badge-icon">💥</div><span class="badge-name">Super Nova</span><div class="badge-desc">32+ Streak</div></div>
+
+        <div class="section-label">8 on Break</div>
+        <div id="badge-o-1" class="badge"><div class="badge-icon">🎯</div><span class="badge-name">Bullseye</span><div class="badge-desc">1+ 8OB</div></div>
+        <div id="badge-o-5" class="badge"><div class="badge-icon">🏹</div><span class="badge-name">Archer</span><div class="badge-desc">5+ 8OB</div></div>
+        <div id="badge-o-10" class="badge"><div class="badge-icon">🔍</div><span class="badge-name">Sharpshooter</span><div class="badge-desc">10+ 8OB</div></div>
+        <div id="badge-o-15" class="badge"><div class="badge-icon">🦅</div><span class="badge-name">Eagle Eye</span><div class="badge-desc">15+ 8OB</div></div>
+        <div id="badge-o-20" class="badge"><div class="badge-icon">🎖️</div><span class="badge-name">Marksman</span><div class="badge-desc">20+ 8OB</div></div>
+
+        <div class="section-label">Break and Run</div>
+        <div id="badge-b-1" class="badge"><div class="badge-icon">🪄</div><span class="badge-name">Apprentice</span><div class="badge-desc">1+ B&R</div></div>
+        <div id="badge-b-5" class="badge"><div class="badge-icon">🔮</div><span class="badge-name">Mage</span><div class="badge-desc">5+ B&R</div></div>
+        <div id="badge-b-10" class="badge"><div class="badge-icon">🧙‍♂️</div><span class="badge-name">Wizard</span><div class="badge-desc">10+ B&R</div></div>
+        <div id="badge-b-20" class="badge"><div class="badge-icon">🧙‍♀️</div><span class="badge-name">Archmage</span><div class="badge-desc">20+ B&R</div></div>
+        <div id="badge-b-50" class="badge"><div class="badge-icon">✨</div><span class="badge-name">Demi-God</span><div class="badge-desc">50+ B&R</div></div>
+
+        <div class="section-label">Mini-Slam</div>
+        <div id="badge-m-1" class="badge"><div class="badge-icon">⭐</div><span class="badge-name">Stellar</span><div class="badge-desc">1+ Slam</div></div>
+        <div id="badge-m-3" class="badge"><div class="badge-icon">👽</div><span class="badge-name">Otherworldly</span><div class="badge-desc">3+ Slams</div></div>
+        <div id="badge-m-5" class="badge"><div class="badge-icon">🌌</div><span class="badge-name">Galactic</span><div class="badge-desc">5+ Slams</div></div>
+    </div>
+
+    <a href="allstatssplash.html" class="back-btn">Back to Stats</a>
+</div>
+
+<script src="playerdata.js"></script>
+
+<script>
+    window.onload = () => {
+        const input = document.getElementById('player-search');
+        const list = document.getElementById('autocomplete-list');
+
+        input.addEventListener('input', function() {
+            const val = this.value.toLowerCase();
+            list.innerHTML = '';
+            if (!val) return;
+
+            const matches = playerData
+                .filter(p => p["Player Name"].toLowerCase().startsWith(val))
+                .sort((a, b) => a["Player Name"].localeCompare(b["Player Name"]));
+
+            matches.forEach(player => {
+                const item = document.createElement('div');
+                item.className = 'autocomplete-item';
+                item.textContent = player["Player Name"];
+                item.onclick = () => {
+                    input.value = player["Player Name"];
+                    list.innerHTML = '';
+                    loadBadges(player["Player Name"]);
+                };
+                list.appendChild(item);
+            });
+        });
+
+        document.addEventListener('click', (e) => {
+            if (e.target !== input) list.innerHTML = '';
+        });
+    };
+
+    function loadBadges(selectedName) {
+        const player = playerData.find(p => p["Player Name"] === selectedName);
+        document.querySelectorAll('.badge').forEach(b => b.classList.remove('unlocked'));
+
+        if (!player) return;
+
+        const g = parseInt(player["Games Played"]) || 0;
+        const w = parseInt(player["Matches Won"]) || 0;
+        const s = parseInt(player["Longest Win Streak"]) || 0;
+        const o = parseInt(player["8 on Break"]) || 0;
+        const b = parseInt(player["Break and Run"]) || 0;
+        const m = parseInt(player["Mini-Slam"]) || 0;
+
+        if (g >= 1)    document.getElementById('badge-g-1').classList.add('unlocked');
+        if (g >= 25)   document.getElementById('badge-g-25').classList.add('unlocked');
+        if (g >= 100)  document.getElementById('badge-g-100').classList.add('unlocked');
+        if (g >= 200)  document.getElementById('badge-g-200').classList.add('unlocked');
+        if (g >= 300)  document.getElementById('badge-g-300').classList.add('unlocked');
+        if (g >= 400)  document.getElementById('badge-g-400').classList.add('unlocked');
+        if (g >= 500)  document.getElementById('badge-g-500').classList.add('unlocked');
+        if (g >= 1000) document.getElementById('badge-g-1000').classList.add('unlocked');
+
+        if (w >= 1)   document.getElementById('badge-w-1').classList.add('unlocked');
+        if (w >= 10)  document.getElementById('badge-w-10').classList.add('unlocked');
+        if (w >= 20)  document.getElementById('badge-w-20').classList.add('unlocked');
+        if (w >= 50)  document.getElementById('badge-w-50').classList.add('unlocked');
+        if (w >= 100) document.getElementById('badge-w-100').classList.add('unlocked');
+        if (w >= 200) document.getElementById('badge-w-200').classList.add('unlocked');
+
+        if (s >= 5)   document.getElementById('badge-s-5').classList.add('unlocked');
+        if (s >= 10)  document.getElementById('badge-s-10').classList.add('unlocked');
+        if (s >= 15)  document.getElementById('badge-s-15').classList.add('unlocked');
+        if (s >= 20)  document.getElementById('badge-s-20').classList.add('unlocked');
+        if (s >= 32)  document.getElementById('badge-s-32').classList.add('unlocked');
+
+        if (o >= 1)   document.getElementById('badge-o-1').classList.add('unlocked');
+        if (o >= 5)   document.getElementById('badge-o-5').classList.add('unlocked');
+        if (o >= 10)  document.getElementById('badge-o-10').classList.add('unlocked');
+        if (o >= 15)  document.getElementById('badge-o-15').classList.add('unlocked');
+        if (o >= 20)  document.getElementById('badge-o-20').classList.add('unlocked');
+
+        if (b >= 1)   document.getElementById('badge-b-1').classList.add('unlocked');
+        if (b >= 5)   document.getElementById('badge-b-5').classList.add('unlocked');
+        if (b >= 10)  document.getElementById('badge-b-10').classList.add('unlocked');
+        if (b >= 20)  document.getElementById('badge-b-20').classList.add('unlocked');
+        if (b >= 50)  document.getElementById('badge-b-50').classList.add('unlocked');
+
+        if (m >= 1)   document.getElementById('badge-m-1').classList.add('unlocked');
+        if (m >= 3)   document.getElementById('badge-m-3').classList.add('unlocked');
+        if (m >= 5)   document.getElementById('badge-m-5').classList.add('unlocked');
+    }
+</script>
+</body>
+</html>
