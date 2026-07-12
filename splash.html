@@ -1,322 +1,182 @@
 <!DOCTYPE html>
 <html lang="en">
 <head>
-    <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    
-    <title>Custom League Web App Design | Interactive Gaming Systems LLC</title>
-    <meta name="description" content="Get a custom league web app engineered for your specific club or tournament. Manage custom rules, live player stats, and Google Sheets workflows seamlessly.">
-    <meta name="robots" content="index, follow">
-    <link class="canonical" href="https://yourdomain.com/">
-
-    <style>
-        :root {
-            --bg-primary: #000000;
-            --bg-surface: #0a0a0c;
-            --text-primary: #ffffff;
-            --text-secondary: #94a3b8;
-            --accent-start: #2563eb;
-            --accent-end: #00f2fe;
-            --font: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, Helvetica, Arial, sans-serif;
-        }
-
-        * {
-            box-sizing: border-box;
-            margin: 0;
-            padding: 0;
-        }
-
-        body {
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>League Main Menu</title>
+    <link rel="manifest" href="manifest.json">
+<meta name="apple-mobile-web-app-capable" content="yes">
+<meta name="apple-mobile-web-app-status-bar-style" content="black">
+<!-- Standard favicon for browser tabs -->
+<link rel="icon" type="image/png" sizes="32x32" href="https://raw.githubusercontent.com/rownpoolleague/InteractiveGamingSystems/pooldemo/main/zzzz.png">
+<!-- iOS Home Screen icon -->
+<link rel="apple-touch-icon" sizes="180x180" href="https://raw.githubusercontent.com/rownpoolleague/InteractiveGamingSystems/pooldemo/main/zzzz.png">
+<!-- Android / Chrome Home Screen icon -->
+<link rel="icon" type="image/png" sizes="192x192" href="https://raw.githubusercontent.com/InteractiveGamingSystems/pooldemo/main/xxxx.png">
+<style>
+ header {
+            border-bottom: 1px solid var(--border);
             background-color: var(--bg-primary);
-            color: var(--text-primary);
-            font-family: var(--font);
-            line-height: 1.6;
-            padding-bottom: 100px;
-            scroll-behavior: smooth;
-        }
-
-        header {
-            background-color: rgba(0, 0, 0, 0.8);
+            position: sticky;
             top: 0;
             z-index: 100;
         }
+body {
+    margin: 0;
+    padding: 0;
+    font-family: Arial, sans-serif;
+    background-color: #000;
+    /* Removed: display: flex; flex-direction: column; min-height: 100vh; */
+}
+.overlay {
+    /* Removed: flex: 1; */
+    padding: 20px 10px;
+    box-sizing: border-box;
+}
+h1 {
+    text-align: center;
+    color: white;
+    margin-bottom: 20px;
+    font-size: 32px;
+}
+.menu-container {
+    max-width: 500px;
+    margin: auto;
+    display: flex;
+    flex-direction: column;
+    gap: 20px;
+}
+.menu-button {
+    display: block;
+    margin-left: auto;
+    margin-right: auto;   /* centers horizontally with zero vertical spacing */
+    text-align: center;
+    padding: 4px;
+    background: #1e90ff;
+    color: white;
+    text-decoration: none;
+    font-size: 24px;
+    border-radius: 8px;
+    font-weight: bold;
+    height: 28px;
+    width: 250px;
+}
 
         .nav-container {
-            max-width: 1100px;
+            max-width: 1000px;
             margin: 0 auto;
             display: flex;
             justify-content: space-between;
             align-items: center;
-            padding: 20px;
+            padding: 16px 20px;
+            color: #fff;
         }
 
-        .brand-logo {
-            display: flex;
-            align-items: center;
-            gap: 12px;
-            text-decoration: none;
-        }
-
-        .logo-img {
-            height: 32px;
-            width: auto;
-            display: block;
-        }
-
-        .company-name {
-            font-size: 1.1rem;
-            font-weight: 800;
+       .logo-text {
+            font-size: 1.2rem;
+            font-weight: 700;
             letter-spacing: -0.5px;
-            color: var(--text-primary);
+            background: var(--gradient-electric);
+            -webkit-background-clip: text;
+            -webkit-text-fill-color: transparent;
         }
 
         nav a {
             color: var(--text-secondary);
             text-decoration: none;
-            margin-left: 24px;
+            margin-left: 20px;
             font-size: 0.95rem;
-            font-weight: 600;
-            transition: color 0.15s ease;
+            font-weight: 500;
+            transition: color 0.2s ease;
         }
 
         nav a:hover, nav a.active {
-            color: var(--accent-end);
+            color: #00f2ff;
         }
 
         .container {
-            max-width: 1100px;
+            max-width: 800px;
             margin: 0 auto;
-            padding: 0 20px;
+            padding: 40px 20px;
         }
-
-        .banner-section {
-            text-align: center;
-            margin: 40px 0;
-        }
-
-        .banner-img {
-            width: 100%;
-            max-width: 900px;
-            height: auto;
-            display: block;
-            margin: 0 auto;
-        }
-
-        .hero {
-            padding: 80px 0;
-        }
-
-        .hero h1 {
-            font-size: 3.5rem;
-            font-weight: 800;
-            line-height: 1.15;
-            margin-bottom: 24px;
-            letter-spacing: -1.5px;
-            color: var(--text-primary);
-        }
-
-        .hero h1 span {
-            background: linear-gradient(135deg, var(--accent-start), var(--accent-end));
-            -webkit-background-clip: text;
-            -webkit-text-fill-color: transparent;
-        }
-
-        .hero p {
-            font-size: 1.3rem;
-            color: var(--text-secondary);
-            max-width: 750px;
-            margin-bottom: 40px;
-        }
-
-        .btn {
-            display: inline-block;
-            padding: 14px 32px;
-            font-size: 1rem;
-            font-weight: 600;
-            text-decoration: none;
-            border-radius: 4px;
-            transition: opacity 0.15s ease;
-            background: linear-gradient(135deg, var(--accent-start), var(--accent-end));
-            color: #ffffff;
-        }
-
-        .btn:hover {
-            opacity: 0.9;
-        }
-
-        .pillars-grid {
-            display: grid;
-            grid-template-columns: repeat(auto-fit, minmax(300px, 1fr));
-            gap: 56px 40px;
-            padding: 80px 0;
-        }
-
-        .pillar-card {
-            background-color: transparent;
-            position: relative;
-        }
-
-        .pillar-card h2 {
-            font-size: 1.4rem;
-            margin-bottom: 12px;
-            font-weight: 700;
-            letter-spacing: -0.5px;
-            color: #4af;
-        }
-
-        .pillar-card p {
-            color: var(--text-secondary);
-            font-size: 1rem;
-            line-height: 1.6;
-        }
-
-        .contact-section {
-            padding: 80px 0 20px 0;
-            max-width: 600px;
-            scroll-margin-top: 155px;
-        }
-
-        .contact-section h2 {
-            font-size: 2.5rem;
-            font-weight: 800;
-            margin-bottom: 12px;
-            letter-spacing: -1px;
-        }
-
-        .contact-form {
-            display: flex;
-            flex-direction: column;
-            gap: 28px;
-        }
-
-        .form-group {
-            display: flex;
-            flex-direction: column;
-            gap: 10px;
-        }
-
-        .form-group label {
-            font-size: 0.8rem;
-            font-weight: 700;
-            text-transform: uppercase;
-            letter-spacing: 1px;
-            color: var(--text-secondary);
-        }
-
-.form-group input, .form-group textarea {
-    width: 100%;
-    padding: 14px;
-    font-size: 1rem;
-    background-color: #ffffff;
-    color: #000000;
-    border: 1px solid #cbd5e1;
-    border-radius: 4px;
-    font-family: var(--font);
-}
-
-        .form-group input:focus, .form-group textarea:focus {
-            outline: none;
-            box-shadow: 0 0 0 2px var(--accent-end);
-        }
-
-        .direct-mail {
-            margin-top: 48px;
-            font-size: 0.95rem;
-            color: var(--text-secondary);
-        }
-
-        .direct-mail a {
-            color: #4af;
-            text-decoration: none;
-            font-weight: 600;
-        }
-
-        @media (max-width: 768px) {
-            .hero h1 { font-size: 2.6rem; }
-            .hero p { font-size: 1.15rem; }
-        }
-
-       .nav-container { 
-        flex-direction: column;
-        gap: 16px;
-        padding: 16px 20px;
+/* Footer styling for logo */
+footer { text-align: center; padding: 20px; }
+        .footer-logo { max-width: 150px; opacity: 0.8; }
+        .powered-by {
+        display: block;
+        margin-top: 10px;
+        color: #1e90ff; /* Electric Blue */
+        text-decoration: none;
+        font-size: 0.8rem;
+        font-weight: bold;
+        text-shadow: 0 0 8px rgba(30, 144, 255, 0.5); /* Adds a subtle glow */
     }
+    .powered-by:hover {
+        text-decoration: underline;
+    }
+.footer-logo {
+    max-width: 200px;
+    height: auto;
+}
+.form-wrapper {
+    width: 100%; 
+    /* Ensures the wrapper hits the bottom regardless of browser or app mode */
+    min-height: 100dvh;     
+    border: 4px solid #1e90ff;
+    border-radius: 0; 
+    box-sizing: border-box; 
     
-    nav {
-        display: flex;
-        flex-wrap: wrap;
-        justify-content: center;
-        gap: 16px;
-    }
-    
-    nav a {
-        margin-left: 0;
-    }
+    /* Optional: Keeps content aligned if the form is shorter than the screen */
+    display: flex;
+    flex-direction: column;
 }
 
-@media (max-width: 600px) {
-    .btn { text-align: center; width: 100%; }
-    .banner-section { margin: 10px 0; }
-}
-    </style>
+</style>
 </head>
-<body>
 
-    <header>
-    <div class="banner-section">
+<body>
+<header>
+       <div class="banner-section">
         <img src="photos/igsbanner.png" class="banner-img" >
     </div>
-    <div class="nav-container">
-        <a href="#" class="brand-logo"></a>
-        <nav>
-            <a href="features.html">Features</a>
-            <a href="purchase.html">Purchase</a>
-    <a href="#contact">Contact</a>
-            <a href="faqs.html">FAQ</a>
-            <a href="about.html">About</a>
-        </nav>
+        <div class="nav-container">
+            <a href="#" class="brand-logo"></a>
+            <nav>
+                <a href="index.html">Purchase</a>
+                <a href="features.html">Features</a>
+                <a href="purchase.html">Purchase</a>
+                <a href="#contact">Contact</a>
+                <a href="faqs.html">FAQ</a>
+                <a href="about.html">About</a>
+            </nav>
+        </div>
+    </header>
+    <div class="form-wrapper">
+<div class="overlay">
+    <h1>Summer 2026</h1>
+    <div class="menu-container">
+        <a class="menu-button" href="schedule.html">Schedule/Standings</a>
+        <a class="menu-button" href="rosters.html">Rosters</a>
+        <a class="menu-button" href="scoresheet.html">Keep Score</a>
+        <a class="menu-button" href="instructions.html">Scoring Instructions</a>
+        <a class="menu-button" href="Lifetime Stats.html">Stats</a>
+
+        
     </div>
-</header>
-
-    <main class="container">
-       
-
-        <section class="hero">
-            <h1>Branded Custom League Web Apps Engineered Exactly <span>For Your Needs.</span></h1>
-            <p>We build mobile-first web applications specifically hardcoded to manage your local rule variations, scheduling, player handicaps, and standings .</p>
-            <a href="features.html" class="btn">Explore Features</a>
-        </section>
-
-        <section id="features" class="pillars-grid">
-            <div class="pillar-card">
-                <h2>Your League, Your Branding, Your Custom Rules Built-In</h2>
-                <p>Provide us with your logo, desired color scheme, website links and rulebook. We program everything directly into your software configuration.</p>
-            </div>
-            <div class="pillar-card">
-                <h2>Mobile Stats & Player Buzz</h2>
-                <p>Give members real-time phone access to SCORE SUBMISSION, leaderboards, schedules, lifetime stats etc. If you can think it we can make it.</p>
-            </div>
-            <div class="pillar-card">
-                <h2>Automated Sheet Integration</h2>
-                <p>Our system can either be turnkey(database provided) or set up with your existing database.</p>
-            </div>
-        </section>
-
-     <section id="contact" class="contact-section">
-    <h2>Contact Development</h2>
-    <p style="color: var(--text-secondary); margin-bottom: 32px;">
-        Ready to build your custom app or have questions about integration? Click below to launch your email client and get in touch directly with our development team.
-    </p>
-    
-    <a href="mailto:support@interactivegamingsystems.app?subject=Custom%20League%20App%20Inquiry" class="btn" style="text-align: center; text-transform: uppercase; letter-spacing: 0.5px;">
-        Launch Email
+</div>
+<!-- Added Logo -->
+<footer>
+    <img src="white transparent.jpg" alt="League Logo" class="footer-logo">
+    <a href="https://interactivegamingsystems.app" class="powered-by" style="font-size:0.9rem;">
+        &copy; Interactive Gaming Systems LLC
     </a>
+<br>
+    <!-- Clean text link to News Page -->
+    <a href="news.html" class="powered-by" style="font-size:0.9rem; margin-top:4px;">
+        League & World News
+    </a>
+</footer>
 
-    <div class="direct-mail" style="margin-top: 32px;">
-        Or copy our address: <a href="mailto:support@interactivegamingsystems.app">support@interactivegamingsystems.app</a>
     </div>
-</section>
-    </main>
-
 </body>
 </html>
