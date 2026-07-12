@@ -1,0 +1,1585 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<title>Scoresheet</title>
+    <link rel="manifest" href="manifest.json">
+<meta name="apple-mobile-web-app-capable" content="yes">
+<meta name="apple-mobile-web-app-status-bar-style" content="black">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <script src="scoresheetrosters.js"></script>
+    <script src="scoresheetinfo.js"></script>
+<style>
+/* --- GLOBAL STYLES (Applies to Laptop & Mobile) --- */
+body { 
+    font-family: Arial, sans-serif; 
+    font-size: 18px; 
+    background-color: #000; 
+    color: #fff; 
+    margin: 0; 
+    padding: 0; 
+}
+
+.form-wrapper {
+    width: 100%;
+    max-width: 550px; 
+    margin: 0 auto;
+    padding: 10px;
+    border: 4px solid #1e90ff; /* This is your blue frame */
+    box-sizing: border-box;
+    min-height: 650px; 
+    display: flex;
+    flex-direction: column;
+}
+
+.row { display: flex; justify-content: center; gap: 5px; margin-top: 10px; font-size: 17px; }
+.block { flex: 1; max-width: 50%; text-align: center; overflow-wrap: break-word; }
+
+.roster-box {
+    text-align: left;
+    width: 100%;
+    margin: 10px auto;
+    padding: 8px 6px;
+    font-size: 18px;
+    white-space: pre-line;
+    background-color: #000;
+    color: #fff;
+    font-weight: bold;
+    box-sizing: border-box;
+}
+     #lagWinnerHeader,
+#lagLoserHeader {
+    font-size: 18px; visibility: hidden;
+    margin-bottom: 10px;color: #FFCC33;
+}
+    #lagWinnerHeader.active, #lagLoserHeader.active {
+    visibility: visible;
+}
+
+label { font-weight: bold; color: #fff; font-size: 20px; }
+h3 { margin: 0 0 8px 0; color: #fff; }
+input[type="number"] { 
+    width: 35px; 
+    padding: 4px 6px; 
+    font-size: 20px; 
+    background-color: #fff; 
+    color: #000; 
+    border: 1px solid #fff; 
+    border-radius: 4px; 
+    text-align: center;
+    /* This ensures the mobile "focus" ring doesn't show up when tapped */
+    outline: none; 
+}
+
+.innings-wrapper { display: flex; align-items: center; justify-content: center; gap: 5px; }
+.stat-row { display: flex; flex-direction: column; align-items: center; margin-bottom: 8px;-webkit-tap-highlight-color: transparent; }
+.stat-row:active {
+    background-color: #000 !important;
+}
+.playerName { display: flex; justify-content: space-between; padding: 4px 0; cursor: pointer; }
+.playerName:hover { background-color: #333; }
+.playerName span.hc { color: #fff; font-weight: normal; }
+
+.uiButton { padding: 10px 20px; font-size: 20px; cursor: pointer; border-radius: 6px; border: none; background-color: #1e90ff; color: white; display: block; margin: 20px auto; }
+
+/* Back Button - Width fixed to match form */
+.back-button { 
+    display: block;
+    background-color: #1e90ff; 
+    color: #fff; 
+    text-decoration: none; 
+    font-size: 24px; 
+    text-align: center; 
+    padding: 10px 0;
+    width: 100%;
+    max-width: 550px;
+    margin: 10px auto; 
+}
+
+.uiText { font-size: 22px; text-align: center; margin: 10px auto; display: block; color: gold; }
+
+.button-row {
+    display: flex;
+    justify-content: space-between;
+    gap: 4px;
+    width: 100%;
+    margin-top: 20px;
+    box-sizing: border-box;
+}
+
+.button-row button {
+    flex: 1;
+    height: 40px;
+    font-size: 14px;
+    padding: 0;
+    text-align: center;
+    white-space: nowrap;
+    cursor: pointer;
+}
+#timerBox {
+    display: none;
+    position: fixed;
+    width: 130px;
+    top: 50%;
+    left: 50%;
+    transform: translate(-50%, -50%);
+    background: #000;
+    color: #fff;
+    padding: 15px;
+    border-radius: 8px;
+    border: 2px solid #1e90ff;
+    box-shadow: 0 4px 20px rgba(0,0,0,0.8);
+    z-index: 10000;
+    text-align: center;
+}
+
+#timerValue { font-size: 1.8em; font-weight: bold; display: block; margin-bottom: 5px; }
+.closeBtn { background: crimson; border: none; color: white; border-radius: 4px; cursor: pointer; padding: 5px 10px; }
+
+.player-stats-container { position: relative; display: flex; justify-content: center; gap: 40px; }
+.player-stats-container::after { content: ""; position: absolute; top: 0; bottom: 0; left: 50%; transform: translateX(-50%); width: 2px; background-color: #fff; opacity: 0.5; pointer-events: none; }
+
+#loadingOverlay {
+    display: none;
+    position: fixed;
+    top: 0; left: 0;
+    width: 100%; height: 100%;
+    background: rgba(0, 0, 0, 0.8);
+    z-index: 10000;
+    flex-direction: column;
+    justify-content: center;
+    align-items: center;
+    color: white;
+}
+
+.spinner {
+    width: 50px; height: 50px;
+    border: 5px solid #333;
+    border-top: 5px solid #1e90ff;
+    border-radius: 50%;
+    animation: spin 1s linear infinite;
+    margin-bottom: 15px;
+}
+    #masterModal {
+    display: none; 
+    position: fixed; 
+    inset: 0; 
+    background: rgba(0, 0, 0, 0.9); 
+    justify-content: center; 
+    align-items: center; 
+    z-index: 100000;
+    padding: 10px;
+}
+
+.modal-container {
+    background: #111; 
+    padding: 20px; 
+    border: 2px solid #1e90ff; 
+    border-radius: 12px; 
+    width: 100%; 
+    max-width: 450px; 
+    max-height: 85vh; /* Prevents modal from cutting off on small screens */
+    display: flex;
+    flex-direction: column;
+    box-sizing: border-box;
+    box-shadow: 0 0 20px rgba(30, 144, 255, 0.3);
+}
+
+#modalContent {
+    overflow-y: auto; /* Makes Match History scrollable */
+    margin-bottom: 20px;
+    color: #fff;
+    scrollbar-width: thin; /* Clean scrollbars for Firefox */
+    scrollbar-color: #1e90ff #111;
+}
+
+#modalFooter {
+    display: flex; 
+    gap: 10px; 
+    justify-content: center;
+    flex-wrap: wrap; /* Wraps buttons if they are too wide on small phones */
+}
+
+/* Standardizing Modal Buttons */
+#modalFooter button {
+    padding: 10px 18px; 
+    border: none; 
+    border-radius: 6px; 
+    font-weight: bold; 
+    font-size: 16px;
+    cursor: pointer;
+    transition: opacity 0.2s;
+}
+
+#modalFooter button:active {
+    opacity: 0.7;
+}
+
+@keyframes spin { 100% { transform: rotate(360deg); } }
+
+/* --- MOBILE ONLY OVERRIDES --- */
+@media (max-width:600px) {
+    .roster-box { width: 95%; }
+    .button-row button { font-size: 12px; }
+}
+</style>
+    <script src="https://cdn.jsdelivr.net/npm/qrcodejs/qrcode.min.js"></script>
+    <script src="schedule.js"></script>
+     <script src="playerdata.js"></script>
+</head>
+<body>
+    <div id="loadingOverlay">
+    <div class="spinner"></div>
+    <div>Submitting Results...</div>
+</div>
+<div class="form-wrapper">
+<div id="matchHeader" style="text-align:center; margin-top:10px; margin-bottom:20px;">
+    <div onclick="secretHandshake()" style="display:flex; justify-content:center; gap:12px; font-size:22px; font-weight:bold; cursor: pointer; user-select: none;">
+        <div id="weekDisplay"></div>
+        <div id="dateDisplay"></div>
+    </div>
+</div>
+<div class="row" style="display: flex; flex-wrap: wrap; justify-content: center;">
+    
+    <div class="block">
+        <select id="team">
+            <option value="">Select Home Team</option>
+            <option>1 Halfway Crooks</option>
+            <option>2 Haters Welcome</option>
+            <option>3 Lynn's Amigos</option>
+            <option>4 Rackless Behavior</option>
+            <option>5 Dirty Ballers</option>
+            <option>6 8 on Break</option>
+            <option>7 Five Amigos</option>
+            <option>8 Frank's Pizza</option>
+            <option>9 Killer Instinct</option>
+            <option>10 Pete's Bunch</option>
+        </select>
+        <div id="teamRoster" class="roster-box"></div>
+    </div>
+
+    <div class="block">
+        <select id="opponent">
+            <option value="">Select Away Team</option>
+            <option>1 Halfway Crooks</option>
+            <option>2 Haters Welcome</option>
+            <option>3 Lynn's Amigos</option>
+            <option>4 Rackless Behavior</option>
+            <option>5 Dirty Ballers</option>
+            <option>6 8 on Break</option>
+            <option>7 Five Amigos</option>
+            <option>8 Frank's Pizza</option>
+            <option>9 Killer Instinct</option>
+            <option>10 Pete's Bunch</option>
+        </select>
+        <div id="opponentRoster" class="roster-box"></div>
+         </div>
+
+   
+</div>
+    <p id="statusText" class="uiText">Tap a Player to Set Lag Winner</p>
+    
+<div class="lag-row" style="display:none;justify-content:center;gap:40px;margin-top:10px;color: #gold;">
+    <div class="center-label">
+        <label>Lag Winner</label>
+        <input id="lagWinner" readonly style="width:135px; text-align:center;margin-top: 10px;">
+    </div>
+    <div class="center-label">
+        <label>Lag Loser</label>
+        <input id="lagLoser" readonly style="width:135px; text-align:center;">
+    </div>
+</div>
+   
+<div id="playerNamesHeader" style="display:flex; justify-content:center; gap:30px; text-align:center; align-items: center;">
+    <h3 id="lagWinnerHeader" class="block" style="margin:0;">Lag Winner</h3>    
+    <h3 id="lagLoserHeader" class="block" style="margin:0;">Lag Loser</h3>
+</div>
+ <div id="gamePlayArea" style="display:none;">
+<div class="player-stats-container" style="margin-top:10px;">
+    <div class="block">
+        <div class="stat-row"><label>HC</label><div class="innings-wrapper"><button onclick="changeStat('pA_hc',-1)">−</button><input id="pA_hc" type="number" value="0" readonly><button onclick="changeStat('pA_hc',1)">+</button></div></div>
+        <div class="stat-row"><label>Wins</label><div class="innings-wrapper"><button onclick="changeStat('pA_wins',-1)">−</button><input id="pA_wins" type="number" value="0" readonly><button onclick="changeStat('pA_wins',1)">+</button></div></div>
+        <div class="stat-row"><label>Safeties</label><div class="innings-wrapper"><button onclick="changeStat('pA_safeties',-1)">−</button><input id="pA_safeties" type="number" value="0" readonly><button onclick="changeStat('pA_safeties',1)">+</button></div></div>
+        <div class="stat-row"><label>8B</label><div class="innings-wrapper"><button onclick="changeStat('pA_b8',-1)">−</button><input id="pA_b8" type="number" value="0" readonly><button onclick="changeStat('pA_b8',1)">+</button></div></div>
+        <div class="stat-row"><label>B+R</label><div class="innings-wrapper"><button onclick="changeStat('pA_br',-1)">−</button><input id="pA_br" type="number" value="0" readonly><button onclick="changeStat('pA_br',1)">+</button></div></div>
+        <div class="stat-row"><label>E8</label><div class="innings-wrapper"><button onclick="changeStat('pA_e8',-1)">−</button><input id="pA_e8" type="number" value="0" readonly><button onclick="changeStat('pA_e8',1)">+</button></div></div>
+        <div class="stat-row"><label>Coach</label><input type="checkbox" id="pA_coach" onchange="saveNow()"></div>
+    </div>
+    <div class="block">
+        <div class="stat-row"><label>HC</label><div class="innings-wrapper"><button onclick="changeStat('pB_hc',-1)">−</button><input id="pB_hc" type="number" value="0" readonly><button onclick="changeStat('pB_hc',1)">+</button></div></div>
+        <div class="stat-row"><label>Wins</label><div class="innings-wrapper"><button onclick="changeStat('pB_wins',-1)">−</button><input id="pB_wins" type="number" value="0" readonly><button onclick="changeStat('pB_wins',1)">+</button></div></div>
+        <div class="stat-row"><label>Safeties</label><div class="innings-wrapper"><button onclick="changeStat('pB_safeties',-1)">−</button><input id="pB_safeties" type="number" value="0" readonly><button onclick="changeStat('pB_safeties',1)">+</button></div></div>
+        <div class="stat-row"><label>8B</label><div class="innings-wrapper"><button onclick="changeStat('pB_b8',-1)">−</button><input id="pB_b8" type="number" value="0" readonly><button onclick="changeStat('pB_b8',1)">+</button></div></div>
+        <div class="stat-row"><label>B+R</label><div class="innings-wrapper"><button onclick="changeStat('pB_br',-1)">−</button><input id="pB_br" type="number" value="0" readonly><button onclick="changeStat('pB_br',1)">+</button></div></div>
+        <div class="stat-row"><label>E8</label><div class="innings-wrapper"><button onclick="changeStat('pB_e8',-1)">−</button><input id="pB_e8" type="number" value="0" readonly><button onclick="changeStat('pB_e8',1)">+</button></div></div>
+<div class="stat-row" onclick="secretHandshake()" style="user-select: none;">
+    <label>Coach</label>
+    <input type="checkbox" id="pB_coach" onchange="saveNow()">
+</div>
+    </div>
+</div>
+    <div style="text-align:center;padding-top:20px;">
+    <button id="submitMatch" style="display:none;background-color:#00FF00;width:200px;height:85px;border-radius: 6px; padding: 6px; color: #000;font-weight:bold;font-size:20px;">Submit Match</button> 
+</div>
+<div id="inningsContainer" style="text-align:center;margin-top:10px;">
+    <label>Innings</label><br>
+    <div class="innings-wrapper">
+        <button type="button" class="btn-minus" onclick="changeStat('matchInnings', -1)">−</button>
+        <input type="number" id="matchInnings" style="margin-top:4px;" value="0" min="0" readonly>
+        <button type="button" class="btn-plus" onclick="changeStat('matchInnings', 1)">+</button>
+    </div>
+</div>
+<div style="display: none;">
+    <input id="matchWinner" readonly>
+</div>
+<div style="margin-top:20px;border-radius:8px;">
+
+    <div id="teamScoreDisplay" style="text-align:center; font-size:28px; font-weight:bold; margin-bottom:10px; color:#1e90ff;">Match Score: <span id="homeScore">0</span> - <span id="awayScore">0</span>
+</div>
+
+  <div class="button-row">
+    <button type="button" onclick="exportScoresheet()">Transfer</button>
+    <button type="button" onclick="toggleNotes()">Notes</button>
+    <button type="button" class="startBtn" onclick="startTimer()">Timer</button>
+    <button type="button" onclick="showHistory()">History</button>
+    <button type="button" onclick="resetLagFields()">Reset Match</button>
+   </div>    
+</div>
+</div>
+  <div id="timerBox">
+    <span id="timerValue">0</span> sec
+
+    <button class="closeBtn" onclick="closeTimer()">X</button>
+  </div>
+
+<div id="notesContainer" style="display:none; text-align:center; margin-top:12px;border: 2px solid #1e90ff;">
+    <textarea 
+        id="matchNotes" 
+        style="width:95%; max-width:500px; height:80px; font-size:16px;padding:10px; "
+        oninput="saveNow()">-</textarea>
+</div>
+    <button id="addPlayerBtn" class="uiButton" type="button" onclick="addNewPlayerManual()">Add a Player to Either Roster</button>
+</div>
+
+<a href="index.html" style="text-decoration: none; display: block;">
+  <div class="back-button" style="height:30px;">
+    Main Menu
+  </div>
+</a>
+
+
+<script>
+let isLoading = false;
+const FORM_KEY = "scoresheetData";
+let scores = JSON.parse(localStorage.getItem("teamMatchScores")) || { home: 0, away: 0 };
+let pendingPlayerData = null; 
+let targetScores = {}; 
+
+function establishSeasonBaseline() {
+    if (typeof playerData === 'undefined' || !playerData.length) return;
+    
+    const lowIsBetter = ["Life Hash", "White Washed"];
+    const ignoreKeys = ["Player #", "Player Name", "Handicap", "HC", "Matches Played"];
+    const categories = Object.keys(playerData[0]).filter(key => !ignoreKeys.includes(key));
+
+    categories.forEach(cat => {
+        const scores = playerData.map(p => parseFloat(String(p[cat]).replace('%', '')) || 0);
+        // Store the single highest (or lowest) number as the bar to beat
+        targetScores[cat] = lowIsBetter.includes(cat) ? Math.min(...scores) : Math.max(...scores);
+    });
+}
+window.addEventListener('DOMContentLoaded', establishSeasonBaseline);
+// 1. THE BRIDGE: Run this IMMEDIATELY before anything else
+(function() {
+    const params = new URLSearchParams(window.location.search);
+    
+    if (params.has("data")) {
+        const decodedData = JSON.parse(decodeURIComponent(params.get("data")));
+        
+        // 1. If history exists inside the data object, save it separately
+        if (decodedData.hdata) {
+            localStorage.setItem("matchHistory", JSON.stringify(decodedData.hdata));
+            delete decodedData.hdata; // Clean it out before saving main scoresheet
+        }
+        
+        // 2. Save the main scoresheet data
+        localStorage.setItem(FORM_KEY, JSON.stringify(decodedData));
+
+        // 3. Clean the URL
+        window.history.replaceState({}, document.title, window.location.pathname);
+        console.log("Full Session Synchronized");
+    }
+})();
+
+window.addEventListener("DOMContentLoaded", () => {
+    // 1. Session Expiry Logic
+    const lastActivity = localStorage.getItem("lastSessionActivity");
+    if (lastActivity && (Date.now() - parseInt(lastActivity)) > (12 * 60 * 60 * 1000)) {
+        localStorage.removeItem("matchHistory");
+        localStorage.removeItem("manual_roster_additions");
+        localStorage.removeItem("teamMatchScores");
+        localStorage.removeItem(FORM_KEY);
+        scores = { home: 0, away: 0 };
+    }
+    localStorage.setItem("lastSessionActivity", Date.now().toString());
+    
+    // 2. RUN THE LOAD
+    loadScoresheet();
+    updateScoreUI();
+    
+    // 3. UPDATED: Run week/date but DON'T let it trigger the modal yet
+    if (typeof scheduleData !== 'undefined') {
+        const today = new Date();
+        const cutoff = new Date(today);
+        cutoff.setDate(cutoff.getDate() - 2);
+        let activeWeek = scheduleData.find(row => row.date && new Date(row.date) >= cutoff) || scheduleData[scheduleData.length - 1];
+        document.getElementById("weekDisplay").textContent = "-Week " + activeWeek.week + "-";
+        document.getElementById("dateDisplay").textContent = " " + activeWeek.date;
+    }
+
+    // 4. THE MODAL BLOCKER: Final check after everything is settled
+    setTimeout(() => {
+        checkInitialSelection();
+    }, 250); // Slightly longer delay to ensure DOM is painted
+});
+
+// --- 1. Universal Modal Engine ---
+function showMasterModal(title, bodyHtml, buttons = []) {
+    const modalDiv = document.getElementById("masterModal");
+    if (!modalDiv) return;
+
+    const modalHtml = `
+        <div class="modal-container">
+            <h3 style="color:#1e90ff; margin-top:0; text-align:center;">${title}</h3>
+            <div id="modalContent" style="color:white; margin-bottom:20px;">${bodyHtml}</div>
+            <div id="modalFooter" style="display:flex; gap:10px; justify-content:center; flex-wrap:wrap;">
+                ${buttons.map(btn => `
+                    <button onclick="${btn.action}" style="background:${btn.color || '#444'}; color:#fff; border:none; padding:10px 15px; border-radius:4px; cursor:pointer; font-weight:bold;">
+                        ${btn.text}
+                    </button>
+                `).join('')}
+                <button onclick="closeMasterModal()" style="background:#222; color:#fff; border:1px solid #444; padding:10px 15px; border-radius:4px; cursor:pointer;">Close</button>
+            </div>
+        </div>
+    `;
+    
+    modalDiv.innerHTML = modalHtml;
+    modalDiv.style.display = "flex";
+}
+
+function closeMasterModal() {
+    const modalDiv = document.getElementById("masterModal");
+    if (modalDiv) {
+        modalDiv.style.display = "none";
+        modalDiv.style.alignItems = "center";
+        modalDiv.style.paddingTop = "10px";
+    }
+    pendingPlayerData = null;
+}
+
+window.onclick = (e) => { 
+    if (e.target.id === "masterModal") closeMasterModal(); 
+};
+
+// --- 2. Roster & Player Selection ---
+function updateRoster(sel, div) {
+    if (!sel.value) { div.innerHTML = ""; return; }
+    const rosterData = scoresheetinfo[sel.value] || [];
+    div.innerHTML = rosterData.map(p => {
+        const lookupHC = scoresheetrosters[p];
+        const hc = (lookupHC !== undefined && lookupHC !== 0) ? lookupHC : 3;
+        return `<div class="playerName" data-p="${p}" data-hc="${hc}">
+                    <span class="name">${p}</span>
+                    <span class="hc">${hc}</span>
+                </div>`;
+    }).join("");
+}
+
+["team", "opponent"].forEach(id => {
+    const el = document.getElementById(id);
+    if (el) {
+        el.addEventListener("change", function() {
+            const divId = (id === "team") ? "teamRoster" : "opponentRoster";
+            updateRoster(this, document.getElementById(divId));
+            saveNow();
+        });
+    }
+});
+
+document.addEventListener("click", e => {
+    const gameArea = document.getElementById("gamePlayArea");
+    if (gameArea && gameArea.style.display === "block") {
+        return; 
+    }
+
+    const playerDiv = e.target.closest(".playerName");
+    if (!playerDiv) return;
+
+    const name = playerDiv.getAttribute("data-p");
+    const hc = playerDiv.getAttribute("data-hc");
+    const lwHeader = document.getElementById("lagWinnerHeader").textContent;
+
+    pendingPlayerData = { name, hc };
+    const resetBtn = { text: "Reset Lag", action: "resetLagFields()", color: "crimson" };
+
+    if (lwHeader === "Lag Winner") {
+        showMasterModal("Confirm Lag Winner", `<p style="text-align:center; font-size:18px;">Did <strong>${name}</strong> win the lag?</p>`, [
+            { text: "YES, WINNER", action: "confirmLag(true)", color: "#1e90ff" },
+            resetBtn
+        ]);
+    } else {
+        const lagWinnerVal = document.getElementById("lagWinner").value;
+        if (name === lagWinnerVal) return; 
+        
+        showMasterModal("Confirm Lag Loser", `<p style="text-align:center; font-size:18px;">Set <strong>${name}</strong> as Lag Loser and begin match?</p>`, [
+            { text: "YES, START MATCH", action: "confirmLag(false)", color: "#1e90ff" },
+            resetBtn
+        ]);
+    }
+});
+
+function checkInitialSelection() {
+    const gameArea = document.getElementById("gamePlayArea");
+    if (gameArea && gameArea.style.display === "block") {
+        return; 
+    }
+
+    const teamEl = document.getElementById("team");
+    if (teamEl && (teamEl.value === "Select Home Team" || teamEl.value === "")) {
+        
+        // --- NEW RESET LOGIC ---
+        // If we are at the "Select Team" stage, it's a new session.
+        // Clear the ticker flags so tonight's feats can be announced.
+        localStorage.removeItem("announcedFeats");
+        announcedFeats = []; 
+        // -----------------------
+
+        const options = teamEl.options;
+        let teamButtonsHtml = `<div style="display: grid; grid-template-columns: 1fr 1fr; gap: 10px; margin-top: 15px;">`;
+
+        for (let i = 1; i < options.length; i++) {
+            const teamText = options[i].text;
+            const teamNum = teamText.split(" ")[0];
+            
+            teamButtonsHtml += `
+                <button onclick="setScoringTeam('${teamNum}')" 
+                        style="background:#1e90ff; color:#fff; border:none; padding:12px 5px; border-radius:6px; font-weight:bold; cursor:pointer; font-size:14px;">
+                    ${teamText}
+                </button>`;
+        }
+        teamButtonsHtml += `</div>`;
+
+        showMasterModal(
+            "Select Your Team", 
+            `<div style='text-align:center; margin-bottom:10px;'>Opponent and Rosters will fill automatically.</div>${teamButtonsHtml}`, 
+            [] 
+        );
+    }
+}
+function confirmLag(isWinner) {
+    if (!pendingPlayerData) return;
+
+    if (isWinner) {
+        const name = pendingPlayerData.name;
+        const hc = pendingPlayerData.hc;
+        
+        document.getElementById("lagWinner").value = name;
+        document.getElementById("pA_hc").value = hc;
+        
+        const header = document.getElementById("lagWinnerHeader");
+        header.textContent = name;
+        header.classList.add("active");
+        header.style.visibility = "visible";
+
+        const statusEl = document.getElementById("statusText");
+        if (statusEl) {
+            statusEl.textContent = "Tap a Player to Set Lag Loser and Begin Match";
+        }
+    } else {
+        const name = pendingPlayerData.name;
+        const hc = pendingPlayerData.hc;
+        
+        document.getElementById("lagLoser").value = name;
+        document.getElementById("pB_hc").value = hc;
+        
+        const header = document.getElementById("lagLoserHeader");
+        header.textContent = name;
+        header.classList.add("active");
+        header.style.visibility = "visible";
+        
+        document.getElementById("matchInnings").value = 0;
+
+        const toHide = ["team", "opponent", "weekDisplay", "dateDisplay", "teamRoster", "opponentRoster","addPlayerBtn","statusText"];
+        toHide.forEach(id => {
+            const el = document.getElementById(id);
+            if (el) el.style.display = "none";
+        });
+
+        document.getElementById("gamePlayArea").style.display = "block";
+    }
+    
+    closeMasterModal();
+    updateMatchWinner(); 
+    saveNow(); 
+}
+
+function getTeamNameByNumber(num) {
+    const select = document.getElementById("team");
+    const options = select.options;
+    for (let i = 0; i < options.length; i++) {
+        if (options[i].text.startsWith(num + " ")) {
+            return options[i].text;
+        }
+    }
+    return null;
+}
+
+function resetLagFields() {
+    // 1. Clear standard match fields
+    const mainFields = ["lagWinner", "lagLoser", "matchInnings", "matchWinner"];
+    mainFields.forEach(id => {
+        const el = document.getElementById(id);
+        if (el) el.value = (el.id === "matchInnings") ? 0 : "";
+    });
+
+    // 2. Clear ALL Player A and Player B stats and checkboxes
+    // This finds every ID starting with pA_ or pB_ (Safeties, 8B, BR, E8, Coach, etc.)
+    document.querySelectorAll('[id^="pA_"], [id^="pB_"]').forEach(el => {
+        if (el.type === "checkbox") {
+            el.checked = false;
+        } else {
+            el.value = 0;
+        }
+    });
+
+    // 3. Reset Headers
+    const lwH = document.getElementById("lagWinnerHeader");
+    const llH = document.getElementById("lagLoserHeader");
+    lwH.textContent = "Lag Winner";
+    llH.textContent = "Lag Loser";
+    lwH.classList.remove("active");
+    llH.classList.remove("active");
+    lwH.style.visibility = "hidden";
+    llH.style.visibility = "hidden";
+
+    // 4. Reset UI Visibility to "Unlock" the sheet
+    document.getElementById("gamePlayArea").style.display = "none";
+    const toShow = ["team", "opponent", "weekDisplay", "dateDisplay", "teamRoster", "opponentRoster", "addPlayerBtn", "statusText"];
+    toShow.forEach(id => {
+        const el = document.getElementById(id);
+        if (el) el.style.display = "block";
+    });
+
+    const statusEl = document.getElementById("statusText");
+    if (statusEl) statusEl.textContent = "Tap a Player to Set Lag Winner";
+
+    // 5. Cleanup and Save
+    closeMasterModal();
+    saveNow(); 
+}
+
+function updateScoreUI() {
+    const hScore = document.getElementById("homeScore");
+    const aScore = document.getElementById("awayScore");
+    if (hScore && aScore) {
+        hScore.textContent = scores.home;
+        aScore.textContent = scores.away;
+    }
+}
+
+function changeStat(id, amount) {
+    const el = document.getElementById(id);
+    if (!el) return;
+    el.value = Math.max(0, (parseInt(el.value) || 0) + amount);    
+    if (id === 'pA_wins' || id === 'pB_wins' || id === 'pA_hc' || id === 'pB_hc') {
+        document.getElementById('pA_coach').checked = false;
+        document.getElementById('pB_coach').checked = false;
+        updateMatchWinner();
+    }
+    saveNow();
+}
+
+function updateMatchWinner() {
+    const aWins = parseInt(document.getElementById("pA_wins").value) || 0;
+    const bWins = parseInt(document.getElementById("pB_wins").value) || 0;
+    const aHC = parseInt(document.getElementById("pA_hc").value) || 0;
+    const bHC = parseInt(document.getElementById("pB_hc").value) || 0;
+    const winField = document.getElementById("matchWinner");
+    const subBtn = document.getElementById("submitMatch");
+
+    let winnerName = "";
+    if (aWins === aHC && aHC > 0) {
+        winnerName = document.getElementById("lagWinner").value;
+    } else if (bWins === bHC && bHC > 0) {
+        winnerName = document.getElementById("lagLoser").value;
+    }
+
+    winField.value = winnerName;
+    if (winnerName) {
+        subBtn.textContent = `Winner: ${winnerName} - Submit Match`;
+        subBtn.style.display = "inline-block";
+    } else {
+        subBtn.textContent = "Submit Match";
+        subBtn.style.display = "none";
+    }
+}
+
+function showHistory() {
+    const history = JSON.parse(localStorage.getItem("matchHistory")) || [];
+    let tableHtml = `<table style="width:100%; border-collapse: collapse; color: white; font-size: 14px;">
+        <thead><tr style="border-bottom: 2px solid #444;">
+            <th style="padding:8px; text-align:left;">Match</th>
+            <th style="padding:8px; text-align:center;">Result</th>
+            <th style="padding:8px; text-align:center;">Inn.</th>
+        </tr></thead><tbody>`;
+
+    if (history.length === 0) {
+        tableHtml += '<tr><td colspan="3" style="text-align:center; padding:20px;">No matches yet.</td></tr>';
+    } else {
+        tableHtml += history.map((m, index) => `
+            <tr style="border-bottom: 1px solid #333;">
+                <td style="padding:8px; text-align:left;"><div style="font-weight:bold; color:#1e90ff;">M${index + 1}</div><small>${m.lagWinner} vs ${m.lagLoser}</small></td>
+                <td style="padding:8px; text-align:center;">${m.pA.wins}-${m.pB.wins}<br><small style="color:#0f0;">${m.matchWinner}</small></td>
+                <td style="padding:8px; text-align:center;">${m.matchInnings}</td>
+            </tr>`).join("");
+    }
+    tableHtml += `</tbody></table>`;
+
+    showMasterModal("Match History", tableHtml, [
+        {
+            text: "Current Scores",
+            color: "#1e90ff",
+            action: "closeMasterModal(); showScoreBoard();"
+        }
+    ]);
+}
+function clearHistory() {
+    if(confirm("Clear all match history?")) {
+        executeClearHistory();
+    }
+}
+function executeClearHistory() {
+    localStorage.removeItem("matchHistory");
+    showHistory(); 
+}
+
+function saveNow() {
+    if (isLoading) return;
+    const data = {};
+    document.querySelectorAll("input[id], select[id], textarea[id]").forEach(el => {
+        data[el.id] = el.type === "checkbox" ? el.checked : el.value;
+    });
+    
+    data.mScores = scores; 
+    data.scoringTeam = localStorage.getItem("scoringTeamName") || "Unknown";
+    data.gameVisible = document.getElementById("gamePlayArea").style.display === "block";
+    data.lwH = document.getElementById("lagWinnerHeader").textContent;
+    data.llH = document.getElementById("lagLoserHeader").textContent;
+
+    localStorage.setItem(FORM_KEY, JSON.stringify(data));
+}
+
+function loadScoresheet() {
+    const raw = localStorage.getItem(FORM_KEY);
+    if (!raw || raw === "null") return;
+
+    try {
+        const data = JSON.parse(raw);
+        isLoading = true;
+
+        Object.keys(data).forEach(id => {
+            const el = document.getElementById(id);
+            if (el) {
+                if (el.type === "checkbox") el.checked = data[id] === true;
+                else el.value = data[id];
+            }
+        });
+
+        // REFRESH FIX: Restore the visible Header text and visibility
+        const lw = document.getElementById("lagWinner").value;
+        const ll = document.getElementById("lagLoser").value;
+        const lwH = document.getElementById("lagWinnerHeader");
+        const llH = document.getElementById("lagLoserHeader");
+
+        if (lw && lw !== "") {
+            lwH.textContent = lw;
+            lwH.style.visibility = "visible";
+            lwH.classList.add("active");
+        }
+        if (ll && ll !== "") {
+            llH.textContent = ll;
+            llH.style.visibility = "visible";
+            llH.classList.add("active");
+        }
+
+        if (data.gameVisible === true) {
+            document.getElementById("gamePlayArea").style.display = "block";
+            const toHide = ["team", "opponent", "weekDisplay", "dateDisplay", "teamRoster", "opponentRoster", "addPlayerBtn", "statusText"];
+            toHide.forEach(id => {
+                const el = document.getElementById(id);
+                if (el) el.style.display = "none";
+            });
+        }
+
+        if (data.mScores) scores = data.mScores;
+        updateRoster(document.getElementById("team"), document.getElementById("teamRoster"));
+        updateRoster(document.getElementById("opponent"), document.getElementById("opponentRoster"));
+        updateScoreUI();
+        
+        isLoading = false;
+    } catch (e) {
+        console.error("Load failed:", e);
+    }
+}
+
+document.getElementById("submitMatch").onclick = async function() {
+    const btn = this;
+    const loader = document.getElementById("loadingOverlay");
+    btn.disabled = true;
+    loader.style.display = "flex";
+
+    const data = {
+        scoringTeam: localStorage.getItem("scoringTeamName") || "Unknown",
+        team: document.getElementById("team").value,
+        opponent: document.getElementById("opponent").value,
+        lagWinner: document.getElementById("lagWinner").value,
+        lagLoser: document.getElementById("lagLoser").value,
+        matchInnings: document.getElementById("matchInnings").value,
+        pA: {
+            handicap: document.getElementById("pA_hc").value,
+            wins: document.getElementById("pA_wins").value,
+            safeties: document.getElementById("pA_safeties").value,
+            b8: document.getElementById("pA_b8").value,
+            br: document.getElementById("pA_br").value,
+            e8: document.getElementById("pA_e8").value
+        },
+        pB: {
+            handicap: document.getElementById("pB_hc").value,
+            wins: document.getElementById("pB_wins").value,
+            safeties: document.getElementById("pB_safeties").value,
+            b8: document.getElementById("pB_b8").value,
+            br: document.getElementById("pB_br").value,
+            e8: document.getElementById("pB_e8").value
+        },
+        matchWinner: document.getElementById("matchWinner").value,
+        matchNotes: document.getElementById("matchNotes").value,
+        announcement: "" 
+    };
+
+    const statMap = [
+        { idKey: "b8", fileKey: "8 on Break" },
+        { idKey: "br", fileKey: "Break and Run" },
+        { idKey: "mini", fileKey: "Mini-Slam" },
+        { idKey: "rack", fileKey: "Rackless" },
+        { idKey: "und", fileKey: "Undefeated" }
+    ];
+
+    let newLeadsFound = [];
+    const playersToCheck = [
+        { name: data.lagWinner, stats: data.pA, opponentWins: data.pB.wins },
+        { name: data.lagLoser, stats: data.pB, opponentWins: data.pA.wins }
+    ];
+
+playersToCheck.forEach(player => {
+        const record = playerData.find(p => p["Player Name"] === player.name);
+        if (!record) return;
+
+        // --- WIN STREAK LOGIC ---
+        const isWinner = (data.matchWinner === player.name);
+        if (isWinner) {
+            record["Current Win Streak"] = (parseInt(record["Current Win Streak"]) || 0) + 1;
+            
+            if (record["Current Win Streak"] >= 5) {
+                newLeadsFound.push(`🔥 ${player.name.toUpperCase()} Win Streak Increaes to ${record["Current Win Streak"]}🔥`);
+            }
+            
+            if (record["Current Win Streak"] > (parseInt(record["Longest Win Streak"]) || 0)) {
+                record["Longest Win Streak"] = record["Current Win Streak"];
+            }
+        } else {
+            record["Current Win Streak"] = 0;
+        }
+
+        statMap.forEach(stat => {
+            let addedValue = 0;
+            if (stat.idKey === "b8" || stat.idKey === "br") addedValue = parseInt(player.stats[stat.idKey]) || 0;
+            if (stat.idKey === "mini") {
+                if ((parseInt(player.stats.b8) || 0) > 0 && (parseInt(player.stats.br) || 0) > 0) addedValue = 1;
+            }
+            if ((stat.idKey === "rack" || stat.idKey === "und")) {
+                if ((parseInt(player.stats.wins) || 0) > 0 && (parseInt(player.opponentWins) || 0) === 0) addedValue = 1;
+            }
+
+            if (addedValue <= 0) return;
+
+            const barToBeat = targetScores[stat.fileKey] || 0;
+            const playerOldScore = parseFloat(String(record[stat.fileKey]).replace('%', '')) || 0;
+            const newTotal = playerOldScore + addedValue;
+            const blastKey = `blast_${player.name}_${stat.idKey}_${newTotal}`;
+
+            if (newTotal > barToBeat && playerOldScore < barToBeat && !localStorage.getItem(blastKey)) {
+                newLeadsFound.push(`${player.name} takes the lead in ${stat.fileKey} with ${newTotal}`);
+                localStorage.setItem(blastKey, "true");
+                targetScores[stat.fileKey] = newTotal;
+            }
+        });
+    });
+
+    // Send Ticker Blast
+    if (newLeadsFound.length > 0) {
+        // Checks if only a streak blast exists to remove the "Leader" prefix
+        let containsStreak = newLeadsFound.some(msg => msg.includes("WIN STREAK!"));
+        let containsLeader = newLeadsFound.some(msg => msg.includes("takes the lead"));
+
+        let msg = "";
+        if (containsLeader) {
+            msg = "*** 🏆 NEW LIFETIME LEAGUE LEADER: " + newLeadsFound.join(" | ") + " ***";
+        } else {
+            msg = newLeadsFound.join(" | ");
+        }
+// --- CALCULATE SCRATCH ALLOWANCES ---
+const scratchData = [
+    { name: data.lagWinner, wins: parseInt(data.pA.wins), isWinner: (data.matchWinner === data.lagWinner) },
+    { name: data.lagLoser, wins: parseInt(data.pB.wins), isWinner: (data.matchWinner === data.lagLoser) }
+].map(p => {
+    let scratches = 5; // Baseline
+    if (p.wins > 0) scratches += 1; // At least 1 game won
+    if (p.isWinner) scratches += 1; // Match won
+    return { name: p.name, count: scratches };
+});
+
+// Send Scratch Allowance to your Scratch-Off App Script
+// NOTE: Use your Scratch-Off SCRIPT_URL here
+fetch("https://script.google.com/macros/s/AKfycbyRjXuYcYphBNsoYk5rD1h8PP1Ae4uph5Z-FsR5XQzLvhNXXtsu-HMOnSUCcltgnB8q/exec", {
+    method: "POST",
+    mode: "no-cors",
+    body: JSON.stringify({ 
+        type: "ALLOWANCE_UPDATE", 
+        players: scratchData 
+    })
+});
+        await fetch("https://script.google.com/macros/s/AKfycbw-_XzGIquLxtryGY0CML2ouOZHkdr2N4ZWKqoIusUX7B4wkvCz76UAnnPjk6w5zUOdEQ/exec", {
+            method: "POST",
+            mode: "no-cors",
+            body: JSON.stringify({ announcement: msg })
+        });
+    }
+
+    // Submit Match Data
+    fetch("https://script.google.com/macros/s/AKfycbyeGT6H-64w_m4IBkkZfFnRAzmA0NM3PnJQNqFHuiUQwqk2-Y-H7-ernNKKqC95NyXH/exec", {
+        method: "POST",
+        mode: "no-cors", 
+        body: JSON.stringify(data)
+    })
+    .then(() => {
+        loader.style.display = "none"; 
+        
+        const history = JSON.parse(localStorage.getItem("matchHistory")) || [];
+        history.push(data); 
+        localStorage.setItem("matchHistory", JSON.stringify(history));
+
+        const winnerName = document.getElementById("matchWinner").value;
+        const homeTeamName = document.getElementById("team").value;
+        
+        if (winnerName && homeTeamName) {
+            const homeRoster = scoresheetinfo[homeTeamName] || [];
+            if (homeRoster.includes(winnerName)) scores.home++;
+            else scores.away++;
+        }
+
+        localStorage.setItem("teamMatchScores", JSON.stringify(scores));
+        updateScoreUI();
+
+        document.getElementById("gamePlayArea").style.display = "none";
+        ["team", "opponent", "weekDisplay", "dateDisplay", "teamRoster", "opponentRoster","addPlayerBtn","statusText"].forEach(id => {
+            const el = document.getElementById(id);
+            if (el) el.style.display = "block";
+        });
+
+        const fieldsToReset = ["lagWinner", "lagLoser", "matchInnings", "matchWinner", "pA_hc", "pA_wins", "pA_safeties", "pA_b8", "pA_br", "pA_e8", "pB_hc", "pB_wins", "pB_safeties", "pB_b8", "pB_br", "pB_e8"];
+        fieldsToReset.forEach(id => {
+            const el = document.getElementById(id);
+            if (el) el.value = (el.type === "number" || el.id.includes('_')) ? 0 : "";
+        });
+
+        const lwH = document.getElementById("lagWinnerHeader");
+        const llH = document.getElementById("lagLoserHeader");
+        lwH.textContent = "Lag Winner";
+        llH.textContent = "Lag Loser";
+        lwH.classList.remove("active");
+        llH.classList.remove("active");
+        lwH.style.visibility = "hidden";
+        llH.style.visibility = "hidden";
+        
+        btn.textContent = "Submit Match";
+        document.getElementById("matchNotes").value = "-";
+        document.getElementById('pA_coach').checked = false;
+        document.getElementById('pB_coach').checked = false;
+
+        if ((scores.home + scores.away) >= 5) {
+            const hName = document.getElementById("team").value;
+            const aName = document.getElementById("opponent").value;
+            let winnerTeamText = (scores.home > scores.away) ? `${hName} Wins ${scores.home}-${scores.away}` : `${aName} Wins ${scores.away}-${scores.home}`;
+            showMasterModal("Match Night Complete", `<div style="text-align:center; font-size:22px; padding:20px;"><span style="color:gold; font-weight:bold;">${winnerTeamText}</span></div>`, []);
+            scores = { home: 0, away: 0 };
+            localStorage.setItem("teamMatchScores", JSON.stringify(scores));
+            updateScoreUI();
+        }
+
+        btn.style.display = "none";
+        btn.disabled = false;
+        saveNow();
+    });
+};
+function findMatchup(teamNumber) {
+    if (typeof scheduleData === 'undefined') return null;
+    const today = new Date();
+    const cutoff = new Date(today);
+    cutoff.setDate(cutoff.getDate() - 2);
+    const activeWeek = scheduleData.find(row => row.date && new Date(row.date) >= cutoff) || scheduleData[scheduleData.length - 1];
+
+    for (let i = 1; i <= 5; i++) {
+        const match = activeWeek["m" + i];
+        if (!match) continue;
+        const teamsPart = match.split('(')[0]; 
+        const teams = teamsPart.split('v'); 
+        const home = teams[0].trim();
+        const away = teams[1].trim();
+        if (home == teamNumber || away == teamNumber) return { home: home, away: away };
+    }
+    return null;
+}
+
+function updateCurrentWeekAndDate() {
+    if (typeof scheduleData === 'undefined') return;
+    const today = new Date();
+    const cutoff = new Date(today);
+    cutoff.setDate(cutoff.getDate() - 2);
+    let activeWeek = scheduleData.find(row => row.date && new Date(row.date) >= cutoff) || scheduleData[scheduleData.length - 1];
+    document.getElementById("weekDisplay").textContent = "-Week " + activeWeek.week + "-";
+    document.getElementById("dateDisplay").textContent = " " + activeWeek.date;
+    // REMOVED checkInitialSelection() from here to prevent double-firing
+}
+
+function setScoringTeam(myNum) {
+    const matchup = findMatchup(myNum); 
+    
+    if (!matchup) {
+        console.error("Matchup not found for team number:", myNum);
+        return;
+    }
+
+    // Convert strings from schedule to Numbers for your lookup function
+    const userTeamName = getTeamNameByNumber(Number(myNum));
+    const homeName = getTeamNameByNumber(Number(matchup.home));
+    const awayName = getTeamNameByNumber(Number(matchup.away));
+
+    const homeSelect = document.getElementById("team");
+    const awaySelect = document.getElementById("opponent");
+
+    // This log will tell you exactly why the next 'if' passes or fails
+    console.log(`Setting Matchup: Home(${homeName}) Away(${awayName})`);
+
+    if (homeName && awayName) {
+        homeSelect.value = homeName;
+        awaySelect.value = awayName;
+        
+        localStorage.setItem("scoringTeamName", userTeamName); 
+        
+        homeSelect.dispatchEvent(new Event('change'));
+        awaySelect.dispatchEvent(new Event('change'));
+        
+        closeMasterModal();
+        saveNow(); 
+    } else {
+        console.error("Lookup failed. Check if team numbers match your Master List.");
+    }
+}
+function addNewPlayerManual() {
+    const homeName = document.getElementById("team").value || "Home Team";
+    const awayName = document.getElementById("opponent").value || "Away Team";
+    const bodyHtml = `
+        <div style="align-self: flex-start; margin-top: 20px; width: 100%;">
+            <input type="text" id="manualPlayerName" placeholder="Enter Player Name" 
+                   style="width:100%; padding:12px; font-size:18px; margin-bottom:20px; border-radius:6px; border:1px solid #444; background:#111; color:white; box-sizing: border-box;">
+            <div style="margin-bottom: 5px; color:white; font-size:18px; display: flex; flex-direction: column; gap: 15px; align-items: flex-start; padding-left: 10px;">
+                <label><input type="radio" name="npTeam" value="home" checked style="transform: scale(1.3); margin-right:10px;"> ${homeName}</label>
+                <label><input type="radio" name="npTeam" value="away" style="transform: scale(1.3); margin-right:10px;"> ${awayName}</label>
+            </div>
+        </div>`;
+
+    showMasterModal("Add to Roster", bodyHtml, [{ text: "Add to Roster", action: "confirmNewPlayer()", color: "#1e90ff" }]);
+    const container = document.querySelector(".modal-container");
+    if (container) {
+        container.parentElement.style.alignItems = "flex-start";
+        container.parentElement.style.paddingTop = "20px";
+    }
+    setTimeout(() => { 
+        const inp = document.getElementById("manualPlayerName"); 
+        if(inp) inp.focus(); 
+    }, 100);
+}
+function exportScoresheet() {
+    const rawData = localStorage.getItem(FORM_KEY);
+    if (!rawData) return alert("No data to transfer.");
+    
+    const data = JSON.parse(rawData);
+    
+    // 1. Strip the heavy HTML to keep the URL short
+    delete data.teamRoster;
+    delete data.opponentRoster;
+
+    // 2. Attach Match History to the same object
+    const history = localStorage.getItem("matchHistory");
+    data.hdata = history ? JSON.parse(history) : [];
+
+    const baseUrl = window.location.href.split('?')[0];
+    const fullUrl = `${baseUrl}?data=${encodeURIComponent(JSON.stringify(data))}`;
+    
+    const bodyHtml = `
+        <div style="text-align:center;">
+            <p style="margin-bottom:15px; font-size:14px; color:#fff;">Scan to sync Scoresheet & History.</p>
+            <div id="qrcode" style="display:flex; justify-content:center; padding:10px; background:#fff; border-radius:8px; width:fit-content; margin: 0 auto;"></div>
+        </div>
+    `;
+    
+    showMasterModal("Full Sync Transfer", bodyHtml);
+    
+    setTimeout(() => {
+        const qrContainer = document.getElementById('qrcode');
+        if (qrContainer) {
+            new QRCode(qrContainer, { 
+                text: fullUrl, 
+                width: 230, 
+                height: 230, 
+                correctLevel: QRCode.CorrectLevel.L 
+            });
+        }
+    }, 50);
+}
+
+function confirmNewPlayer() {
+    const nameInput = document.getElementById("manualPlayerName");
+    const newName = nameInput ? nameInput.value.trim() : "";
+    if (!newName) return;
+    const side = document.querySelector('input[name="npTeam"]:checked').value;
+    const teamDropdown = document.getElementById(side === 'home' ? "team" : "opponent");
+    const teamName = teamDropdown.value;
+    if (!scoresheetinfo[teamName]) scoresheetinfo[teamName] = [];
+    if (!scoresheetinfo[teamName].some(p => p.toLowerCase() === newName.toLowerCase())) {
+        scoresheetinfo[teamName].push(newName);
+        localStorage.setItem("manual_roster_additions", JSON.stringify(scoresheetinfo));
+        updateRoster(teamDropdown, document.getElementById(side === 'home' ? "teamRoster" : "opponentRoster"));
+    }
+    saveNow();
+    closeMasterModal();
+}
+     function toggleNotes() { const box = document.getElementById("notesContainer"); box.style.display = box.style.display === "none" ? "block" : "none"; }
+   let timerInterval, seconds = 0;
+
+function startTimer() {
+    seconds = 0;
+    // 1. Immediately update the text to 0 so you don't see the old time
+    document.getElementById("timerValue").textContent = "0";
+    
+    // 2. Show the box
+    document.getElementById("timerBox").style.display = "block";
+    
+    // 3. Clear any existing interval to prevent "double-speed" ticking
+    clearInterval(timerInterval);
+    
+    // 4. Start the new count
+    timerInterval = setInterval(() => { 
+        seconds++; 
+        document.getElementById("timerValue").textContent = seconds; 
+    }, 1000);
+}
+function closeTimer() { clearInterval(timerInterval); document.getElementById("timerBox").style.display = "none"; }
+function updateTimerDisplay() {
+    const mins = Math.floor(seconds / 60);
+    const secs = seconds % 60;
+    document.getElementById("timerValue").textContent = `${mins}:${secs < 10 ? '0' + secs : secs}`;
+}
+    // --- CONNECTION TEST TICKER ENGINE ---
+(function injectTicker() {
+    // 1. Inject Ticker Styles
+    const style = document.createElement('style');
+    style.textContent = `
+        #ticker-container {
+            display: none; position: fixed; top: 0; left: 0; width: 100%;
+            background: #c00; color: #fff; padding: 10px 0; font-weight: bold;
+            z-index: 200000; overflow: hidden; white-space: nowrap;
+            border-bottom: 2px solid gold; box-shadow: 0 4px 10px rgba(0,0,0,0.5);
+        }
+        #ticker-text { display: inline-block; padding-left: 100%; animation: ticker-kb 25s linear infinite; }
+        @keyframes ticker-kb { 0% { transform: translateX(0); } 100% { transform: translateX(-100%); } }
+    `;
+    document.head.appendChild(style);
+
+    // 2. Inject Ticker HTML
+    const tickerWrap = document.createElement('div');
+    tickerWrap.id = 'ticker-container';
+    tickerWrap.innerHTML = '<div id="ticker-text"></div>';
+    document.body.prepend(tickerWrap);
+})();
+
+let tickerQueue = [];
+let isTickerRunning = false;
+
+function showTicker(msg) {
+    // 1. Add the incoming message to our list
+    tickerQueue.push(msg);
+    
+    // 2. If nothing is currently playing, start the cycle
+    if (!isTickerRunning) {
+        processNextMessage();
+    }
+}
+
+function processNextMessage() {
+    const container = document.getElementById('ticker-container');
+    const textEl = document.getElementById('ticker-text');
+
+    // If we've run out of messages, stop and hide the container
+    if (tickerQueue.length === 0) {
+        isTickerRunning = false;
+        if (container) container.style.display = 'none';
+        return;
+    }
+
+    // Lock the ticker so other calls don't interrupt
+    isTickerRunning = true;
+
+    // Get the first message in the queue
+    const currentMsg = tickerQueue.shift();
+
+    if (container && textEl) {
+        textEl.textContent = currentMsg;
+        container.style.display = 'block';
+
+        // Wait 25 seconds for the message to scroll
+        setTimeout(() => {
+            // Momentarily hide to provide a "reset" visual between messages
+            container.style.display = 'none';
+
+            // Wait 1 second of "darkness" before starting the next message
+            setTimeout(processNextMessage, 1000);
+            
+        }, 25000); 
+    }
+}
+
+// Load previously seen feats from this session
+let announcedFeats = JSON.parse(localStorage.getItem("announcedFeats")) || [];
+
+async function checkForFeats() {
+    const csvUrl = "https://docs.google.com/spreadsheets/d/e/2PACX-1vS_k0GqoHgGfyxHgIX-8tjbspkJ_ncZBSRCEdqf7lrfCYRFQVH3GUwxvqYGETT-ST0jswQ94V4DXsaH/pub?output=csv";
+    
+    // Get today's date in M/D/YYYY format to match Google Sheets default
+    const today = new Date();
+    const todayString = `${today.getMonth() + 1}/${today.getDate()}/${today.getFullYear()}`;
+
+    try {
+        const response = await fetch(csvUrl + "&cachebust=" + Date.now());
+        const data = await response.text();
+        const rows = data.split(/\r?\n/).filter(r => r.trim() !== "").slice(1); 
+        
+        let newFeatsFound = [];
+
+        for (let i = 0; i < rows.length; i++) {
+            const cols = rows[i].split(/,(?=(?:(?:[^"]*"){2})*[^"]*$)/);
+            
+            // 1. CHECK THE DATE (Column A = Index 0)
+            const rowDate = cols[0] ? cols[0].trim() : "";
+            if (!rowDate.startsWith(todayString)) {
+                continue; // Skip this row if it's not from today
+            }
+
+            // 2. GET NAMES (Column D = Index 3, Column E = Index 4)
+            const pAName = cols[3] ? cols[3].replace(/"/g, "").trim() : "";
+            if (!pAName) break; 
+
+            const checkFeat = (playerName, featType, val) => {
+                const numericVal = parseInt(val);
+                if (isNaN(numericVal) || numericVal <= 0) return;
+                
+                const featID = `${playerName}-${featType}`;
+                if (!announcedFeats.includes(featID)) {
+                    newFeatsFound.push(`${playerName} ${featType}!`);
+                    announcedFeats.push(featID);
+                }
+            };
+
+            // 3. CHECK FEATS
+            
+            // --- PLAYER A LOGIC ---
+            checkFeat(pAName, "8-on-Break", cols[9]);
+            checkFeat(pAName, "Break & Run", cols[10]);
+
+            // Mini-Slam Player A (Both 8B and BR > 0)
+            if (parseInt(cols[9]) > 0 && parseInt(cols[10]) > 0) {
+                checkFeat(pAName, "Mini-Slam", 1);
+            }
+
+            // Rackless Player A (Only if Player B Score in Col I/Index 8 is 0)
+            if (parseInt(cols[13]) === 0) {
+                checkFeat(pAName, "Rackless/Undefeated", 1);
+            }
+
+            // --- PLAYER B LOGIC ---
+            if (cols.length >= 17) {
+                const pBName = cols[4] ? cols[4].replace(/"/g, "").trim() : "";
+                if (pBName) {
+                    checkFeat(pBName, "8-on-Break", cols[15]);
+                    checkFeat(pBName, "Break & Run", cols[16]);
+
+                    // Mini-Slam Player B (Both 8B and BR > 0)
+                    if (parseInt(cols[15]) > 0 && parseInt(cols[16]) > 0) {
+                        checkFeat(pBName, "Mini-Slam", 1);
+                    }
+                    // Undefeated Player B 
+            if (parseInt(cols[7]) === 0) {
+                checkFeat(pBName, "Undefeated", 1);
+            }
+                }
+            }
+        }
+
+        if (newFeatsFound.length > 0) {
+            showTicker("*** Congratulations " + newFeatsFound.join(" - ") + " ***");
+            localStorage.setItem("announcedFeats", JSON.stringify(announcedFeats));
+        }
+        
+    } catch (err) {
+        console.warn("Ticker update skipped:", err);
+    }
+}
+    // 1. Kick off the first check 3 seconds after the page loads
+setTimeout(checkForFeats, 3000);
+
+// 2. Set it to run automatically every 60 seconds
+setInterval(checkForFeats, 60000);
+    // 1. INJECT STYLES AND HTML (Button and Box)
+// 1. STYLES ONLY (Box is hidden by default)
+const scoreboardStyle = document.createElement('style');
+scoreboardStyle.textContent = `
+    #score-board {
+        display: none; position: fixed; top: 50%; left: 50%;
+        transform: translate(-50%, -50%); width: 90%; max-width: 450px;
+        background: #111; color: #fff; border: 3px solid gold;
+        padding: 20px; z-index: 10001; max-height: 80vh; overflow-y: auto;
+        box-shadow: 0 0 30px rgba(0,0,0,0.9); text-align: center;
+        font-family: sans-serif;
+    }
+    .score-row { border-bottom: 1px solid #333; padding: 8px 0; font-size: 14px; }
+    .score-close { margin-top: 20px; color: gold; cursor: pointer; font-weight: bold; text-decoration: underline; }
+    .team-table { width: 100%; border-collapse: collapse; margin-bottom: 20px; }
+    .team-table th { border-bottom: 2px solid gold; color: gold; padding: 10px; }
+    .team-table td { padding: 8px; border-bottom: 1px solid #333; }
+`;
+document.head.appendChild(scoreboardStyle);
+
+// Create the container but keep it hidden
+const boardContainer = document.createElement('div');
+boardContainer.id = 'score-board';
+document.body.appendChild(boardContainer);
+
+// 2. THE LOGIC
+async function showScoreBoard() {
+    const board = document.getElementById('score-board');
+    const csvUrl = "https://docs.google.com/spreadsheets/d/e/2PACX-1vS_k0GqoHgGfyxHgIX-8tjbspkJ_ncZBSRCEdqf7lrfCYRFQVH3GUwxvqYGETT-ST0jswQ94V4DXsaH/pub?output=csv";
+    
+    const today = new Date();
+    const todayString = `${today.getMonth() + 1}/${today.getDate()}/${today.getFullYear()}`;
+
+    board.innerHTML = '<h3 style="color:gold;">FETCHING LIVE SCORES...</h3>';
+    board.style.display = 'block';
+
+    try {
+        const response = await fetch(csvUrl + "&cachebust=" + Date.now());
+        const data = await response.text();
+        const rows = data.split(/\r?\n/).filter(r => r.trim() !== "").slice(1);
+        
+        let teamWins = {}; 
+        let uniqueMatches = new Map(); // Key: sorted player names, Value: row data
+        
+        Object.keys(scoresheetinfo).forEach(team => teamWins[team] = 0);
+
+        for (let i = 0; i < rows.length; i++) {
+            const cols = rows[i].split(/,(?=(?:(?:[^"]*"){2})*[^"]*$)/);
+            if (cols[0] && cols[0].trim().startsWith(todayString)) {
+                
+                const pAName = cols[3]?.replace(/"/g, "").trim();
+                const pBName = cols[4]?.replace(/"/g, "").trim();
+                if (!pAName || !pBName) continue;
+
+                // Create a unique ID for the match (Sort names so A-vs-B is same as B-vs-A)
+                const matchID = [pAName, pBName].sort().join("|");
+
+                // Only store the match if we haven't seen it, or if this entry has a winner
+                // This handles the "one team submitted, one didn't" or "both submitted" logic
+                if (!uniqueMatches.has(matchID) || cols[18]) {
+                    uniqueMatches.set(matchID, cols);
+                }
+            }
+        }
+
+        let matchDetailsHTML = '<h4 style="color:gold; margin-top:20px;">INDIVIDUAL MATCHES</h4>';
+        
+        // Process the UNIQUE matches only
+        uniqueMatches.forEach((cols) => {
+            const pAName = cols[3]?.replace(/"/g, "").trim();
+            const pBName = cols[4]?.replace(/"/g, "").trim();
+            const pAScore = cols[7] || 0;
+            const pBScore = cols[13] || 0;
+            const winnerName = cols[18]?.replace(/"/g, "").trim();
+
+            // Tally Team Wins
+            if (winnerName) {
+                for (const [teamName, players] of Object.entries(scoresheetinfo)) {
+                    if (players.includes(winnerName)) {
+                        teamWins[teamName]++;
+                        break; 
+                    }
+                }
+            }
+            matchDetailsHTML += `<div class="score-row">${pAName} ${pAScore} - ${pBScore} ${pBName}</div>`;
+        });
+
+        // Build Table (Same as before)
+        let teamHTML = '<h3>TONIGHT\'S STANDINGS</h3><table class="team-table">';
+        teamHTML += '<tr><th style="text-align:left;">Team Name</th><th>Wins</th></tr>';
+        
+        Object.entries(teamWins)
+            .sort((a, b) => b[1] - a[1]) 
+            .forEach(([team, wins]) => {
+                if (wins > 0) {
+                    teamHTML += `<tr><td style="text-align:left;">${team}</td><td><strong>${wins}</strong></td></tr>`;
+                }
+            });
+        teamHTML += '</table>';
+
+        board.innerHTML = uniqueMatches.size === 0 
+            ? '<h3>No matches recorded today.</h3><div class="score-close" onclick="this.parentElement.style.display=\'none\'">[ CLOSE ]</div>'
+            : teamHTML + matchDetailsHTML + '<div class="score-close" onclick="this.parentElement.style.display=\'none\'">[ CLOSE ]</div>';
+
+    } catch (err) {
+        board.innerHTML = '<h3 style="color:red;">Error loading scores.</h3>';
+    }
+}
+    // --- ADMIN & PERSISTENCE LOGIC ---
+// --- LEAGUE-WIDE BROADCASTER LOGIC (Cell A1) ---
+const TICKER_SYNC_URL = "https://script.google.com/macros/s/AKfycbw-_XzGIquLxtryGY0CML2ouOZHkdr2N4ZWKqoIusUX7B4wkvCz76UAnnPjk6w5zUOdEQ/exec";
+let adminClicks = 0;
+let adminTimer;
+
+// 1. Triple-tap Week Display to toggle the Admin Panel
+function secretHandshake() {
+    adminClicks++;
+    clearTimeout(adminTimer);
+    adminTimer = setTimeout(() => { adminClicks = 0; }, 500);
+
+    if (adminClicks === 3) {
+        const panel = document.getElementById('admin-panel');
+        panel.style.display = (panel.style.display === 'none') ? 'block' : 'none';
+        adminClicks = 0;
+        if (navigator.vibrate) navigator.vibrate(40);
+    }
+}
+
+// 2. The "SHOUT": Send text from your phone to Google A1
+function postAdminTicker() {
+    const input = document.getElementById('adminTickerInput');
+    const msg = input.value.trim();
+    if (!msg) return;
+
+    // This adds your prefix to the message before sending it to Google
+    const formattedMsg = `*** League Announcement *** ${msg} .`;
+
+    fetch("https://script.google.com/macros/s/AKfycbw-_XzGIquLxtryGY0CML2ouOZHkdr2N4ZWKqoIusUX7B4wkvCz76UAnnPjk6w5zUOdEQ/exec", {
+        method: "POST",
+        mode: "no-cors", 
+        body: JSON.stringify({ action: "setAnnouncement", message: formattedMsg })
+    }).then(() => {
+        alert("League-Wide Broadcast Sent!");
+        input.value = "";
+    });
+}
+
+// 3. The "LISTEN": All phones check A1 every 60 seconds
+async function syncLeagueBroadcast() {
+    try {
+        const response = await fetch("https://script.google.com/macros/s/AKfycbw-_XzGIquLxtryGY0CML2ouOZHkdr2N4ZWKqoIusUX7B4wkvCz76UAnnPjk6w5zUOdEQ/exec");
+        const text = await response.text();
+        const cleanMsg = text.trim();
+
+        // 1. Check the phone's memory
+        const lastSavedMsg = localStorage.getItem('lastSeenBroadcast');
+
+        // 2. Only trigger if message is new and doesn't match memory
+        if (cleanMsg && cleanMsg !== "" && cleanMsg !== "-" && cleanMsg !== lastSavedMsg) {
+            
+            showTicker(cleanMsg); 
+
+            // 3. Save it to memory immediately
+            localStorage.setItem('lastSeenBroadcast', cleanMsg);
+        }
+    } catch (err) {
+        console.warn("Broadcast sync failed:", err);
+    }
+}
+// Initialize Ticker Sync
+setInterval(syncLeagueBroadcast, 60000); // Check every minute
+setTimeout(syncLeagueBroadcast, 2000);   // Check once shortly after load
+
+function clearTicker() {
+    document.getElementById('ticker-container').style.display = 'none';
+}
+// 1. Set the URL of your Google Script (the one with the doGet function)
+const SCRIPT_URL = "https://script.google.com/macros/s/AKfycbw-_XzGIquLxtryGY0CML2ouOZHkdr2N4ZWKqoIusUX7B4wkvCz76UAnnPjk6w5zUOdEQ/exec";
+
+let lastG1Value = ""; 
+
+async function watchG1() {
+    try {
+        const response = await fetch(`https://script.google.com/macros/s/AKfycbw-_XzGIquLxtryGY0CML2ouOZHkdr2N4ZWKqoIusUX7B4wkvCz76UAnnPjk6w5zUOdEQ/exec?type=leaders&cb=${Date.now()}`);
+        const currentText = (await response.text()).trim();
+
+        // 1. Pull the persistent memory from the phone's storage
+        const lastSeenG1 = localStorage.getItem("lastSeenG1Value");
+
+        // 2. Only trigger if there's a message AND it's not what we saw last
+        if (currentText && currentText !== "" && currentText !== "-" && currentText !== lastSeenG1) {
+            
+            if (typeof showTicker === "function") {
+                showTicker(currentText);
+            }
+
+            // 3. Save to persistent memory immediately
+            localStorage.setItem("lastSeenG1Value", currentText);
+        }
+    } catch (err) {
+        console.error("G1 Watcher Error:", err);
+    }
+}
+
+// Check every 30 seconds
+setInterval(watchG1, 30000);
+// Initial check on load
+watchG1();
+// --- REFRESH CHECK (Run on Load) ---
+
+</script>
+</div>
+</div>
+    <div id="masterModal" class="modal-overlay" style="display:none;"></div>
+<div id="admin-panel" style="display: none; padding: 15px; background: #111; border: 1px solid gold; border-radius: 8px; margin: 20px 10px;">
+    <div style="color: gold; font-weight: bold; margin-bottom: 10px; font-size: 14px;">LEAGUE MANAGER CONSOLE</div>
+    <input type="text" id="adminTickerInput" placeholder="Enter announcement..." style="width: 100%; padding: 12px; margin-bottom: 10px; border-radius: 4px; border: 1px solid #555; background: #222; color: #fff; box-sizing: border-box;">
+    <div style="display: flex; gap: 10px;">
+        <button onclick="postAdminTicker()" style="flex: 1; padding: 12px; background: #c00; color: #fff; font-weight: bold; border: none; border-radius: 4px;">POST</button>
+        <button onclick="clearTicker()" style="flex: 1; padding: 12px; background: #444; color: #fff; border: none; border-radius: 4px;">CLEAR</button>
+    </div>
+</div>
+</body>
+</html>
