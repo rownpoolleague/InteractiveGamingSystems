@@ -1,0 +1,254 @@
+<!DOCTYPE html>
+<html>
+<head>
+<meta charset="UTF-8">
+
+<!-- CRITICAL: Fixes mobile scaling -->
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+
+<title>League News</title>
+
+<style>
+    body {
+        font-family: Arial, sans-serif;
+        background: #111;
+        color: #eee;
+        margin: 0;
+        padding: 0;
+    }
+
+    header {
+        background: #000;
+        padding: 24px;
+        text-align: center;
+        font-size: 32px;
+        font-weight: bold;
+        border-bottom: 2px solid #1e90ff;
+        letter-spacing: 1px;
+    }
+
+    .section-title {
+        font-size: 24px;
+        margin: 25px 15px 10px 15px;
+        border-left: 5px solid #1e90ff;
+        padding-left: 12px;
+    }
+
+    .news-box {
+        background: #1b1b1b;
+        margin: 15px;
+        padding: 18px;
+        border-radius: 10px;
+        border: 1px solid #333;
+    }
+
+    .news-item {
+        margin-bottom: 22px;
+        padding-bottom: 14px;
+        border-bottom: 1px solid #333;
+    }
+
+    .news-item:last-child {
+        border-bottom: none;
+    }
+
+    .news-title {
+        font-size: 20px;
+        font-weight: bold;
+        color: #1e90ff;
+        margin-bottom: 6px;
+    }
+
+    .news-date {
+        font-size: 13px;
+        color: #aaa;
+        margin-bottom: 8px;
+    }
+
+    .news-body {
+        font-size: 17px;
+        line-height: 1.5;
+    }
+
+    .news-body img {
+        max-width: 100%;
+        border-radius: 6px;
+        margin-top: 12px;
+    }
+
+    .news-body iframe {
+        width: 100%;
+        height: 320px;
+        border: none;
+        margin-top: 12px;
+        border-radius: 6px;
+    }
+
+    .read-more {
+        display: inline-block;
+        margin-top: 12px;
+        padding: 8px 14px;
+        background: #1e90ff;
+        color: #fff;
+        border-radius: 6px;
+        text-decoration: none;
+        font-size: 15px;
+    }
+
+    .read-more:hover {
+        background: #3aa0ff;
+    }
+
+    .back-button {
+        display: block;
+        margin: 40px auto;
+        padding: 10px 18px;
+        background-color: #1e90ff;
+        color: #fff;
+        border-radius: 6px;
+        text-decoration: none;
+        font-size: 24px;
+        text-align: center;
+        width: 260px;
+    }
+
+    /* Modal Viewer */
+    #modal {
+        display: none;
+        position: fixed;
+        top: 0; left: 0;
+        width: 100%; height: 100%;
+        background: rgba(0,0,0,0.85);
+        z-index: 9999;
+        padding: 10px;
+        overflow-y: auto;
+    }
+
+    #modal-content {
+        background: #1b1b1b;
+        padding: 20px;
+        border-radius: 10px;
+        max-width: 95%;
+        margin: auto;
+        color: #eee;
+    }
+
+    #modal-close {
+        background: #1e90ff;
+        padding: 10px 16px;
+        border-radius: 6px;
+        color: #fff;
+        float: right;
+        cursor: pointer;
+        margin-bottom: 10px;
+        font-size: 16px;
+    }
+</style>
+</head>
+
+<body>
+
+<header>League News</header>
+
+<div class="section-title">R Own League Updates</div>
+<div class="news-box" id="leagueNews">
+
+    <div class="news-item">
+        <div class="news-title">League Franchises Available.</div>
+        <div class="news-date">2026-07-01</div>
+        <div class="news-body">
+            All inquiries contact support@interactivegamingsystems.app
+           </div>
+    </div>
+
+    <div class="news-item">
+        <div class="news-title">Your App, Your Rules, Your Branding</div>
+        <div class="news-date">2026-07-01</div>
+        <div class="news-body">
+            No other site offers what we do. This is a truly custom built to your rules branded installable phone application that will feed match data to your backend database automatically.
+          No more paperwork!
+        </div>
+    </div>
+
+</div>
+
+<div class="section-title">World Pool News</div>
+<div class="news-box" id="worldNews">Loading world pool news...</div>
+
+<a class="back-button" href="index.html">Main Menu</a>
+
+<!-- Modal Viewer -->
+<div id="modal">
+    <div id="modal-content">
+        <div id="modal-close">Close</div>
+        <div id="modal-body"></div>
+    </div>
+</div>
+
+<script>
+async function loadWorldNews() {
+    const feeds = [
+        "https://www.azbilliards.com/feed/",
+        "https://www.billiardsdigest.com/rss/index.xml",
+        "https://www.insidepoolmag.com/feed/"
+    ];
+
+    const container = document.getElementById("worldNews");
+    container.innerHTML = "Loading world pool news...";
+
+    try {
+        let allItems = [];
+
+        // Fetch each feed and merge results
+        for (const feed of feeds) {
+            const url = "https://api.rss2json.com/v1/api.json?rss_url=" + encodeURIComponent(feed);
+            const res = await fetch(url);
+            const data = await res.json();
+
+            if (data.items) {
+                allItems = allItems.concat(data.items);
+            }
+        }
+
+        // Sort newest first
+        allItems.sort((a, b) => new Date(b.pubDate) - new Date(a.pubDate));
+
+        // Display top 20 combined items
+        container.innerHTML = "";
+        allItems.slice(0, 20).forEach(item => {
+            const div = document.createElement("div");
+            div.className = "news-item";
+
+            div.innerHTML = `
+                <div class="news-title">${item.title}</div>
+                <div class="news-date">${item.pubDate}</div>
+                <div class="news-body">${item.description}</div>
+                <a class="read-more" onclick="openModal('${encodeURIComponent(item.link)}')">Open</a>
+            `;
+
+            container.appendChild(div);
+        });
+
+    } catch (err) {
+        container.innerHTML = "Unable to load world news.";
+    }
+}
+
+
+function openModal(url) {
+    const modal = document.getElementById("modal");
+    const body = document.getElementById("modal-body");
+
+    modal.style.display = "block";
+    body.innerHTML = `<iframe src="${decodeURIComponent(url)}" style="width:100%;height:80vh;border:none;"></iframe>`;
+}
+
+document.getElementById("modal-close").onclick = function() {
+    document.getElementById("modal").style.display = "none";
+};
+
+loadWorldNews();
+</script>
+
+</body>
+</html>
