@@ -4,9 +4,8 @@ const urlsToCache = [
   "/index.html",
   "/style.css",
   "/game.js",
-  "/icons/kwikord-192.png",
-  "/icons/kwikord-512.png"
-];
+  "/phtos/kwikord2.png",
+ ];
 
 self.addEventListener("install", event => {
   event.waitUntil(
