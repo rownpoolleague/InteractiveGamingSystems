@@ -250,11 +250,29 @@
                 cell.onclick = () => {
                     if (cell.dataset.locked === "true") return;
 
-                    if (cell.textContent) {
-                        cell.textContent = "";
-                        newPlacements = newPlacements.filter(p => !(p.row == r && p.col == c));
-                        return;
-                    }
+                if (cell.textContent) {
+
+    // Restore cleared letter back to the letter pool
+    const letter = cell.textContent;
+    const rowDiv = VOWELS.includes(letter)
+        ? document.getElementById("vowelRow")
+        : document.getElementById("consonantRow");
+
+    const div = document.createElement("div");
+    div.className = "letter";
+    div.textContent = letter;
+    div.onclick = () => selectLetter(div, letter);
+    rowDiv.appendChild(div);
+
+    // Clear the cell
+    cell.textContent = "";
+
+    // Remove from newPlacements
+    newPlacements = newPlacements.filter(p => !(p.row == r && p.col == c));
+
+    return;
+}
+
 
                if (selectedLetter) {
     cell.textContent = selectedLetter;
