@@ -194,19 +194,27 @@
                     (r === ROWS-1 && c === 0) || (r === ROWS-1 && c === COLS-1)) {
                     cell.classList.add("corner");
                 }
+cell.onclick = () => {
 
-                cell.onclick = () => {
-                    if (cell.textContent) {
-                        cell.textContent = "";
-                        newPlacements = newPlacements.filter(p => !(p.row == r && p.col == c));
-                        return;
-                    }
+    // If cell is locked, do nothing
+    if (cell.dataset.locked === "true") {
+        return;
+    }
 
-                    if (selectedLetter) {
-                        cell.textContent = selectedLetter;
-                        newPlacements.push({ row: r, col: c });
-                    }
-                };
+    // Clear cell if not locked
+    if (cell.textContent) {
+        cell.textContent = "";
+        newPlacements = newPlacements.filter(p => !(p.row == r && p.col == c));
+        return;
+    }
+
+    // Place new letter
+    if (selectedLetter) {
+        cell.textContent = selectedLetter;
+        newPlacements.push({ row: r, col: c });
+    }
+};
+
 
                 grid.appendChild(cell);
             }
