@@ -1,11 +1,12 @@
 const CACHE_NAME = "kwikord-cache-v1";
+
 const urlsToCache = [
-  "/",
-  "/index.html",
-  "/style.css",
-  "/game.js",
-  "/phtos/kwikord2.png",
- ];
+  "index.html",
+  "game.html",
+  "manifest.json",
+  "sw.js",
+  "photos/kwikord2.png"
+];
 
 self.addEventListener("install", event => {
   event.waitUntil(
