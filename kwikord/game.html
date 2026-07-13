@@ -105,6 +105,8 @@
 <button onclick="resetGame()">Clear Sheet</button>
 
 <script>
+    let currentUser = "mike"; // temporary until login page is built
+
     const ROWS = 8;
     const COLS = 7;
 
@@ -409,6 +411,7 @@ async function submitWord() {
 
     // Score = total words × multiplier
     totalScore = submittedWords.length * multiplier;
+sendScoreToServer(currentUser, totalScore);
 
     document.getElementById("score").textContent =
         "Words: " + submittedWords.length + " | Total Score: " + totalScore;
@@ -426,6 +429,32 @@ async function submitWord() {
 
     buildLetters();
     buildGrid();
+    async function sendScoreToServer(username, score) {
+    const url = "https://script.google.com/macros/s/AKfycby-Tr_htGg8czKorbiE6UKCgfUgIPpwpyXE1MKrBCTYu1EMLzD0LdeBIBfC1EzxDl8v/exec";
+
+    try {
+        const res = await fetch(url, {
+            method: "POST",
+            body: JSON.stringify({
+                action: "submitScore",
+                username: username,
+                score: score
+            })
+        });
+
+        const data = await res.json();
+
+        if (!data.ok) {
+            console.log("Score submission failed:", data);
+        } else {
+            console.log("Score submitted successfully");
+        }
+
+    } catch (err) {
+        console.log("Error sending score:", err);
+    }
+}
+
 </script>
 
 
