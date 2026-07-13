@@ -229,73 +229,83 @@
         return gridArray;
     }
 
-    function submitWord() {
-        if (newPlacements.length === 0) {
-            alert("Place letters to form a word first.");
-            return;
-        }
-
-        const grid = getGridArray();
-
-        const sameRow = newPlacements.every(p => p.row === newPlacements[0].row);
-        const sameCol = newPlacements.every(p => p.col === newPlacements[0].col);
-
-        if (!sameRow && !sameCol) {
-            alert("Letters must form a straight line.");
-            return;
-        }
-
-        let word = "";
-
-        if (sameRow) {
-            const row = newPlacements[0].row;
-            let cols = newPlacements.map(p => p.col).sort((a,b)=>a-b);
-
-            let c = cols[0];
-            while (c >= 0 && grid[row][c] !== "") c--;
-            c++;
-
-            while (c < COLS && grid[row][c] !== "") {
-                word += grid[row][c];
-                c++;
-            }
-        } else {
-            const col = newPlacements[0].col;
-            let rows = newPlacements.map(p => p.row).sort((a,b)=>a-b);
-
-            let r = rows[0];
-            while (r >= 0 && grid[r][col] !== "") r--;
-            r++;
-
-            while (r < ROWS && grid[r][col] !== "") {
-                word += grid[r][col];
-                r++;
-            }
-        }
-
-        if (!DICTIONARY.includes(word)) {
-            alert("Invalid word: " + word);
-            return;
-        }
-
-        if (submittedWords.includes(word)) {
-            alert("Word already submitted.");
-            return;
-        }
-
-        submittedWords.push(word);
-        totalScore += 1;
-
-        document.getElementById("score").textContent =
-            "Words: " + submittedWords.length + " | Total Score: " + totalScore;
-
-        alert("Valid word: " + word + "\nTotal Score: " + totalScore);
-
-        newPlacements = [];
+ function submitWord() {
+    if (newPlacements.length === 0) {
+        alert("Place letters to form a word first.");
+        return;
     }
 
-    buildLetters();
-    buildGrid();
+    const grid = getGridArray();
+
+    const sameRow = newPlacements.every(p => p.row === newPlacements[0].row);
+    const sameCol = newPlacements.every(p => p.col === newPlacements[0].col);
+
+    if (!sameRow && !sameCol) {
+        alert("Letters must form a straight line.");
+        return;
+    }
+
+    let word = "";
+
+    if (sameRow) {
+        const row = newPlacements[0].row;
+        let cols = newPlacements.map(p => p.col).sort((a,b)=>a-b);
+
+        let c = cols[0];
+
+        // FIX: your original logic overshot left boundary
+        while (c > 0 && grid[row][c - 1] !== "") {
+            c--;
+        }
+
+        // FIX: your original logic skipped the first letter
+        while (c < COLS && grid[row][c] !== "") {
+            word += grid[row][c];
+            c++;
+        }
+
+    } else {
+        const col = newPlacements[0].col;
+        let rows = newPlacements.map(p => p.row).sort((a,b)=>a-b);
+
+        let r = rows[0];
+
+        // FIX: same issue vertically
+        while (r > 0 && grid[r - 1][col] !== "") {
+            r--;
+        }
+
+        // FIX: same issue vertically
+        while (r < ROWS && grid[r][col] !== "") {
+            word += grid[r][col];
+            r++;
+        }
+    }
+
+    if (!DICTIONARY.includes(word)) {
+        alert("Invalid word: " + word);
+        return;
+    }
+
+    if (submittedWords.includes(word)) {
+        alert("Word already submitted.");
+        return;
+    }
+
+    submittedWords.push(word);
+    totalScore += 1;
+
+    document.getElementById("score").textContent =
+        "Words: " + submittedWords.length + " | Total Score: " + totalScore;
+
+    alert("Valid word: " + word + "\nTotal Score: " + totalScore);
+
+    newPlacements = [];
+}
+
+buildLetters();
+buildGrid();
+
 </script>
 
 </body>
