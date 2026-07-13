@@ -222,6 +222,7 @@ cell.onclick = () => {
     }
 
     function resetGame() {
+        document.querySelectorAll(".cell").forEach(c => c.dataset.locked = "false");
         buildLetters();
         buildGrid();
         selectedLetter = null;
@@ -326,6 +327,11 @@ let multiplier = Math.max(1, cornersFilled);
 
 // Add score
 submittedWords.push(word);
+// Lock all newly placed letters so they cannot be cleared
+newPlacements.forEach(p => {
+    const cell = document.querySelector(`.cell[data-row="${p.row}"][data-col="${p.col}"]`);
+    cell.dataset.locked = "true";
+});
 
 // Recalculate total score: words * corner multiplier
 let baseScore = submittedWords.length;
