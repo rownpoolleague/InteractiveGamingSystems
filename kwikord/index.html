@@ -1,0 +1,64 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<title>Kwikord</title>
+
+<!-- PWA manifest -->
+<link rel="manifest" href="manifest.json">
+
+<!-- iOS support -->
+<meta name="apple-mobile-web-app-capable" content="yes">
+<meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
+<link rel="apple-touch-icon" href="icons/icon-192.png">
+
+<style>
+    body {
+        background: #222;
+        color: #fff;
+        font-family: Arial, sans-serif;
+        text-align: center;
+        padding: 40px;
+    }
+
+    h1 {
+        font-size: 48px;
+        margin-bottom: 20px;
+        color: #4CAF50;
+    }
+
+    .btn {
+        display: block;
+        width: 260px;
+        margin: 15px auto;
+        padding: 15px;
+        font-size: 22px;
+        background: #4CAF50;
+        border-radius: 8px;
+        color: white;
+        text-decoration: none;
+    }
+
+    .btn:hover {
+        background: #6BD66A;
+    }
+</style>
+</head>
+<body>
+
+<h1>KWIKORD</h1>
+
+<a class="btn" href="game.html">Play Game</a>
+<a class="btn" href="#">Instructions (coming soon)</a>
+<a class="btn" href="#">Settings (coming soon)</a>
+<a class="btn" href="#">High Scores (coming soon)</a>
+
+<script>
+// Register service worker
+if ("serviceWorker" in navigator) {
+    navigator.serviceWorker.register("sw.js");
+}
+</script>
+
+</body>
+</html>
