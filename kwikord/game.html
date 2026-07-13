@@ -256,10 +256,18 @@
                         return;
                     }
 
-                    if (selectedLetter) {
-                        cell.textContent = selectedLetter;
-                        newPlacements.push({ row: r, col: c });
-                    }
+               if (selectedLetter) {
+    cell.textContent = selectedLetter;
+    newPlacements.push({ row: r, col: c });
+
+    // REMOVE the used letter tile from the letter row
+    const tile = document.querySelector(`.letter.selected`);
+    if (tile) tile.remove();
+
+    // Clear selectedLetter so user must pick a new tile
+    selectedLetter = null;
+}
+
                 };
 
                 grid.appendChild(cell);
