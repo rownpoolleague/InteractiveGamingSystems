@@ -103,6 +103,8 @@
 <div id="consonantRow" class="letter-row"></div>
 <button onclick="submitWord()">Submit Word</button>
 <button onclick="resetGame()">Clear Sheet</button>
+<button id="submitTotalBtn">Submit Score</button>
+
 
 <script>
     let currentUser = "mike"; // temporary until login page is built
@@ -411,8 +413,6 @@ async function submitWord() {
 
     // Score = total words × multiplier
     totalScore = submittedWords.length * multiplier;
-sendScoreToServer(currentUser, totalScore);
-
     document.getElementById("score").textContent =
         "Words: " + submittedWords.length + " | Total Score: " + totalScore;
 
@@ -454,6 +454,10 @@ sendScoreToServer(currentUser, totalScore);
         console.log("Error sending score:", err);
     }
 }
+document.getElementById("submitTotalBtn").onclick = () => {
+    sendScoreToServer(currentUser, totalScore);
+    alert("Total score submitted!");
+};
 
 </script>
 
