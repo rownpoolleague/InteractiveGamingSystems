@@ -132,8 +132,14 @@
     }
 
     async function validateAllWords(grid, newPlacements, mainWord, sameRow, sameCol) {
-        let wordsToCheck = [mainWord];
+        let wordsToCheck = [];
 
+        // MAIN WORD (only if length > 1)
+        if (mainWord.length > 1) {
+            wordsToCheck.push(mainWord);
+        }
+
+        // CROSS WORDS
         for (let p of newPlacements) {
             let r = p.row;
             let c = p.col;
@@ -162,6 +168,12 @@
             }
         }
 
+        // If NO multi-letter words exist → invalid move
+        if (wordsToCheck.length === 0) {
+            return { valid: false, badWord: "(single letters only)" };
+        }
+
+        // Validate all words
         for (let w of wordsToCheck) {
             const valid = await checkWordInDictionary(w);
             if (!valid) {
@@ -169,7 +181,7 @@
             }
         }
 
-        return { valid: true };
+        return { valid: true, words: wordsToCheck };
     }
 
     function randomLetters() {
@@ -236,9 +248,7 @@
                 }
 
                 cell.onclick = () => {
-                    if (cell.dataset.locked === "true") {
-                        return;
-                    }
+                    if (cell.dataset.locked === "true") return;
 
                     if (cell.textContent) {
                         cell.textContent = "";
@@ -305,11 +315,7 @@
             let cols = newPlacements.map(p => p.col).sort((a,b)=>a-b);
 
             let c = cols[0];
-
-            while (c > 0 && grid[row][c - 1] !== "") {
-                c--;
-            }
-
+            while (c > 0 && grid[row][c - 1] !== "") c--;
             while (c < COLS && grid[row][c] !== "") {
                 word += grid[row][c];
                 c++;
@@ -320,11 +326,7 @@
             let rows = newPlacements.map(p => p.row).sort((a,b)=>a-b);
 
             let r = rows[0];
-
-            while (r > 0 && grid[r - 1][col] !== "") {
-                r--;
-            }
-
+            while (r > 0 && grid[r - 1][col] !== "") r--;
             while (r < ROWS && grid[r][col] !== "") {
                 word += grid[r][col];
                 r++;
@@ -338,7 +340,7 @@
             return;
         }
 
-        // Count filled corners
+        // Count corners
         let cornersFilled = 0;
         const cornerCoords = [
             {r:0, c:0},
@@ -355,21 +357,23 @@
 
         let multiplier = Math.max(1, cornersFilled);
 
-        submittedWords.push(word);
+        // Add all words formed
+        submittedWords.push(...result.words);
 
+        // Lock letters
         newPlacements.forEach(p => {
             const cell = document.querySelector(`.cell[data-row="${p.row}"][data-col="${p.col}"]`);
             cell.dataset.locked = "true";
         });
 
-        let baseScore = submittedWords.length;
-        totalScore = baseScore * multiplier;
+        // Score = total words × multiplier
+        totalScore = submittedWords.length * multiplier;
 
         document.getElementById("score").textContent =
             "Words: " + submittedWords.length + " | Total Score: " + totalScore;
 
         alert(
-            "Valid word: " + word +
+            "Valid words: " + result.words.join(", ") +
             "\nCorners filled: " + cornersFilled +
             "\nMultiplier: x" + multiplier +
             "\nNew Total Score: " + totalScore
@@ -381,6 +385,7 @@
     buildLetters();
     buildGrid();
 </script>
+
 
 
 </body>
