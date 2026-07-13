@@ -116,32 +116,21 @@
     let totalScore = 0;
     let submittedWords = [];
     let newPlacements = [];
-    let dictionarySet = null;
-
-    async function loadDictionary() {
-        if (dictionarySet) return dictionarySet;
-        try {
-            const response = await fetch('words.txt');
-            const text = await response.text();
-            const words = text.split('\n')
-                .map(w => w.trim().toUpperCase())
-                .filter(w => w.length > 0);
-            dictionarySet = new Set(words);
-        } catch (e) {
-            // If words.txt not found yet, fallback to simple rule
-            dictionarySet = null;
-        }
-        return dictionarySet;
-    }
 
     async function checkWordInDictionary(word) {
-        const dict = await loadDictionary();
-        const w = word.toUpperCase();
-        if (dict) {
-            return dict.has(w);
+        const w = word.toLowerCase();
+        try {
+            const res = await fetch(
+                `https://freedictionaryapi.com/api/v1/entries/en/${encodeURIComponent(w)}`
+            );
+            if (!res.ok) return false;
+            const data = await res.json();
+            // Valid if we got at least one entry
+            return Array.isArray(data.entries) && data.entries.length > 0;
+        } catch (e) {
+            // If API fails, treat as invalid
+            return false;
         }
-        // Fallback: treat any 2+ letter word as valid
-        return w.length >= 2;
     }
 
     function randomLetters() {
