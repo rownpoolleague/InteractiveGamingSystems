@@ -318,9 +318,11 @@ let multiplier = Math.max(1, cornersFilled);
 
 // Add score
 submittedWords.push(word);
-totalScore += (1 * multiplier);
 
-// Update score display
+// Recalculate total score: words * corner multiplier
+let baseScore = submittedWords.length;
+totalScore = baseScore * multiplier;
+
 document.getElementById("score").textContent =
     "Words: " + submittedWords.length + " | Total Score: " + totalScore;
 
@@ -330,6 +332,7 @@ alert(
     "\nMultiplier: x" + multiplier +
     "\nNew Total Score: " + totalScore
 );
+
 
 
         newPlacements = [];
