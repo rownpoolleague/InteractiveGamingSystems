@@ -125,12 +125,51 @@
             );
             if (!res.ok) return false;
             const data = await res.json();
-            // Valid if we got at least one entry
             return Array.isArray(data.entries) && data.entries.length > 0;
         } catch (e) {
-            // If API fails, treat as invalid
             return false;
         }
+    }
+
+    async function validateAllWords(grid, newPlacements, mainWord, sameRow, sameCol) {
+        let wordsToCheck = [mainWord];
+
+        for (let p of newPlacements) {
+            let r = p.row;
+            let c = p.col;
+            let word = "";
+
+            if (sameRow) {
+                // vertical cross-word
+                let rr = r;
+                while (rr > 0 && grid[rr - 1][c] !== "") rr--;
+                while (rr < ROWS && grid[rr][c] !== "") {
+                    word += grid[rr][c];
+                    rr++;
+                }
+            } else {
+                // horizontal cross-word
+                let cc = c;
+                while (cc > 0 && grid[r][cc - 1] !== "") cc--;
+                while (cc < COLS && grid[r][cc] !== "") {
+                    word += grid[r][cc];
+                    cc++;
+                }
+            }
+
+            if (word.length > 1) {
+                wordsToCheck.push(word);
+            }
+        }
+
+        for (let w of wordsToCheck) {
+            const valid = await checkWordInDictionary(w);
+            if (!valid) {
+                return { valid: false, badWord: w };
+            }
+        }
+
+        return { valid: true };
     }
 
     function randomLetters() {
@@ -189,32 +228,29 @@
                 cell.className = "cell";
                 cell.dataset.row = r;
                 cell.dataset.col = c;
+                cell.dataset.locked = "false";
 
                 if ((r === 0 && c === 0) || (r === 0 && c === COLS-1) ||
                     (r === ROWS-1 && c === 0) || (r === ROWS-1 && c === COLS-1)) {
                     cell.classList.add("corner");
                 }
-cell.onclick = () => {
 
-    // If cell is locked, do nothing
-    if (cell.dataset.locked === "true") {
-        return;
-    }
+                cell.onclick = () => {
+                    if (cell.dataset.locked === "true") {
+                        return;
+                    }
 
-    // Clear cell if not locked
-    if (cell.textContent) {
-        cell.textContent = "";
-        newPlacements = newPlacements.filter(p => !(p.row == r && p.col == c));
-        return;
-    }
+                    if (cell.textContent) {
+                        cell.textContent = "";
+                        newPlacements = newPlacements.filter(p => !(p.row == r && p.col == c));
+                        return;
+                    }
 
-    // Place new letter
-    if (selectedLetter) {
-        cell.textContent = selectedLetter;
-        newPlacements.push({ row: r, col: c });
-    }
-};
-
+                    if (selectedLetter) {
+                        cell.textContent = selectedLetter;
+                        newPlacements.push({ row: r, col: c });
+                    }
+                };
 
                 grid.appendChild(cell);
             }
@@ -295,59 +331,49 @@ cell.onclick = () => {
             }
         }
 
-        const isValid = await checkWordInDictionary(word);
+        const result = await validateAllWords(grid, newPlacements, word, sameRow, sameCol);
 
-        if (!isValid) {
-            alert("Invalid word: " + word);
+        if (!result.valid) {
+            alert("Invalid word found: " + result.badWord);
             return;
         }
 
-        if (submittedWords.includes(word)) {
-            alert("Word already submitted.");
-            return;
-        }
+        // Count filled corners
+        let cornersFilled = 0;
+        const cornerCoords = [
+            {r:0, c:0},
+            {r:0, c:COLS-1},
+            {r:ROWS-1, c:0},
+            {r:ROWS-1, c:COLS-1}
+        ];
 
-      // Count filled corners
-let cornersFilled = 0;
-const cornerCoords = [
-    {r:0, c:0},
-    {r:0, c:COLS-1},
-    {r:ROWS-1, c:0},
-    {r:ROWS-1, c:COLS-1}
-];
+        cornerCoords.forEach(corner => {
+            if (grid[corner.r][corner.c] !== "") {
+                cornersFilled++;
+            }
+        });
 
-cornerCoords.forEach(corner => {
-    if (grid[corner.r][corner.c] !== "") {
-        cornersFilled++;
-    }
-});
+        let multiplier = Math.max(1, cornersFilled);
 
-// Multiplier: 1 corner = ×1, 2 = ×2, 3 = ×3, 4 = ×4
-let multiplier = Math.max(1, cornersFilled);
+        submittedWords.push(word);
 
-// Add score
-submittedWords.push(word);
-// Lock all newly placed letters so they cannot be cleared
-newPlacements.forEach(p => {
-    const cell = document.querySelector(`.cell[data-row="${p.row}"][data-col="${p.col}"]`);
-    cell.dataset.locked = "true";
-});
+        newPlacements.forEach(p => {
+            const cell = document.querySelector(`.cell[data-row="${p.row}"][data-col="${p.col}"]`);
+            cell.dataset.locked = "true";
+        });
 
-// Recalculate total score: words * corner multiplier
-let baseScore = submittedWords.length;
-totalScore = baseScore * multiplier;
+        let baseScore = submittedWords.length;
+        totalScore = baseScore * multiplier;
 
-document.getElementById("score").textContent =
-    "Words: " + submittedWords.length + " | Total Score: " + totalScore;
+        document.getElementById("score").textContent =
+            "Words: " + submittedWords.length + " | Total Score: " + totalScore;
 
-alert(
-    "Valid word: " + word +
-    "\nCorners filled: " + cornersFilled +
-    "\nMultiplier: x" + multiplier +
-    "\nNew Total Score: " + totalScore
-);
-
-
+        alert(
+            "Valid word: " + word +
+            "\nCorners filled: " + cornersFilled +
+            "\nMultiplier: x" + multiplier +
+            "\nNew Total Score: " + totalScore
+        );
 
         newPlacements = [];
     }
@@ -355,6 +381,7 @@ alert(
     buildLetters();
     buildGrid();
 </script>
+
 
 </body>
 </html>
