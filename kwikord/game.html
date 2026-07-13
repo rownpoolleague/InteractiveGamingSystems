@@ -298,13 +298,39 @@
             return;
         }
 
-        submittedWords.push(word);
-        totalScore += 1;
+      // Count filled corners
+let cornersFilled = 0;
+const cornerCoords = [
+    {r:0, c:0},
+    {r:0, c:COLS-1},
+    {r:ROWS-1, c:0},
+    {r:ROWS-1, c:COLS-1}
+];
 
-        document.getElementById("score").textContent =
-            "Words: " + submittedWords.length + " | Total Score: " + totalScore;
+cornerCoords.forEach(corner => {
+    if (grid[corner.r][corner.c] !== "") {
+        cornersFilled++;
+    }
+});
 
-        alert("Valid word: " + word + "\nTotal Score: " + totalScore);
+// Multiplier: 1 corner = ×1, 2 = ×2, 3 = ×3, 4 = ×4
+let multiplier = Math.max(1, cornersFilled);
+
+// Add score
+submittedWords.push(word);
+totalScore += (1 * multiplier);
+
+// Update score display
+document.getElementById("score").textContent =
+    "Words: " + submittedWords.length + " | Total Score: " + totalScore;
+
+alert(
+    "Valid word: " + word +
+    "\nCorners filled: " + cornersFilled +
+    "\nMultiplier: x" + multiplier +
+    "\nNew Total Score: " + totalScore
+);
+
 
         newPlacements = [];
     }
