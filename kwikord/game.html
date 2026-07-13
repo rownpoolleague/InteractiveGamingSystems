@@ -111,25 +111,44 @@
     const VOWELS = ["A","E","I","O","U"];
     const CONSONANTS = ["B","C","D","F","G","H","J","K","L","M","N","P","Q","R","S","T","V","W","X","Y","Z"];
 
-    // Stub dictionary – replace/expand later
-    const DICTIONARY = [
-        "WORD","WORK","KID","WOK","DORK","KIRK","KIDDO","KORD","KWIK","KWIKORD",
-        "DO","OR","ROW","ROD","ARK","RISK","WE","OK","A","I","O"
-    ];
-
     let selectedLetter = null;
     let lettersPool = [];
     let totalScore = 0;
     let submittedWords = [];
     let newPlacements = [];
+    let dictionarySet = null;
+
+    async function loadDictionary() {
+        if (dictionarySet) return dictionarySet;
+        try {
+            const response = await fetch('words.txt');
+            const text = await response.text();
+            const words = text.split('\n')
+                .map(w => w.trim().toUpperCase())
+                .filter(w => w.length > 0);
+            dictionarySet = new Set(words);
+        } catch (e) {
+            // If words.txt not found yet, fallback to simple rule
+            dictionarySet = null;
+        }
+        return dictionarySet;
+    }
+
+    async function checkWordInDictionary(word) {
+        const dict = await loadDictionary();
+        const w = word.toUpperCase();
+        if (dict) {
+            return dict.has(w);
+        }
+        // Fallback: treat any 2+ letter word as valid
+        return w.length >= 2;
+    }
 
     function randomLetters() {
         const letters = [];
-        // 4 vowels
         for (let i = 0; i < 4; i++) {
             letters.push(VOWELS[Math.floor(Math.random() * VOWELS.length)]);
         }
-        // 5 consonants
         for (let i = 0; i < 5; i++) {
             letters.push(CONSONANTS[Math.floor(Math.random() * CONSONANTS.length)]);
         }
@@ -148,7 +167,7 @@
         const vowels = lettersPool.filter(l => VOWELS.includes(l));
         const consonants = lettersPool.filter(l => CONSONANTS.includes(l));
 
-        vowels.forEach((letter, index) => {
+        vowels.forEach((letter) => {
             const div = document.createElement("div");
             div.className = "letter";
             div.textContent = letter;
@@ -156,7 +175,7 @@
             vowelRow.appendChild(div);
         });
 
-        consonants.forEach((letter, index) => {
+        consonants.forEach((letter) => {
             const div = document.createElement("div");
             div.className = "letter";
             div.textContent = letter;
@@ -229,83 +248,80 @@
         return gridArray;
     }
 
- function submitWord() {
-    if (newPlacements.length === 0) {
-        alert("Place letters to form a word first.");
-        return;
-    }
-
-    const grid = getGridArray();
-
-    const sameRow = newPlacements.every(p => p.row === newPlacements[0].row);
-    const sameCol = newPlacements.every(p => p.col === newPlacements[0].col);
-
-    if (!sameRow && !sameCol) {
-        alert("Letters must form a straight line.");
-        return;
-    }
-
-    let word = "";
-
-    if (sameRow) {
-        const row = newPlacements[0].row;
-        let cols = newPlacements.map(p => p.col).sort((a,b)=>a-b);
-
-        let c = cols[0];
-
-        // FIX: your original logic overshot left boundary
-        while (c > 0 && grid[row][c - 1] !== "") {
-            c--;
+    async function submitWord() {
+        if (newPlacements.length === 0) {
+            alert("Place letters to form a word first.");
+            return;
         }
 
-        // FIX: your original logic skipped the first letter
-        while (c < COLS && grid[row][c] !== "") {
-            word += grid[row][c];
-            c++;
+        const grid = getGridArray();
+
+        const sameRow = newPlacements.every(p => p.row === newPlacements[0].row);
+        const sameCol = newPlacements.every(p => p.col === newPlacements[0].col);
+
+        if (!sameRow && !sameCol) {
+            alert("Letters must form a straight line.");
+            return;
         }
 
-    } else {
-        const col = newPlacements[0].col;
-        let rows = newPlacements.map(p => p.row).sort((a,b)=>a-b);
+        let word = "";
 
-        let r = rows[0];
+        if (sameRow) {
+            const row = newPlacements[0].row;
+            let cols = newPlacements.map(p => p.col).sort((a,b)=>a-b);
 
-        // FIX: same issue vertically
-        while (r > 0 && grid[r - 1][col] !== "") {
-            r--;
+            let c = cols[0];
+
+            while (c > 0 && grid[row][c - 1] !== "") {
+                c--;
+            }
+
+            while (c < COLS && grid[row][c] !== "") {
+                word += grid[row][c];
+                c++;
+            }
+
+        } else {
+            const col = newPlacements[0].col;
+            let rows = newPlacements.map(p => p.row).sort((a,b)=>a-b);
+
+            let r = rows[0];
+
+            while (r > 0 && grid[r - 1][col] !== "") {
+                r--;
+            }
+
+            while (r < ROWS && grid[r][col] !== "") {
+                word += grid[r][col];
+                r++;
+            }
         }
 
-        // FIX: same issue vertically
-        while (r < ROWS && grid[r][col] !== "") {
-            word += grid[r][col];
-            r++;
+        const isValid = await checkWordInDictionary(word);
+
+        if (!isValid) {
+            alert("Invalid word: " + word);
+            return;
         }
+
+        if (submittedWords.includes(word)) {
+            alert("Word already submitted.");
+            return;
+        }
+
+        submittedWords.push(word);
+        totalScore += 1;
+
+        document.getElementById("score").textContent =
+            "Words: " + submittedWords.length + " | Total Score: " + totalScore;
+
+        alert("Valid word: " + word + "\nTotal Score: " + totalScore);
+
+        newPlacements = [];
     }
 
-    if (!DICTIONARY.includes(word)) {
-        alert("Invalid word: " + word);
-        return;
-    }
-
-    if (submittedWords.includes(word)) {
-        alert("Word already submitted.");
-        return;
-    }
-
-    submittedWords.push(word);
-    totalScore += 1;
-
-    document.getElementById("score").textContent =
-        "Words: " + submittedWords.length + " | Total Score: " + totalScore;
-
-    alert("Valid word: " + word + "\nTotal Score: " + totalScore);
-
-    newPlacements = [];
-}
-
-buildLetters();
-buildGrid();
-
+    buildLetters();
+    buildGrid();
 </script>
 
 </body>
