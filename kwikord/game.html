@@ -91,15 +91,16 @@
 <body>
 
 <h1>KWIKORD</h1>
-<div id="score">Words: 0 | Total Score: 0</div>
-
-
+<div id="highestScoreBox">
+  Highest Score: <span id="highestScoreValue">Loading...</span>
+</div>
 
 <div id="grid"></div>
-<h2>Vowels</h2>
+<div id="score">Words: 0 | Total Score: 0</div>
+
 <div id="vowelRow" class="letter-row"></div>
 
-<h2>Consonants</h2>
+
 <div id="consonantRow" class="letter-row"></div>
 <button onclick="submitWord()">Submit Word</button>
 <button onclick="resetGame()">Clear Sheet</button>
@@ -458,6 +459,29 @@ document.getElementById("submitTotalBtn").onclick = () => {
     sendScoreToServer(currentUser, totalScore);
     alert("Total score submitted!");
 };
+async function loadHighestScore() {
+    const url = "https://script.google.com/macros/s/AKfycbzsNGoOe-EsJslbJzgm6E7z60f8dHBwhHyXSoJj_GuC5nkTtjIHwXBdWZJj7bDmF0ZM/exec?action=getHighestScore";
+
+    try {
+        const res = await fetch(url);
+        const data = await res.json();
+
+        if (data.ok && data.username) {
+            document.getElementById("highestScoreValue").textContent =
+                `${data.username} - ${data.score}`;
+        } else {
+            document.getElementById("highestScoreValue").textContent =
+                "No scores yet";
+        }
+
+    } catch (err) {
+        document.getElementById("highestScoreValue").textContent =
+            "Error loading score";
+        console.log(err);
+    }
+}
+loadHighestScore();
+
 
 </script>
 
