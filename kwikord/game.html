@@ -300,95 +300,111 @@
         return gridArray;
     }
 
-    async function submitWord() {
-        if (newPlacements.length === 0) {
-            alert("Place letters to form a word first.");
-            return;
-        }
-
-        const grid = getGridArray();
-
-        const sameRow = newPlacements.every(p => p.row === newPlacements[0].row);
-        const sameCol = newPlacements.every(p => p.col === newPlacements[0].col);
-
-        if (!sameRow && !sameCol) {
-            alert("Letters must form a straight line.");
-            return;
-        }
-
-        let word = "";
-
-        if (sameRow) {
-            const row = newPlacements[0].row;
-            let cols = newPlacements.map(p => p.col).sort((a,b)=>a-b);
-
-            let c = cols[0];
-            while (c > 0 && grid[row][c - 1] !== "") c--;
-            while (c < COLS && grid[row][c] !== "") {
-                word += grid[row][c];
-                c++;
-            }
-
-        } else {
-            const col = newPlacements[0].col;
-            let rows = newPlacements.map(p => p.row).sort((a,b)=>a-b);
-
-            let r = rows[0];
-            while (r > 0 && grid[r - 1][col] !== "") r--;
-            while (r < ROWS && grid[r][col] !== "") {
-                word += grid[r][col];
-                r++;
-            }
-        }
-
-        const result = await validateAllWords(grid, newPlacements, word, sameRow, sameCol);
-
-        if (!result.valid) {
-            alert("Invalid word found: " + result.badWord);
-            return;
-        }
-
-        // Count corners
-        let cornersFilled = 0;
-        const cornerCoords = [
-            {r:0, c:0},
-            {r:0, c:COLS-1},
-            {r:ROWS-1, c:0},
-            {r:ROWS-1, c:COLS-1}
-        ];
-
-        cornerCoords.forEach(corner => {
-            if (grid[corner.r][corner.c] !== "") {
-                cornersFilled++;
-            }
-        });
-
-        let multiplier = Math.max(1, cornersFilled);
-
-        // Add all words formed
-        submittedWords.push(...result.words);
-
-        // Lock letters
-        newPlacements.forEach(p => {
-            const cell = document.querySelector(`.cell[data-row="${p.row}"][data-col="${p.col}"]`);
-            cell.dataset.locked = "true";
-        });
-
-        // Score = total words × multiplier
-        totalScore = submittedWords.length * multiplier;
-
-        document.getElementById("score").textContent =
-            "Words: " + submittedWords.length + " | Total Score: " + totalScore;
-
-        alert(
-            "Valid words: " + result.words.join(", ") +
-            "\nCorners filled: " + cornersFilled +
-            "\nMultiplier: x" + multiplier +
-            "\nNew Total Score: " + totalScore
-        );
-
-        newPlacements = [];
+async function submitWord() {
+    if (newPlacements.length === 0) {
+        alert("Place letters to form a word first.");
+        return;
     }
+
+    const grid = getGridArray();
+
+    const sameRow = newPlacements.every(p => p.row === newPlacements[0].row);
+    const sameCol = newPlacements.every(p => p.col === newPlacements[0].col);
+
+    if (!sameRow && !sameCol) {
+        alert("Letters must form a straight line.");
+        return;
+    }
+
+    let word = "";
+
+    if (sameRow) {
+        const row = newPlacements[0].row;
+        let cols = newPlacements.map(p => p.col).sort((a,b)=>a-b);
+
+        let c = cols[0];
+        while (c > 0 && grid[row][c - 1] !== "") c--;
+        while (c < COLS && grid[row][c] !== "") {
+            word += grid[row][c];
+            c++;
+        }
+
+    } else {
+        const col = newPlacements[0].col;
+        let rows = newPlacements.map(p => p.row).sort((a,b)=>a-b);
+
+        let r = rows[0];
+        while (r > 0 && grid[r - 1][col] !== "") r--;
+        while (r < ROWS && grid[r][col] !== "") {
+            word += grid[r][col];
+            r++;
+        }
+    }
+
+    // SCRABBLE VALIDATION (main + cross words)
+    const result = await validateAllWords(grid, newPlacements, word, sameRow, sameCol);
+
+    if (!result.valid) {
+        alert("Invalid word found: " + result.badWord);
+        return;
+    }
+
+    // Count corners
+    let cornersFilled = 0;
+    const cornerCoords = [
+        {r:0, c:0},
+        {r:0, c:COLS-1},
+        {r:ROWS-1, c:0},
+        {r:ROWS-1, c:COLS-1}
+    ];
+
+    cornerCoords.forEach(corner => {
+        if (grid[corner.r][corner.c] !== "") {
+            cornersFilled++;
+        }
+    });
+
+    let multiplier = Math.max(1, cornersFilled);
+
+    // Add ALL words formed (main + cross)
+    submittedWords.push(...result.words);
+
+    // LOCK placed letters
+    newPlacements.forEach(p => {
+        const cell = document.querySelector(`.cell[data-row="${p.row}"][data-col="${p.col}"]`);
+        cell.dataset.locked = "true";
+    });
+
+    // RESTORE used letters back to the letter pool
+    newPlacements.forEach(p => {
+        const letter = grid[p.row][p.col];
+        const rowDiv = VOWELS.includes(letter)
+            ? document.getElementById("vowelRow")
+            : document.getElementById("consonantRow");
+
+        const div = document.createElement("div");
+        div.className = "letter";
+        div.textContent = letter;
+        div.onclick = () => selectLetter(div, letter);
+        rowDiv.appendChild(div);
+    });
+
+    // Score = total words × multiplier
+    totalScore = submittedWords.length * multiplier;
+
+    document.getElementById("score").textContent =
+        "Words: " + submittedWords.length + " | Total Score: " + totalScore;
+
+    alert(
+        "Valid words: " + result.words.join(", ") +
+        "\nCorners filled: " + cornersFilled +
+        "\nMultiplier: x" + multiplier +
+        "\nNew Total Score: " + totalScore
+    );
+
+    newPlacements = [];
+}
+
 
     buildLetters();
     buildGrid();
