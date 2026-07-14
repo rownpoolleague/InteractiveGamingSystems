@@ -39,15 +39,16 @@
         flex-wrap: wrap; /* Allows letters to wrap if the row is full */
     }
 
-    .letter {
-        background: #4CAF50;
-        padding: 8px 12px;
-        font-size: 18px;
-        border-radius: 6px;
-        cursor: pointer;
-        user-select: none;
-        touch-action: none;
-    }
+.letter {
+    background: #4CAF50;
+    padding: 10px 16px;
+    font-size: 24px;
+    border-radius: 8px;
+    cursor: pointer;
+    user-select: none;
+    transition: transform 0.1s;
+    touch-action: none;
+}
 
         .letter.selected {
             background: #6BD66A;
@@ -65,32 +66,25 @@
     aspect-ratio: 7 / 8;    /* Maintains the shape */
 }
 
-        .cell {
-        aspect-ratio: 1 / 1;
-        background: #ffffff;
-        color: #000;
-        font-size: 14px; /* Scaled down for cells */
-        border-radius: 4px;
-        display: flex;
-        justify-content: center;
-        align-items: center;
-        cursor: pointer;
-    }
+       .cell {
+    aspect-ratio: 1 / 1;
+    background: #ffffff;
+    color: #000;
+    font-size: 8vmin; /* Scales perfectly with screen size */
+    
+    border-radius: 4px;
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    cursor: pointer;
+    user-select: none;
+}
 
         .corner {
             background: #ddd;
         }
         /* Add to your <style> block */
-.letter {
-    background: #4CAF50;
-    padding: 10px 16px;
-    font-size: 24px;
-    border-radius: 8px;
-    cursor: pointer;
-    user-select: none;
-    transition: transform 0.1s;
-    touch-action: none; 
-}
+
 
 .cell.drag-over {
     background: #e0e0e0; /* Visual feedback when dragging over a cell */
