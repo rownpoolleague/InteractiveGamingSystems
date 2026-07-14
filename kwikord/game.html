@@ -190,9 +190,8 @@
 
     <div id="consonantRow" class="letter-row"></div>
     <button onclick="submitWord()">Submit Word</button>
-    <button onclick="resetGame()">Clear Sheet</button>
     <button id="submitTotalBtn">Submit Score</button>
-
+<br><button onclick="resetGame()">Reset Game</button>
 
     <script>
         let currentUser = null;
@@ -571,6 +570,7 @@ const duplicates = result.words.filter(w => submittedWords.includes(w));
         document.getElementById("submitTotalBtn").onclick = () => {
             sendScoreToServer(currentUser, totalScore);
             alert("Total score submitted!");
+            resetgame();
         };
         async function loadHighestScore() {
             const url = "https://script.google.com/macros/s/AKfycbzsNGoOe-EsJslbJzgm6E7z60f8dHBwhHyXSoJj_GuC5nkTtjIHwXBdWZJj7bDmF0ZM/exec?action=getHighestScore";
