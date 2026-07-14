@@ -470,7 +470,11 @@
                 alert("Invalid word found: " + result.badWord);
                 return;
             }
-
+const duplicates = result.words.filter(w => submittedWords.includes(w));
+    if (duplicates.length > 0) {
+        alert("Duplicate word(s) not allowed: " + duplicates.join(", "));
+        return;
+    }
             // Count corners
             let cornersFilled = 0;
             const cornerCoords = [{
