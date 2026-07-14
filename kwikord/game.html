@@ -1,491 +1,691 @@
 <!DOCTYPE html>
 <html lang="en">
+
 <head>
-<meta charset="UTF-8">
-<title>Kwikord Game</title>
-<style>
-    body {
-        background: #C23B7A;
-        font-family: Arial, sans-serif;
-        color: white;
-        text-align: center;
-        padding: 20px;
-    }
+    <meta charset="UTF-8">
+    <title>Kwikord Game</title>
+    <style>
+        body {
+            background: #C23B7A;
+            font-family: Arial, sans-serif;
+            color: white;
+            text-align: center;
+            padding: 20px;
+        }
 
-    h1 {
-        color: #4CAF50;
-        font-size: 48px;
-        margin-bottom: 10px;
-    }
+        h1 {
+            color: #4CAF50;
+            font-size: 48px;
+            margin-bottom: 10px;
+        }
 
-    #score {
-        font-size: 24px;
-        margin-bottom: 20px;
-    }
+        #score {
+            font-size: 24px;
+            margin-bottom: 20px;
+        }
 
-    .letter-row {
-        display: flex;
-        justify-content: center;
-        gap: 10px;
-        margin-bottom: 15px;
-    }
+        .letter-row {
+            display: flex;
+            justify-content: center;
+            gap: 10px;
+            margin-bottom: 15px;
+        }
 
-    .letter {
-        background: #4CAF50;
-        padding: 10px 16px;
-        font-size: 24px;
-        border-radius: 8px;
-        cursor: pointer;
-        user-select: none;
-        transition: transform 0.1s;
-    }
+        .letter {
+            background: #4CAF50;
+            padding: 10px 16px;
+            font-size: 24px;
+            border-radius: 8px;
+            cursor: pointer;
+            user-select: none;
+            transition: transform 0.1s;
+        }
 
-    .letter.selected {
-        background: #6BD66A;
-        transform: scale(1.15);
-    }
+        .letter.selected {
+            background: #6BD66A;
+            transform: scale(1.15);
+        }
 
-    #grid {
-        display: grid;
-        grid-template-columns: repeat(7, 50px);
-        grid-template-rows: repeat(8, 50px);
-        gap: 4px;
-        justify-content: center;
-        margin: 20px auto;
-    }
+        #grid {
+            display: grid;
+            grid-template-columns: repeat(7, 50px);
+            grid-template-rows: repeat(8, 50px);
+            gap: 4px;
+            justify-content: center;
+            margin: 20px auto;
+        }
 
-    .cell {
-        width: 50px;
-        height: 50px;
-        background: #ffffff;
-        color: #000;
-        font-size: 24px;
-        border-radius: 4px;
-        display: flex;
-        justify-content: center;
-        align-items: center;
-        cursor: pointer;
-        user-select: none;
-    }
+        .cell {
+            width: 50px;
+            height: 50px;
+            background: #ffffff;
+            color: #000;
+            font-size: 24px;
+            border-radius: 4px;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            cursor: pointer;
+            user-select: none;
+        }
 
-    .corner {
-        background: #ddd;
-    }
+        .corner {
+            background: #ddd;
+        }
 
-    button {
-        background: #4CAF50;
-        border: none;
-        padding: 10px 18px;
-        font-size: 18px;
-        border-radius: 6px;
-        cursor: pointer;
-        color: white;
-        margin: 8px;
-    }
+        button {
+            background: #4CAF50;
+            border: none;
+            padding: 10px 18px;
+            font-size: 18px;
+            border-radius: 6px;
+            cursor: pointer;
+            color: white;
+            margin: 8px;
+        }
 
-    button:hover {
-        background: #6BD66A;
-    }
-</style>
+        button:hover {
+            background: #6BD66A;
+        }
+
+        .modal {
+            display: none;
+            position: fixed;
+            z-index: 9999;
+            left: 0;
+            top: 0;
+            width: 100%;
+            height: 100%;
+            background: rgba(0, 0, 0, 0.7);
+        }
+
+        .modal-content {
+            background: #C23B7A;
+            color: white;
+            width: 320px;
+            padding: 20px;
+            margin: 15% auto;
+            border-radius: 10px;
+            text-align: center;
+        }
+
+        .modal-content input {
+            width: 90%;
+            padding: 10px;
+            margin: 8px 0;
+            border-radius: 5px;
+            border: none;
+        }
+
+        .modal-content button {
+            background: #4CAF50;
+            color: white;
+            padding: 8px 16px;
+            border: none;
+            border-radius: 5px;
+            cursor: pointer;
+        }
+
+        .tab-row {
+            display: flex;
+            justify-content: center;
+            margin-bottom: 10px;
+        }
+
+        .tab {
+            background: #8A2555;
+            border: none;
+            color: white;
+            padding: 6px 12px;
+            margin: 0 4px;
+            border-radius: 5px;
+            cursor: pointer;
+        }
+
+        .tab.active {
+            background: #4CAF50;
+        }
+    </style>
 </head>
+
 <body>
+    <div id="loginModal" class="modal">
+        <div class="modal-content">
+            <h2>Kwikord</h2>
 
-<h1>KWIKORD</h1>
-<div id="highestScoreBox">
-  Highest Score: <span id="highestScoreValue">Loading...</span>
-</div>
+            <div class="tab-row">
+                <button id="tabLogin" class="tab active">Login</button>
+                <button id="tabCreate" class="tab">Create Account</button>
+            </div>
 
-<div id="grid"></div>
-<div id="score">Words: 0 | Total Score: 0</div>
+            <div id="loginSection">
+                <input id="loginUser" type="text" placeholder="Username">
+                <input id="loginPass" type="password" placeholder="Password">
+                <button id="loginBtn">Login</button>
+                <p id="loginMsg"></p>
+            </div>
 
-<div id="vowelRow" class="letter-row"></div>
+            <div id="createSection" style="display:none;">
+                <input id="createUser" type="text" placeholder="Desired username">
+                <input id="createPass1" type="password" placeholder="Password">
+                <input id="createPass2" type="password" placeholder="Confirm password">
+                <button id="createBtn">Create Account</button>
+                <p id="createMsg"></p>
+            </div>
+        </div>
+    </div>
 
 
-<div id="consonantRow" class="letter-row"></div>
-<button onclick="submitWord()">Submit Word</button>
-<button onclick="resetGame()">Clear Sheet</button>
-<button id="submitTotalBtn">Submit Score</button>
+    <h1>KWIKORD</h1>
+
+    <div id="highestScoreBox">
+        Highest Score: <span id="highestScoreValue">Loading...</span>
+    </div>
+
+    <div id="grid"></div>
+    <div id="score">Words: 0 | Total Score: 0</div>
+
+    <div id="vowelRow" class="letter-row"></div>
 
 
-<script>
-    let currentUser = "Emily"; // temporary until login page is built
+    <div id="consonantRow" class="letter-row"></div>
+    <button onclick="submitWord()">Submit Word</button>
+    <button onclick="resetGame()">Clear Sheet</button>
+    <button id="submitTotalBtn">Submit Score</button>
 
-    const ROWS = 8;
-    const COLS = 7;
 
-    const VOWELS = ["A","E","I","O","U"];
-    const CONSONANTS = ["B","C","D","F","G","H","J","K","L","M","N","P","Q","R","S","T","V","W","X","Y","Z"];
+    <script>
+        let currentUser = null;
+        const APPSCRIPT_URL = "https://script.google.com/macros/s/AKfycbx6ZWBLgg-bOImm2Uu3F0CzHleKwtiYe4hAtY9HwO-CkiSgV0i6Ol-mgRMaOJazIxLh/exec";
 
-    let selectedLetter = null;
-    let lettersPool = [];
-    let totalScore = 0;
-    let submittedWords = [];
-    let newPlacements = [];
+        const ROWS = 8;
+        const COLS = 7;
 
-    async function checkWordInDictionary(word) {
-        const w = word.toLowerCase();
-        try {
-            const res = await fetch(
-                `https://freedictionaryapi.com/api/v1/entries/en/${encodeURIComponent(w)}`
-            );
-            if (!res.ok) return false;
-            const data = await res.json();
-            return Array.isArray(data.entries) && data.entries.length > 0;
-        } catch (e) {
-            return false;
+        const VOWELS = ["A", "E", "I", "O", "U"];
+        const CONSONANTS = ["B", "C", "D", "F", "G", "H", "J", "K", "L", "M", "N", "P", "Q", "R", "S", "T", "V", "W", "X", "Y", "Z"];
+
+        let selectedLetter = null;
+        let lettersPool = [];
+        let totalScore = 0;
+        let submittedWords = [];
+        let newPlacements = [];
+
+        async function checkWordInDictionary(word) {
+            const w = word.toLowerCase();
+            try {
+                const res = await fetch(
+                    `https://freedictionaryapi.com/api/v1/entries/en/${encodeURIComponent(w)}`
+                );
+                if (!res.ok) return false;
+                const data = await res.json();
+                return Array.isArray(data.entries) && data.entries.length > 0;
+            } catch (e) {
+                return false;
+            }
         }
-    }
 
-    async function validateAllWords(grid, newPlacements, mainWord, sameRow, sameCol) {
-        let wordsToCheck = [];
+        async function validateAllWords(grid, newPlacements, mainWord, sameRow, sameCol) {
+            let wordsToCheck = [];
 
-        // MAIN WORD (only if length > 1)
-        if (mainWord.length > 1) {
-            wordsToCheck.push(mainWord);
+            // MAIN WORD (only if length > 1)
+            if (mainWord.length > 1) {
+                wordsToCheck.push(mainWord);
+            }
+
+            // CROSS WORDS
+            for (let p of newPlacements) {
+                let r = p.row;
+                let c = p.col;
+                let word = "";
+
+                if (sameRow) {
+                    // vertical cross-word
+                    let rr = r;
+                    while (rr > 0 && grid[rr - 1][c] !== "") rr--;
+                    while (rr < ROWS && grid[rr][c] !== "") {
+                        word += grid[rr][c];
+                        rr++;
+                    }
+                } else {
+                    // horizontal cross-word
+                    let cc = c;
+                    while (cc > 0 && grid[r][cc - 1] !== "") cc--;
+                    while (cc < COLS && grid[r][cc] !== "") {
+                        word += grid[r][cc];
+                        cc++;
+                    }
+                }
+
+                if (word.length > 1) {
+                    wordsToCheck.push(word);
+                }
+            }
+
+            // If NO multi-letter words exist → invalid move
+            if (wordsToCheck.length === 0) {
+                return {
+                    valid: false,
+                    badWord: "(single letters only)"
+                };
+            }
+
+            // Validate all words
+            for (let w of wordsToCheck) {
+                const valid = await checkWordInDictionary(w);
+                if (!valid) {
+                    return {
+                        valid: false,
+                        badWord: w
+                    };
+                }
+            }
+
+            return {
+                valid: true,
+                words: wordsToCheck
+            };
         }
 
-        // CROSS WORDS
-        for (let p of newPlacements) {
-            let r = p.row;
-            let c = p.col;
+        function randomLetters() {
+            const letters = [];
+            for (let i = 0; i < 4; i++) {
+                letters.push(VOWELS[Math.floor(Math.random() * VOWELS.length)]);
+            }
+            for (let i = 0; i < 5; i++) {
+                letters.push(CONSONANTS[Math.floor(Math.random() * CONSONANTS.length)]);
+            }
+            return letters;
+        }
+
+        function buildLetters() {
+            const vowelRow = document.getElementById("vowelRow");
+            const consonantRow = document.getElementById("consonantRow");
+
+            vowelRow.innerHTML = "";
+            consonantRow.innerHTML = "";
+
+            lettersPool = randomLetters();
+
+            const vowels = lettersPool.filter(l => VOWELS.includes(l));
+            const consonants = lettersPool.filter(l => CONSONANTS.includes(l));
+
+            vowels.forEach((letter) => {
+                const div = document.createElement("div");
+                div.className = "letter";
+                div.textContent = letter;
+                div.onclick = () => selectLetter(div, letter);
+                vowelRow.appendChild(div);
+            });
+
+            consonants.forEach((letter) => {
+                const div = document.createElement("div");
+                div.className = "letter";
+                div.textContent = letter;
+                div.onclick = () => selectLetter(div, letter);
+                consonantRow.appendChild(div);
+            });
+        }
+
+        function selectLetter(div, letter) {
+            document.querySelectorAll(".letter").forEach(l => l.classList.remove("selected"));
+            div.classList.add("selected");
+            selectedLetter = letter;
+        }
+
+        function buildGrid() {
+            const grid = document.getElementById("grid");
+            grid.innerHTML = "";
+
+            for (let r = 0; r < ROWS; r++) {
+                for (let c = 0; c < COLS; c++) {
+                    const cell = document.createElement("div");
+                    cell.className = "cell";
+                    cell.dataset.row = r;
+                    cell.dataset.col = c;
+                    cell.dataset.locked = "false";
+
+                    if ((r === 0 && c === 0) || (r === 0 && c === COLS - 1) ||
+                        (r === ROWS - 1 && c === 0) || (r === ROWS - 1 && c === COLS - 1)) {
+                        cell.classList.add("corner");
+                    }
+
+                    cell.onclick = () => {
+                        if (cell.dataset.locked === "true") return;
+
+                        if (cell.textContent) {
+
+                            // Restore cleared letter back to the letter pool
+                            const letter = cell.textContent;
+                            const rowDiv = VOWELS.includes(letter) ?
+                                document.getElementById("vowelRow") :
+                                document.getElementById("consonantRow");
+
+                            const div = document.createElement("div");
+                            div.className = "letter";
+                            div.textContent = letter;
+                            div.onclick = () => selectLetter(div, letter);
+                            rowDiv.appendChild(div);
+
+                            // Clear the cell
+                            cell.textContent = "";
+
+                            // Remove from newPlacements
+                            newPlacements = newPlacements.filter(p => !(p.row == r && p.col == c));
+
+                            return;
+                        }
+
+                        if (selectedLetter) {
+                            cell.textContent = selectedLetter;
+                            newPlacements.push({
+                                row: r,
+                                col: c
+                            });
+
+                            // REMOVE the used letter tile from the letter row
+                            const tile = document.querySelector(`.letter.selected`);
+                            if (tile) tile.remove();
+
+                            // Clear selectedLetter so user must pick a new tile
+                            selectedLetter = null;
+                        }
+
+                    };
+
+                    grid.appendChild(cell);
+                }
+            }
+        }
+
+        function resetGame() {
+            document.querySelectorAll(".cell").forEach(c => c.dataset.locked = "false");
+            buildLetters();
+            buildGrid();
+            selectedLetter = null;
+            submittedWords = [];
+            newPlacements = [];
+            totalScore = 0;
+            document.getElementById("score").textContent =
+                "Words: 0 | Total Score: 0";
+        }
+
+        function getGridArray() {
+            const gridArray = [];
+            for (let r = 0; r < ROWS; r++) {
+                const row = [];
+                for (let c = 0; c < COLS; c++) {
+                    const cell = document.querySelector(`.cell[data-row="${r}"][data-col="${c}"]`);
+                    row.push(cell.textContent || "");
+                }
+                gridArray.push(row);
+            }
+            return gridArray;
+        }
+
+        async function submitWord() {
+            if (newPlacements.length === 0) {
+                alert("Place letters to form a word first.");
+                return;
+            }
+
+            const grid = getGridArray();
+
+            const sameRow = newPlacements.every(p => p.row === newPlacements[0].row);
+            const sameCol = newPlacements.every(p => p.col === newPlacements[0].col);
+
+            if (!sameRow && !sameCol) {
+                alert("Letters must form a straight line.");
+                return;
+            }
+
             let word = "";
 
             if (sameRow) {
-                // vertical cross-word
-                let rr = r;
-                while (rr > 0 && grid[rr - 1][c] !== "") rr--;
-                while (rr < ROWS && grid[rr][c] !== "") {
-                    word += grid[rr][c];
-                    rr++;
+                const row = newPlacements[0].row;
+                let cols = newPlacements.map(p => p.col).sort((a, b) => a - b);
+
+                let c = cols[0];
+                while (c > 0 && grid[row][c - 1] !== "") c--;
+                while (c < COLS && grid[row][c] !== "") {
+                    word += grid[row][c];
+                    c++;
                 }
+
             } else {
-                // horizontal cross-word
-                let cc = c;
-                while (cc > 0 && grid[r][cc - 1] !== "") cc--;
-                while (cc < COLS && grid[r][cc] !== "") {
-                    word += grid[r][cc];
-                    cc++;
+                const col = newPlacements[0].col;
+                let rows = newPlacements.map(p => p.row).sort((a, b) => a - b);
+
+                let r = rows[0];
+                while (r > 0 && grid[r - 1][col] !== "") r--;
+                while (r < ROWS && grid[r][col] !== "") {
+                    word += grid[r][col];
+                    r++;
                 }
             }
 
-            if (word.length > 1) {
-                wordsToCheck.push(word);
+            // SCRABBLE VALIDATION (main + cross words)
+            const result = await validateAllWords(grid, newPlacements, word, sameRow, sameCol);
+
+            if (!result.valid) {
+                alert("Invalid word found: " + result.badWord);
+                return;
             }
-        }
 
-        // If NO multi-letter words exist → invalid move
-        if (wordsToCheck.length === 0) {
-            return { valid: false, badWord: "(single letters only)" };
-        }
-
-        // Validate all words
-        for (let w of wordsToCheck) {
-            const valid = await checkWordInDictionary(w);
-            if (!valid) {
-                return { valid: false, badWord: w };
-            }
-        }
-
-        return { valid: true, words: wordsToCheck };
-    }
-
-    function randomLetters() {
-        const letters = [];
-        for (let i = 0; i < 4; i++) {
-            letters.push(VOWELS[Math.floor(Math.random() * VOWELS.length)]);
-        }
-        for (let i = 0; i < 5; i++) {
-            letters.push(CONSONANTS[Math.floor(Math.random() * CONSONANTS.length)]);
-        }
-        return letters;
-    }
-
-    function buildLetters() {
-        const vowelRow = document.getElementById("vowelRow");
-        const consonantRow = document.getElementById("consonantRow");
-
-        vowelRow.innerHTML = "";
-        consonantRow.innerHTML = "";
-
-        lettersPool = randomLetters();
-
-        const vowels = lettersPool.filter(l => VOWELS.includes(l));
-        const consonants = lettersPool.filter(l => CONSONANTS.includes(l));
-
-        vowels.forEach((letter) => {
-            const div = document.createElement("div");
-            div.className = "letter";
-            div.textContent = letter;
-            div.onclick = () => selectLetter(div, letter);
-            vowelRow.appendChild(div);
-        });
-
-        consonants.forEach((letter) => {
-            const div = document.createElement("div");
-            div.className = "letter";
-            div.textContent = letter;
-            div.onclick = () => selectLetter(div, letter);
-            consonantRow.appendChild(div);
-        });
-    }
-
-    function selectLetter(div, letter) {
-        document.querySelectorAll(".letter").forEach(l => l.classList.remove("selected"));
-        div.classList.add("selected");
-        selectedLetter = letter;
-    }
-
-    function buildGrid() {
-        const grid = document.getElementById("grid");
-        grid.innerHTML = "";
-
-        for (let r = 0; r < ROWS; r++) {
-            for (let c = 0; c < COLS; c++) {
-                const cell = document.createElement("div");
-                cell.className = "cell";
-                cell.dataset.row = r;
-                cell.dataset.col = c;
-                cell.dataset.locked = "false";
-
-                if ((r === 0 && c === 0) || (r === 0 && c === COLS-1) ||
-                    (r === ROWS-1 && c === 0) || (r === ROWS-1 && c === COLS-1)) {
-                    cell.classList.add("corner");
+            // Count corners
+            let cornersFilled = 0;
+            const cornerCoords = [{
+                    r: 0,
+                    c: 0
+                },
+                {
+                    r: 0,
+                    c: COLS - 1
+                },
+                {
+                    r: ROWS - 1,
+                    c: 0
+                },
+                {
+                    r: ROWS - 1,
+                    c: COLS - 1
                 }
+            ];
 
-                cell.onclick = () => {
-                    if (cell.dataset.locked === "true") return;
+            cornerCoords.forEach(corner => {
+                if (grid[corner.r][corner.c] !== "") {
+                    cornersFilled++;
+                }
+            });
 
-                if (cell.textContent) {
+            let multiplier = Math.max(1, cornersFilled);
 
-    // Restore cleared letter back to the letter pool
-    const letter = cell.textContent;
-    const rowDiv = VOWELS.includes(letter)
-        ? document.getElementById("vowelRow")
-        : document.getElementById("consonantRow");
+            // Add ALL words formed (main + cross)
+            submittedWords.push(...result.words);
 
-    const div = document.createElement("div");
-    div.className = "letter";
-    div.textContent = letter;
-    div.onclick = () => selectLetter(div, letter);
-    rowDiv.appendChild(div);
+            // LOCK placed letters
+            newPlacements.forEach(p => {
+                const cell = document.querySelector(`.cell[data-row="${p.row}"][data-col="${p.col}"]`);
+                cell.dataset.locked = "true";
+            });
 
-    // Clear the cell
-    cell.textContent = "";
+            // RESTORE used letters back to the letter pool
+            newPlacements.forEach(p => {
+                const letter = grid[p.row][p.col];
+                const rowDiv = VOWELS.includes(letter) ?
+                    document.getElementById("vowelRow") :
+                    document.getElementById("consonantRow");
 
-    // Remove from newPlacements
-    newPlacements = newPlacements.filter(p => !(p.row == r && p.col == c));
+                const div = document.createElement("div");
+                div.className = "letter";
+                div.textContent = letter;
+                div.onclick = () => selectLetter(div, letter);
+                rowDiv.appendChild(div);
+            });
 
-    return;
-}
+            // Score = total words × multiplier
+            totalScore = submittedWords.length * multiplier;
+            document.getElementById("score").textContent =
+                "Words: " + submittedWords.length + " | Total Score: " + totalScore;
 
+            alert(
+                "Valid words: " + result.words.join(", ") +
+                "\nCorners filled: " + cornersFilled +
+                "\nMultiplier: x" + multiplier +
+                "\nNew Total Score: " + totalScore
+            );
 
-               if (selectedLetter) {
-    cell.textContent = selectedLetter;
-    newPlacements.push({ row: r, col: c });
-
-    // REMOVE the used letter tile from the letter row
-    const tile = document.querySelector(`.letter.selected`);
-    if (tile) tile.remove();
-
-    // Clear selectedLetter so user must pick a new tile
-    selectedLetter = null;
-}
-
-                };
-
-                grid.appendChild(cell);
-            }
+            newPlacements = [];
         }
-    }
 
-    function resetGame() {
-        document.querySelectorAll(".cell").forEach(c => c.dataset.locked = "false");
         buildLetters();
         buildGrid();
-        selectedLetter = null;
-        submittedWords = [];
-        newPlacements = [];
-        totalScore = 0;
-        document.getElementById("score").textContent =
-            "Words: 0 | Total Score: 0";
-    }
+        async function sendScoreToServer(username, score) {
+            const url = "https://script.google.com/macros/s/AKfycbzsNGoOe-EsJslbJzgm6E7z60f8dHBwhHyXSoJj_GuC5nkTtjIHwXBdWZJj7bDmF0ZM/exec";
 
-    function getGridArray() {
-        const gridArray = [];
-        for (let r = 0; r < ROWS; r++) {
-            const row = [];
-            for (let c = 0; c < COLS; c++) {
-                const cell = document.querySelector(`.cell[data-row="${r}"][data-col="${c}"]`);
-                row.push(cell.textContent || "");
+            try {
+                const res = await fetch(url, {
+                    method: "POST",
+                    body: JSON.stringify({
+                        action: "submitScore",
+                        username: username,
+                        score: score
+                    })
+                });
+
+                const data = await res.json();
+
+                if (!data.ok) {
+                    console.log("Score submission failed:", data);
+                } else {
+                    console.log("Score submitted successfully");
+                }
+
+            } catch (err) {
+                console.log("Error sending score:", err);
             }
-            gridArray.push(row);
         }
-        return gridArray;
-    }
+        document.getElementById("submitTotalBtn").onclick = () => {
+            sendScoreToServer(currentUser, totalScore);
+            alert("Total score submitted!");
+        };
+        async function loadHighestScore() {
+            const url = "https://script.google.com/macros/s/AKfycbzsNGoOe-EsJslbJzgm6E7z60f8dHBwhHyXSoJj_GuC5nkTtjIHwXBdWZJj7bDmF0ZM/exec?action=getHighestScore";
 
-async function submitWord() {
-    if (newPlacements.length === 0) {
-        alert("Place letters to form a word first.");
-        return;
-    }
+            try {
+                const res = await fetch(url);
+                const data = await res.json();
 
-    const grid = getGridArray();
+                if (data.ok && data.username) {
+                    document.getElementById("highestScoreValue").textContent =
+                        `${data.username} - ${data.score}`;
+                } else {
+                    document.getElementById("highestScoreValue").textContent =
+                        "No scores yet";
+                }
 
-    const sameRow = newPlacements.every(p => p.row === newPlacements[0].row);
-    const sameCol = newPlacements.every(p => p.col === newPlacements[0].col);
+            } catch (err) {
+                document.getElementById("highestScoreValue").textContent =
+                    "Error loading score";
+                console.log(err);
+            }
+        }
+        loadHighestScore();
 
-    if (!sameRow && !sameCol) {
-        alert("Letters must form a straight line.");
-        return;
-    }
-
-    let word = "";
-
-    if (sameRow) {
-        const row = newPlacements[0].row;
-        let cols = newPlacements.map(p => p.col).sort((a,b)=>a-b);
-
-        let c = cols[0];
-        while (c > 0 && grid[row][c - 1] !== "") c--;
-        while (c < COLS && grid[row][c] !== "") {
-            word += grid[row][c];
-            c++;
+        function openLoginModal() {
+            document.getElementById("loginModal").style.display = "block";
         }
 
-    } else {
-        const col = newPlacements[0].col;
-        let rows = newPlacements.map(p => p.row).sort((a,b)=>a-b);
-
-        let r = rows[0];
-        while (r > 0 && grid[r - 1][col] !== "") r--;
-        while (r < ROWS && grid[r][col] !== "") {
-            word += grid[r][col];
-            r++;
-        }
-    }
-
-    // SCRABBLE VALIDATION (main + cross words)
-    const result = await validateAllWords(grid, newPlacements, word, sameRow, sameCol);
-
-    if (!result.valid) {
-        alert("Invalid word found: " + result.badWord);
-        return;
-    }
-
-    // Count corners
-    let cornersFilled = 0;
-    const cornerCoords = [
-        {r:0, c:0},
-        {r:0, c:COLS-1},
-        {r:ROWS-1, c:0},
-        {r:ROWS-1, c:COLS-1}
-    ];
-
-    cornerCoords.forEach(corner => {
-        if (grid[corner.r][corner.c] !== "") {
-            cornersFilled++;
-        }
-    });
-
-    let multiplier = Math.max(1, cornersFilled);
-
-    // Add ALL words formed (main + cross)
-    submittedWords.push(...result.words);
-
-    // LOCK placed letters
-    newPlacements.forEach(p => {
-        const cell = document.querySelector(`.cell[data-row="${p.row}"][data-col="${p.col}"]`);
-        cell.dataset.locked = "true";
-    });
-
-    // RESTORE used letters back to the letter pool
-    newPlacements.forEach(p => {
-        const letter = grid[p.row][p.col];
-        const rowDiv = VOWELS.includes(letter)
-            ? document.getElementById("vowelRow")
-            : document.getElementById("consonantRow");
-
-        const div = document.createElement("div");
-        div.className = "letter";
-        div.textContent = letter;
-        div.onclick = () => selectLetter(div, letter);
-        rowDiv.appendChild(div);
-    });
-
-    // Score = total words × multiplier
-    totalScore = submittedWords.length * multiplier;
-    document.getElementById("score").textContent =
-        "Words: " + submittedWords.length + " | Total Score: " + totalScore;
-
-    alert(
-        "Valid words: " + result.words.join(", ") +
-        "\nCorners filled: " + cornersFilled +
-        "\nMultiplier: x" + multiplier +
-        "\nNew Total Score: " + totalScore
-    );
-
-    newPlacements = [];
-}
-
-
-    buildLetters();
-    buildGrid();
-    async function sendScoreToServer(username, score) {
-    const url = "https://script.google.com/macros/s/AKfycbzsNGoOe-EsJslbJzgm6E7z60f8dHBwhHyXSoJj_GuC5nkTtjIHwXBdWZJj7bDmF0ZM/exec";
-
-    try {
-        const res = await fetch(url, {
-            method: "POST",
-            body: JSON.stringify({
-                action: "submitScore",
-                username: username,
-                score: score
-            })
-        });
-
-        const data = await res.json();
-
-        if (!data.ok) {
-            console.log("Score submission failed:", data);
-        } else {
-            console.log("Score submitted successfully");
+        function closeLoginModal() {
+            document.getElementById("loginModal").style.display = "none";
         }
 
-    } catch (err) {
-        console.log("Error sending score:", err);
-    }
-}
-document.getElementById("submitTotalBtn").onclick = () => {
-    sendScoreToServer(currentUser, totalScore);
-    alert("Total score submitted!");
-};
-async function loadHighestScore() {
-    const url = "https://script.google.com/macros/s/AKfycbzsNGoOe-EsJslbJzgm6E7z60f8dHBwhHyXSoJj_GuC5nkTtjIHwXBdWZJj7bDmF0ZM/exec?action=getHighestScore";
+        // tab switching
+        document.getElementById("tabLogin").onclick = () => {
+            document.getElementById("loginSection").style.display = "block";
+            document.getElementById("createSection").style.display = "none";
+            document.getElementById("tabLogin").classList.add("active");
+            document.getElementById("tabCreate").classList.remove("active");
+        };
 
-    try {
-        const res = await fetch(url);
-        const data = await res.json();
+        document.getElementById("tabCreate").onclick = () => {
+            document.getElementById("loginSection").style.display = "none";
+            document.getElementById("createSection").style.display = "block";
+            document.getElementById("tabCreate").classList.add("active");
+            document.getElementById("tabLogin").classList.remove("active");
+        };
 
-        if (data.ok && data.username) {
-            document.getElementById("highestScoreValue").textContent =
-                `${data.username} - ${data.score}`;
-        } else {
-            document.getElementById("highestScoreValue").textContent =
-                "No scores yet";
-        }
+        // LOGIN
+        document.getElementById("loginBtn").onclick = async () => {
+            const username = document.getElementById("loginUser").value;
+            const password = document.getElementById("loginPass").value;
 
-    } catch (err) {
-        document.getElementById("highestScoreValue").textContent =
-            "Error loading score";
-        console.log(err);
-    }
-}
-loadHighestScore();
+            const res = await fetch(APPSCRIPT_URL, {
+                method: "POST",
+                body: JSON.stringify({
+                    action: "loginUser",
+                    username: username,
+                    password: password
+                })
+            });
 
+            const data = await res.json();
 
-</script>
+            if (data.ok) {
+                currentUser = username;
+                document.getElementById("loginMsg").textContent = "Login successful!";
+                setTimeout(() => closeLoginModal(), 800);
+            } else {
+                document.getElementById("loginMsg").textContent = data.message || "Invalid login.";
+            }
+        };
 
+        // CREATE ACCOUNT
+        document.getElementById("createBtn").onclick = async () => {
+            const username = document.getElementById("createUser").value;
+            const pass1 = document.getElementById("createPass1").value;
+            const pass2 = document.getElementById("createPass2").value;
+
+            if (!username || !pass1 || !pass2) {
+                document.getElementById("createMsg").textContent = "Fill in all fields.";
+                return;
+            }
+
+            if (pass1 !== pass2) {
+                document.getElementById("createMsg").textContent = "Passwords do not match.";
+                return;
+            }
+
+            const res = await fetch(APPSCRIPT_URL, {
+                method: "POST",
+                body: JSON.stringify({
+                    action: "createAccount",
+                    username: username,
+                    password: pass1
+                })
+            });
+
+            const data = await res.json();
+
+            document.getElementById("createMsg").textContent = data.message;
+
+            if (data.ok) {
+                // auto‑switch to login tab with username filled
+                document.getElementById("loginUser").value = username;
+                document.getElementById("tabLogin").click();
+            }
+        };
+
+        // optional: close when clicking outside
+        window.onclick = function(event) {
+            const modal = document.getElementById("loginModal");
+            if (event.target === modal) {
+                closeLoginModal();
+            }
+        };
+        openLoginModal();
+    </script>
 
 
 </body>
+
 </html>
