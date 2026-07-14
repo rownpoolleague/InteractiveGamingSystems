@@ -40,6 +40,9 @@
             cursor: pointer;
             user-select: none;
             transition: transform 0.1s;
+            touch-action: none; 
+    -webkit-user-select: none;
+    user-select: none;
         }
 
         .letter.selected {
@@ -348,30 +351,29 @@
     const vowels = lettersPool.filter(l => VOWELS.includes(l));
     const consonants = lettersPool.filter(l => CONSONANTS.includes(l));
 
-    const createLetterDiv = (letter) => {
+   const createLetterDiv = (letter) => {
         const div = document.createElement("div");
         div.className = "letter";
         div.textContent = letter;
         div.draggable = true;
         
-        // Fix for mobile drag delay
-        div.style.touchAction = "none";
-        
-        // Track the row it belongs to for the dragend recovery
-        const containerId = VOWELS.includes(letter) ? "vowelRow" : "consonantRow";
+        // This stops the browser from scrolling while dragging
+        div.style.touchAction = "none"; 
+
+        // Pointer event allows immediate interaction on touch screens
+        div.onpointerdown = (e) => {
+            div.setPointerCapture(e.pointerId);
+            selectLetter(div, letter);
+        };
 
         div.ondragstart = (e) => {
             e.dataTransfer.setData("text/plain", letter);
             selectLetter(div, letter);
-            
-            // Remove from the rack immediately once the drag starts
-            setTimeout(() => {
-                div.remove();
-            }, 0);
+            setTimeout(() => { div.style.opacity = '0.5'; }, 0);
         };
 
         div.ondragend = (e) => {
-            // If the drop effect is 'none', it means it wasn't dropped on a valid cell
+            div.style.opacity = '1';
             if (e.dataTransfer.dropEffect === 'none') {
                 const container = document.getElementById(containerId);
                 container.appendChild(div);
@@ -636,7 +638,7 @@
         document.getElementById("submitTotalBtn").onclick = () => {
             sendScoreToServer(currentUser, totalScore);
             alert("Total score submitted!");
-            resetgame();
+            resetGame();
         };
         function showToast(message, duration = 3000) {
     const container = document.getElementById("toast-container");
