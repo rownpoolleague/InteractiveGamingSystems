@@ -185,6 +185,7 @@
 </head>
 
 <body>
+  
     <!-- Add this to your body -->
 <div id="toast-container"></div>
     <div id="loginModal" class="modal">
@@ -334,7 +335,7 @@
             return letters;
         }
 
-   function buildLetters() {
+ function buildLetters() {
     const vowelRow = document.getElementById("vowelRow");
     const consonantRow = document.getElementById("consonantRow");
 
@@ -351,6 +352,9 @@
         div.className = "letter";
         div.textContent = letter;
         div.draggable = true;
+        
+        // Fix for mobile drag delay
+        div.style.touchAction = "none";
         
         // Track the row it belongs to for the dragend recovery
         const containerId = VOWELS.includes(letter) ? "vowelRow" : "consonantRow";
