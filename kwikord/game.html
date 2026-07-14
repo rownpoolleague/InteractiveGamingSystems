@@ -72,6 +72,15 @@
         .corner {
             background: #ddd;
         }
+        /* Add to your <style> block */
+.letter {
+    /* ... existing styles ... */
+    cursor: grab; /* Shows it's draggable */
+}
+
+.cell.drag-over {
+    background: #e0e0e0; /* Visual feedback when dragging over a cell */
+}
 
         button {
             background: #4CAF50;
@@ -296,34 +305,58 @@
             return letters;
         }
 
-        function buildLetters() {
-            const vowelRow = document.getElementById("vowelRow");
-            const consonantRow = document.getElementById("consonantRow");
+   function buildLetters() {
+    const vowelRow = document.getElementById("vowelRow");
+    const consonantRow = document.getElementById("consonantRow");
 
-            vowelRow.innerHTML = "";
-            consonantRow.innerHTML = "";
+    vowelRow.innerHTML = "";
+    consonantRow.innerHTML = "";
 
-            lettersPool = randomLetters();
+    lettersPool = randomLetters();
 
-            const vowels = lettersPool.filter(l => VOWELS.includes(l));
-            const consonants = lettersPool.filter(l => CONSONANTS.includes(l));
+    const vowels = lettersPool.filter(l => VOWELS.includes(l));
+    const consonants = lettersPool.filter(l => CONSONANTS.includes(l));
 
-            vowels.forEach((letter) => {
-                const div = document.createElement("div");
-                div.className = "letter";
-                div.textContent = letter;
-                div.onclick = () => selectLetter(div, letter);
-                vowelRow.appendChild(div);
-            });
+    const createLetterDiv = (letter) => {
+        const div = document.createElement("div");
+        div.className = "letter";
+        div.textContent = letter;
+        div.draggable = true;
+        
+        // Track the row it belongs to for the dragend recovery
+        const containerId = VOWELS.includes(letter) ? "vowelRow" : "consonantRow";
 
-            consonants.forEach((letter) => {
-                const div = document.createElement("div");
-                div.className = "letter";
-                div.textContent = letter;
-                div.onclick = () => selectLetter(div, letter);
-                consonantRow.appendChild(div);
-            });
-        }
+        div.ondragstart = (e) => {
+            e.dataTransfer.setData("text/plain", letter);
+            selectLetter(div, letter);
+            
+            // Remove from the rack immediately once the drag starts
+            setTimeout(() => {
+                div.remove();
+            }, 0);
+        };
+
+        div.ondragend = (e) => {
+            // If the drop effect is 'none', it means it wasn't dropped on a valid cell
+            if (e.dataTransfer.dropEffect === 'none') {
+                const container = document.getElementById(containerId);
+                container.appendChild(div);
+            }
+        };
+
+        div.onclick = () => selectLetter(div, letter);
+        
+        return div;
+    };
+
+    vowels.forEach((letter) => {
+        vowelRow.appendChild(createLetterDiv(letter));
+    });
+
+    consonants.forEach((letter) => {
+        consonantRow.appendChild(createLetterDiv(letter));
+    });
+}
 
         function selectLetter(div, letter) {
             document.querySelectorAll(".letter").forEach(l => l.classList.remove("selected"));
@@ -331,70 +364,76 @@
             selectedLetter = letter;
         }
 
-        function buildGrid() {
-            const grid = document.getElementById("grid");
-            grid.innerHTML = "";
+       function buildGrid() {
+    const grid = document.getElementById("grid");
+    grid.innerHTML = "";
 
-            for (let r = 0; r < ROWS; r++) {
-                for (let c = 0; c < COLS; c++) {
-                    const cell = document.createElement("div");
-                    cell.className = "cell";
-                    cell.dataset.row = r;
-                    cell.dataset.col = c;
-                    cell.dataset.locked = "false";
+    for (let r = 0; r < ROWS; r++) {
+        for (let c = 0; c < COLS; c++) {
+            const cell = document.createElement("div");
+            cell.className = "cell";
+            cell.dataset.row = r;
+            cell.dataset.col = c;
+            cell.dataset.locked = "false";
 
-                    if ((r === 0 && c === 0) || (r === 0 && c === COLS - 1) ||
-                        (r === ROWS - 1 && c === 0) || (r === ROWS - 1 && c === COLS - 1)) {
-                        cell.classList.add("corner");
-                    }
-
-                    cell.onclick = () => {
-                        if (cell.dataset.locked === "true") return;
-
-                        if (cell.textContent) {
-
-                            // Restore cleared letter back to the letter pool
-                            const letter = cell.textContent;
-                            const rowDiv = VOWELS.includes(letter) ?
-                                document.getElementById("vowelRow") :
-                                document.getElementById("consonantRow");
-
-                            const div = document.createElement("div");
-                            div.className = "letter";
-                            div.textContent = letter;
-                            div.onclick = () => selectLetter(div, letter);
-                            rowDiv.appendChild(div);
-
-                            // Clear the cell
-                            cell.textContent = "";
-
-                            // Remove from newPlacements
-                            newPlacements = newPlacements.filter(p => !(p.row == r && p.col == c));
-
-                            return;
-                        }
-
-                        if (selectedLetter) {
-                            cell.textContent = selectedLetter;
-                            newPlacements.push({
-                                row: r,
-                                col: c
-                            });
-
-                            // REMOVE the used letter tile from the letter row
-                            const tile = document.querySelector(`.letter.selected`);
-                            if (tile) tile.remove();
-
-                            // Clear selectedLetter so user must pick a new tile
-                            selectedLetter = null;
-                        }
-
-                    };
-
-                    grid.appendChild(cell);
-                }
+            if ((r === 0 && c === 0) || (r === 0 && c === COLS - 1) ||
+                (r === ROWS - 1 && c === 0) || (r === ROWS - 1 && c === COLS - 1)) {
+                cell.classList.add("corner");
             }
+
+            // ALLOW DRAGGING OVER THE CELL
+            cell.ondragover = (e) => {
+                if (cell.dataset.locked === "true" || cell.textContent) return;
+                e.preventDefault();
+            };
+
+            // HANDLE THE DROP
+            cell.ondrop = (e) => {
+                e.preventDefault();
+                if (cell.dataset.locked === "true" || cell.textContent) return;
+
+                const letter = e.dataTransfer.getData("text/plain");
+                cell.textContent = letter;
+                
+                newPlacements.push({ row: r, col: c });
+
+                // Remove the used letter tile from the letter row
+                const tile = document.querySelector(`.letter.selected`);
+                if (tile) tile.remove();
+
+                selectedLetter = null;
+            };
+
+            // KEEP CLICK TO REMOVE (as you requested, keeping logic separate)
+            cell.onclick = () => {
+                if (cell.dataset.locked === "true") return;
+
+                if (cell.textContent) {
+                    const letter = cell.textContent;
+                    const rowDiv = VOWELS.includes(letter) ?
+                        document.getElementById("vowelRow") :
+                        document.getElementById("consonantRow");
+
+                    const div = document.createElement("div");
+                    div.className = "letter";
+                    div.textContent = letter;
+                    div.draggable = true; // Ensure new div is also draggable
+                    div.ondragstart = (e) => {
+                        e.dataTransfer.setData("text/plain", letter);
+                        selectLetter(div, letter);
+                    };
+                    div.onclick = () => selectLetter(div, letter);
+                    rowDiv.appendChild(div);
+
+                    cell.textContent = "";
+                    newPlacements = newPlacements.filter(p => !(p.row == r && p.col == c));
+                }
+            };
+
+            grid.appendChild(cell);
         }
+    }
+}
 
         function resetGame() {
             document.querySelectorAll(".cell").forEach(c => c.dataset.locked = "false");
@@ -570,7 +609,7 @@ const duplicates = result.words.filter(w => submittedWords.includes(w));
         document.getElementById("submitTotalBtn").onclick = () => {
             sendScoreToServer(currentUser, totalScore);
             alert("Total score submitted!");
-            resetGame();
+            resetgame();
         };
         async function loadHighestScore() {
             const url = "https://script.google.com/macros/s/AKfycbzsNGoOe-EsJslbJzgm6E7z60f8dHBwhHyXSoJj_GuC5nkTtjIHwXBdWZJj7bDmF0ZM/exec?action=getHighestScore";
@@ -581,7 +620,7 @@ const duplicates = result.words.filter(w => submittedWords.includes(w));
 
                 if (data.ok && data.username) {
                     document.getElementById("highestScoreValue").textContent =
-                        `${data.username} - ${data.score}`;
+                        `${data.username}  ${data.score}`;
                 } else {
                     document.getElementById("highestScoreValue").textContent =
                         "No scores yet";
