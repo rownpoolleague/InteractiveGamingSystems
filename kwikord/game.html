@@ -6,7 +6,7 @@
     <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
     <title>Kwikord Game</title>
     <style>
-        body {
+       body {
         background: #C23B7A;
         font-family: Arial, sans-serif;
         color: white;
@@ -17,6 +17,7 @@
         align-items: center;
         min-height: 100vh;
         overscroll-behavior: none;
+        box-sizing: border-box;
     }
 
         h1 {
@@ -54,15 +55,15 @@
         }
 
         #grid {
-        display: grid;
-        grid-template-columns: repeat(7, 1fr);
-        grid-template-rows: repeat(8, 1fr);
-        gap: 3px;
-        width: 95vw;
-        max-width: 400px; /* Keeps it from getting too big on tablets */
-        aspect-ratio: 7 / 8; /* Forces the grid to maintain its shape */
-        margin: 5px auto;
-    }
+    display: grid;
+    grid-template-columns: repeat(7, 1fr);
+    grid-template-rows: repeat(8, 1fr);
+    gap: 4px;
+    width: 90vw;            /* Slightly less than 100vw to add breathing room */
+    max-width: 400px;       /* Keeps it from becoming too large */
+    margin: 10px auto;      /* The 'auto' left/right margins center it */
+    aspect-ratio: 7 / 8;    /* Maintains the shape */
+}
 
         .cell {
         aspect-ratio: 1 / 1;
@@ -119,7 +120,13 @@
             height: 100%;
             background: rgba(0, 0, 0, 0.7);
         }
-
+.button-container {
+    display: flex;
+    justify-content: center; /* Centers buttons horizontally */
+    flex-wrap: wrap;         /* Allows wrapping if screen is too narrow */
+    gap: 8px;                /* Adds space between buttons */
+    margin-top: 10px;
+}
         .modal-content {
             background: #C23B7A;
             color: white;
@@ -234,9 +241,12 @@
 
 
     <div id="consonantRow" class="letter-row"></div>
+    <div class="button-container">
     <button onclick="submitWord()">Submit Word</button>
     <button id="submitTotalBtn">Submit Score</button>
-<br><button onclick="resetGame()">Reset Game</button>
+    <button onclick="resetGame()">Reset Game</button>
+</div>
+
 
 <script>
     let currentUser = null;
