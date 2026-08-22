@@ -274,7 +274,7 @@ function filterTable() {
                 count: count ? count.trim() : ""
             };
         });
-
+parsed.sort((a, b) => a.item.localeCompare(b.item, undefined, { sensitivity: 'accent', numeric: true }));
         // Build table rows
         const rowsHtml = parsed.map(p => `
             <tr>
