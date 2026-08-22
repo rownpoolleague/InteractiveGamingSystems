@@ -345,12 +345,16 @@ let parameters = [
             }
         }
 
-        async function handleLogin() {
+async function handleLogin() {
     const userInput = document.getElementById("userInput").value.trim();
     const passwordInput = document.getElementById("passwordInput").value;
     const errorText = document.getElementById("loginError");
 
     errorText.style.display = "none";
+
+    // 1. Ensure the admin link is hidden by default on every login attempt
+    const adminLink = document.getElementById('adminLink');
+    if (adminLink) adminLink.style.display = 'none';
 
     if (!userInput || !passwordInput) {
         errorText.innerText = "Please enter both username and password.";
@@ -383,24 +387,24 @@ let parameters = [
         }
 
         // ✅ Reset entries and assign new user session details
-        // ✅ Reset entries and assign new user session details
-inventorySession.user = data.username;
-inventorySession.store = data.store;
-inventorySession.area = data.area;
-inventorySession.entries = {}; 
-saveSessionToLocal();
+        inventorySession.user = data.username;
+        inventorySession.store = data.store;
+        inventorySession.area = data.area;
+        inventorySession.entries = {}; 
+        saveSessionToLocal();
 
-// 🔥 USER‑SPECIFIC REDIRECTS
-if (data.username === "admin") {
-    document.getElementById('adminLink').style.display = 'inline-block';
-    return;
-}
-// Default login behavior
-document.getElementById("userInput").value = "";
-document.getElementById("passwordInput").value = "";
-document.getElementById("storeDisplay").innerText =
-    "Store: " + inventorySession.store +
-    (inventorySession.area ? " | Area: " + inventorySession.area : "");
+        // 🔥 USER‑SPECIFIC LOGIC
+        if (data.username === "admin") {
+            if (adminLink) adminLink.style.display = 'inline-block';
+            return;
+        }
+
+        // Default login behavior for non-admin users
+        document.getElementById("userInput").value = "";
+        document.getElementById("passwordInput").value = "";
+        document.getElementById("storeDisplay").innerText =
+            "Store: " + inventorySession.store +
+            (inventorySession.area ? " | Area: " + inventorySession.area : "");
 
         showPage("page-name");
 
