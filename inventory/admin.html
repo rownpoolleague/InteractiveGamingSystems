@@ -148,6 +148,16 @@
     </div>
 
     <script>
+        // Protect landing page
+document.addEventListener("DOMContentLoaded", () => {
+    const allowedUser = "admin"; // whoever is allowed
+
+    if (!inventorySession.user || inventorySession.user !== allowedUser) {
+        // Deny access and redirect
+        window.location.href = "index.html"; 
+    }
+});
+
         const SUPABASE_URL = "https://sqfpwjyxmcdfodjncbfn.supabase.co";
         const SUPABASE_KEY = "sb_publishable_UlB6NKia99PpvnrcNHOwUw_K56U_bIp";
 
