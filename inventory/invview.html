@@ -1,0 +1,310 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Store Report Lookup</title>
+    <style>
+        body {
+            font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, Helvetica, Arial, sans-serif;
+            margin: 0;
+            padding: 15px;
+            background-color: #f4f4f9;
+            color: #333;
+        }
+        h2 {
+            font-size: 1.5rem;
+            margin-bottom: 15px;
+            text-align: center;
+        }
+        .controls {
+            background: white;
+            padding: 15px;
+            border-radius: 8px;
+            box-shadow: 0 2px 4px rgba(0,0,0,0.1);
+            display: flex;
+            flex-direction: column;
+            gap: 12px;
+            margin-bottom: 20px;
+        }
+        .control-group {
+            display: flex;
+            flex-direction: column;
+            gap: 5px;
+        }
+        label {
+            font-weight: bold;
+            font-size: 0.9rem;
+        }
+        select, button {
+            width: 100%;
+            padding: 12px;
+            font-size: 1rem;
+            border-radius: 6px;
+            border: 1px solid #ccc;
+            background: #fff;
+            box-sizing: border-box;
+        }
+        button {
+            background-color: #007bff;
+            color: white;
+            border: none;
+            font-weight: bold;
+            cursor: pointer;
+            margin-top: 5px;
+        }
+        button:hover {
+            background-color: #0056b3;
+        }
+        .status {
+            text-align: center;
+            font-style: italic;
+            color: #666;
+            font-size: 0.85rem;
+        }
+        /* Mobile-friendly report card layout */
+        .report-card {
+            background: white;
+            border-radius: 8px;
+            padding: 15px;
+            box-shadow: 0 2px 4px rgba(0,0,0,0.1);
+            margin-bottom: 15px;
+        }
+        .report-header {
+            font-size: 0.85rem;
+            color: #666;
+            margin-bottom: 10px;
+            border-bottom: 1px solid #eee;
+            padding-bottom: 8px;
+            display: flex;
+            justify-content: space-between;
+        }
+        .report-content {
+            display: grid;
+            grid-template-columns: 1fr 1fr;
+            gap: 15px;
+        }
+        @media (max-width: 600px) {
+            .report-content {
+                grid-template-columns: 1fr;
+            }
+        }
+        .column-box {
+            background: #f9f9fc;
+            padding: 10px;
+            border-radius: 6px;
+            border: 1px solid #eee;
+        }
+        .column-box h4 {
+            margin: 0 0 8px 0;
+            font-size: 0.85rem;
+            color: #555;
+            text-transform: uppercase;
+            letter-spacing: 0.5px;
+        }
+        pre {
+            margin: 0;
+            font-family: inherit;
+            white-space: pre-wrap;
+            word-break: break-word;
+            font-size: 0.95rem;
+            line-height: 1.4;
+        }
+        .placeholder {
+            text-align: center;
+            color: #777;
+            background: white;
+            padding: 20px;
+            border-radius: 8px;
+            box-shadow: 0 2px 4px rgba(0,0,0,0.1);
+        }
+    </style>
+</head>
+<body>
+
+    <h2>Store Report Lookup</h2>
+    
+    <div class="controls">
+        <div class="control-group">
+            <label for="storeSelect">Select Store:</label>
+            <select id="storeSelect" onchange="onStoreChange()">
+                <option value="">-- Choose Store --</option>
+            </select>
+        </div>
+
+        <div class="control-group">
+            <label for="dateSelect">Select Date:</label>
+            <select id="dateSelect" onchange="filterTable()" disabled>
+                <option value="">-- Choose Date First --</option>
+            </select>
+        </div>
+
+        <button onclick="fetchData()">Refresh Data</button>
+        <div class="status" id="status">Loading data...</div>
+    </div>
+
+    <div id="resultsContainer">
+        <div class="placeholder">Please select a store and date to view reports.</div>
+    </div>
+
+    <script>
+        const SUPABASE_URL = "https://sqfpwjyxmcdfodjncbfn.supabase.co";
+        const SUPABASE_KEY = "sb_publishable_UlB6NKia99PpvnrcNHOwUw_K56U_bIp";
+
+        let allData = [];
+
+        async function fetchData() {
+            document.getElementById('status').innerText = "Fetching updates...";
+            try {
+                const response = await fetch(`${SUPABASE_URL}/rest/v1/reporting?select=*`, {
+                    headers: {
+                        "apikey": SUPABASE_KEY,
+                        "Authorization": `Bearer ${SUPABASE_KEY}`
+                    }
+                });
+
+                if (!response.ok) throw new Error('Failed to fetch data');
+
+                allData = await response.json();
+                populateStores(allData);
+                
+                // If selections were already made, refresh view
+                filterTable();
+                document.getElementById('status').innerText = "Up to date";
+            } catch (err) {
+                console.error(err);
+                document.getElementById('status').innerText = "Error loading data.";
+            }
+        }
+
+        function populateStores(data) {
+            const storeSelect = document.getElementById('storeSelect');
+            const currentStore = storeSelect.value;
+
+            const stores = [...new Set(data.map(row => row.store))].filter(Boolean).sort();
+
+            storeSelect.innerHTML = '<option value="">-- Choose Store --</option>';
+            stores.forEach(store => {
+                let opt = document.createElement('option');
+                opt.value = store;
+                opt.textContent = `Store ${store}`;
+                if (store == currentStore) opt.selected = true;
+                storeSelect.appendChild(opt);
+            });
+        }
+
+        function onStoreChange() {
+            const storeSelect = document.getElementById('storeSelect');
+            const dateSelect = document.getElementById('dateSelect');
+            const selectedStore = storeSelect.value;
+
+            dateSelect.value = "";
+            
+            if (!selectedStore) {
+                dateSelect.innerHTML = '<option value="">-- Choose Store First --</option>';
+                dateSelect.disabled = true;
+                renderEmpty("Please select a store and date to view reports.");
+                return;
+            }
+
+            // Filter dates available for this specific store
+            const storeRows = allData.filter(row => String(row.store) === String(selectedStore));
+            const dates = [...new Set(storeRows.map(row => row.timestamp ? row.timestamp.split('T')[0] : ''))].filter(Boolean).sort().reverse();
+
+            dateSelect.innerHTML = '<option value="">-- Choose Date --</option>';
+            dates.forEach(date => {
+                let opt = document.createElement('option');
+                opt.value = date;
+                opt.textContent = date;
+                dateSelect.appendChild(opt);
+            });
+
+            dateSelect.disabled = false;
+            renderEmpty("Please select a date.");
+        }
+
+function filterTable() {
+    const selectedStore = document.getElementById('storeSelect').value;
+    const selectedDate = document.getElementById('dateSelect').value;
+    const container = document.getElementById('resultsContainer');
+
+    if (!selectedStore || !selectedDate) {
+        renderEmpty("Please select both a store and a date.");
+        return;
+    }
+
+    const filtered = allData.filter(row => {
+        const rowDate = row.timestamp ? row.timestamp.split('T')[0] : '';
+        return String(row.store) === String(selectedStore) && rowDate === selectedDate;
+    });
+
+    if (filtered.length === 0) {
+        renderEmpty("No reports found for this store on this date.");
+        return;
+    }
+
+    container.innerHTML = "";
+
+    filtered.forEach(row => {
+        let reportText = row.reportjson || "";
+
+        // Ensure it's a string
+        if (typeof reportText !== "string") {
+            reportText = JSON.stringify(reportText, null, 2);
+        }
+
+        // Split into lines
+        const lines = reportText.split(/\r?\n/).filter(l => l.trim() !== "");
+
+        // Parse "item:count"
+        const parsed = lines.map(line => {
+            const [item, count] = line.split(":");
+            return {
+                item: item ? item.trim() : "",
+                count: count ? count.trim() : ""
+            };
+        });
+
+        // Build table rows
+        const rowsHtml = parsed.map(p => `
+            <tr>
+                <td>${p.item}</td>
+                <td style="text-align:right;">${p.count}</td>
+            </tr>
+        `).join("");
+
+        let card = document.createElement('div');
+        card.className = 'report-card';
+        card.innerHTML = `
+            <div class="report-header">
+                <span><strong>Store:</strong> ${row.store}</span>
+                <span>${row.timestamp ? new Date(row.timestamp).toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' }) : ''}</span>
+            </div>
+
+            <table style="width:100%; border-collapse:collapse; font-size:1rem;">
+                <thead>
+                    <tr>
+                        <th style="text-align:left;">Item</th>
+                        <th style="text-align:right;">Count</th>
+                    </tr>
+                </thead>
+                <tbody>
+                    ${rowsHtml}
+                </tbody>
+            </table>
+        `;
+
+        container.appendChild(card);
+    });
+}
+
+
+        function renderEmpty(message) {
+            document.getElementById('resultsContainer').innerHTML = `<div class="placeholder">${message}</div>`;
+        }
+
+        // Initial load
+        fetchData();
+    </script>
+</body>
+</html>
