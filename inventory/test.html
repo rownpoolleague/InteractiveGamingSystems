@@ -166,7 +166,7 @@
             <br><br>
 <button onclick="printReviewList()" style="margin-bottom: 15px; padding: 8px 16px; cursor: pointer;">Print List</button>
          <br><br>
-             <button onclick="handleLogout()" style="background-color: #000; color: #C90014; ">Log Out</button>
+             <button onclick="out()" style="background-color: #000; color: #C90014; ">Log Out</button>
         </div>
 
         <footer style="width: 100%; text-align: center;">
@@ -378,12 +378,7 @@ inventorySession.entries = {};
 saveSessionToLocal();
 
 // 🔥 USER‑SPECIFIC REDIRECTS
-if (data.username === "Emily") {
-    showPage("page-review");
-    return;
-}
-
-if (data.username === "MRondonDO") {
+if (data.username === "MRondonDO!") {
     window.location.href = "admin.html";
     return;
 }
