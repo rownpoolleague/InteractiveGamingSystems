@@ -1,0 +1,918 @@
+<!DOCTYPE html>
+<html>
+
+<head>
+    <link rel="manifest" href="manifest.json">
+    <meta name="theme-color" content="#000000">
+    <meta charset="UTF-8">
+    <meta name="apple-mobile-web-app-capable" content="yes">
+    <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
+    <meta name="apple-mobile-web-app-title" content="Inventory App">
+    <link rel="apple-touch-icon" href="icon-192.png">
+    <title>QH Inventory Helper</title>
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
+    <style>
+        body {
+            background-color: #ffffff;
+            color: #000000;
+            font-family: 'Segoe UI', sans-serif;
+            margin: 0;
+            padding: 0;
+            display: flex;
+            justify-content: center;
+            align-items: stretch;
+            min-height: 100vh;
+            overscroll-behavior-y: contain;
+            overflow-x: hidden;
+        }
+
+        .form-wrapper {
+            width: 100%;
+            max-width: 600px;
+            min-height: 100vh;
+            border: 6px solid #C90014;
+            padding: 20px 10px;
+            text-align: center;
+            box-sizing: border-box;
+            position: relative;
+            display: flex;
+            flex-direction: column;
+            justify-content: space-between;
+        }
+
+        .page {
+            display: none;
+            flex-grow: 1;
+            width: 100%;
+            box-sizing: border-box;
+        }
+
+        button {
+            background-color: #C90014;
+            color: #ffffff;
+            border: 2px solid #000000;
+            box-sizing: border-box;
+            width: 100%;
+            max-width: 280px;
+            border-radius: 6px;
+            padding: 10px 20px;
+            font-weight: bold;
+            cursor: pointer;
+            margin: 5px auto;
+            font-size: 23px;
+        }
+
+        input,
+        select {
+            padding: 8px;
+            font-size: 20px;
+            width: 80%;
+            max-width: 280px;
+            margin: 10px auto;
+            box-sizing: border-box;
+        }
+
+        h2 {
+            font-size: 30px;
+        }
+
+        footer {
+            text-align: center;
+            padding: 20px 0 10px 0;
+            margin-top: auto;
+            width: 100%;
+        }
+
+        .powered-by {
+            display: block;
+            margin-top: 10px;
+            color: #C90014;
+            text-decoration: none;
+            font-size: 0.8rem;
+            font-weight: bold;
+            text-shadow: 0 0 8px rgba(30, 144, 255, 0.5);
+        }
+
+        .powered-by:hover {
+            text-decoration: underline;
+        }
+    </style>
+    <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
+</head>
+
+<body>
+
+    <div class="form-wrapper">
+       <!-- Login Page -->
+<div id="page-login" class="page">
+    <h2>Login</h2>
+    <input id="userInput" type="text" placeholder="Username" autocomplete="username">
+    <br>
+    <input id="passwordInput" type="password" placeholder="Password" autocomplete="current-password">
+    <br><br>
+    <button onclick="handleLogin()" style="background-color: #C90014;">Login</button>
+    <br><br>
+    <a href="#" onclick="showChangePasswordModal(); return false;" style="color: #C23B7A; text-decoration: underline; display: inline-block; margin-top: 15px;">Change Password</a>
+    <p id="loginError" style="color: #C23B7A; font-weight: bold; display: none; margin-top: 15px;"></p>
+</div>
+
+<!-- Change Password Modal / View Section -->
+<div id="page-change-password" class="page" style="display: none;">
+    <h2>Change Password</h2>
+    <input id="cpUser" type="text" placeholder="Username" autocomplete="username">
+    <br>
+    <input id="cpOldPassword" type="password" placeholder="Old Password" autocomplete="current-password">
+    <br>
+    <input id="cpNewPassword" type="password" placeholder="New Password" autocomplete="new-password">
+    <br><br>
+    <button onclick="handlePasswordChange()" style="background-color: #C90014; ">Update Password</button>
+    <button onclick="showLoginPage()" style="background-color: #000;">Back</button>
+    <p id="cpError" style="color: #C23B7A; font-weight: bold; display: none; margin-top: 15px;"></p>
+</div>      
+
+        <div id="page-name" class="page">
+            <h2>Search by Name</h2>
+<div id="storeDisplay" style="font-weight: bold; margin-bottom: 15px; font-size: 20px; color: #C90014;"></div><br><br>
+            <input id="nameInput" style="width:280px;" type="text" placeholder="Start typing..." oninput="filterNameList()" autocomplete="off"><br><br>
+            <div id="customDropdown" style="max-height: 200px; overflow-y: auto; border: 1px solid #ccc; display: none; text-align: left; width: 80%; margin: 0 auto;"></div>
+            <br><br>
+            <button onclick="goReview()">Review Inventory</button>
+            <br><br><br><br>
+            <a href="#" onclick="document.getElementById('instructionModal').style.display='flex'; return false;" 
+   style="display:block; margin:10px; color:#C90014; font-weight:bold; text-decoration:underline; cursor:pointer;">
+   INSTRUCTIONS
+</a>
+        </div>
+
+      
+        <div id="page-item-entry" class="page">
+            <h2 id="entryItemName"></h2>
+            <div id="unitInputs"></div>
+            <br>
+            <label style="cursor: pointer; font-weight: bold;">
+    Flag item to order <input type="checkbox" id="flagOrderCheckbox" style="margin-left: 8px; transform: scale(1.3); cursor: pointer;">
+</label><br><br>
+            <div id="itemTotal" style="margin-top:10px; font-size:18px; font-weight:bold;">Total: 0</div>
+            <button onclick="saveItemEntry()">Save Item</button>
+            <br><br>
+            <button onclick="backToMenu()">Back</button>
+        </div>
+
+        <div id="page-review" class="page">
+            <h2>Review Inventory</h2>
+            <div id="reviewList"></div>
+<br><br>
+            <button onclick="backToMenu()">Search</button>
+            <br><br>
+<button onclick="printReviewList()" style="margin-bottom: 15px; padding: 8px 16px; cursor: pointer;">Print List</button>
+         <br><br>
+             <button onclick="handleLogout()" style="background-color: #000; color: #C90014; ">Log Out</button>
+        </div>
+
+        <footer style="width: 100%; text-align: center;">
+            <img src="qhicon512.png" style="width: 150px; display: block; margin: 0 auto;">
+            <a href="https://interactivegamingsystems.app" class="powered-by">Powered by Interactive Gaming Systems</a>
+        </footer>
+    </div>
+
+    <div id="successModal" style="display:none; position:fixed; top:0; left:0; width:100%; height:100%; background:rgba(0,0,0,0.6); justify-content:center; align-items:center;">
+        <div style="background:white; padding:20px; width:80%; max-width:300px; border-radius:8px; text-align:center;">
+            <h3>Success!</h3>
+            <p>Inventory saved successfully!</p>
+            <button onclick="closeSuccessModal()">OK</button>
+        </div>
+    </div>
+
+    <div id="instructionModal" style="display:none; position:fixed; top:0; left:0; width:100%; height:100%; background:rgba(0,0,0,0.6); justify-content:center; align-items:center; z-index: 2000;">
+  <div style="background:white; padding:20px; width:90%; max-width:400px; border-radius:8px; text-align:left; max-height:80vh; overflow-y:auto; border: 6px solid #c90014;">
+    <h3>How to Use</h3>
+<p><strong>Connecting to printer</strong></p>
+<p>1. Choose the wifi icon on your Brother printer.</p>
+<p>2. Choose "Setup Wizard".</p>
+<p>3. Choose "Pizza Hut Guest wifi".</p>
+<p>4. Make sure your phone is also connected to guest wifi.</p>
+
+
+    <p><strong>1. Search:</strong> Start typing in the search bar to find an item. Click the item to begin the item count.</p>
+    <p><strong>2. Item Entry:</strong> Enter the values for each unit type i.e. "Case", "Bag", "Each", etc. Click save. You may adjust your number at any time, even after saving.</p>
+    <p><strong>3. Flag item to order:</strong> Checking the box will create a record you can print as a reminder to order items.</p>
+<p><strong>4. Calculator:</strong> Tap the calculator icon to add to your already saved total. Useful at EOD when adding in uncounted items. (Loose Boxes, maketable items and so on)</p>
+    
+    <p><strong>5. Review Inventory:</strong> This screen shows a full list of all saved items in FMS order. Click an item here to adjust the count if needed. You will also see a list of your flagged items at the bottom. PLEASE PRINT THIS AS A REMINDER AS YOUR INVENTORY WILL </p>
+   
+    <p><strong>SEARCH TIP:</strong> Items are named strategically. For instance, when counting in the freezer type "Dough", after you save an item, the dough list is reloaded; the word "Cup" will produce all sauce cups etc.
+    
+    <button onclick="document.getElementById('instructionModal').style.display='none'" 
+            style="background:#C90014; color:white; border: 2px solid #000000; padding:10px; width:100%; max-width:200px; display:block; margin:15px auto; border-radius:6px; font-weight:bold;">
+      Close
+    </button>
+    <script>
+        const SUPABASE_URL = "https://sqfpwjyxmcdfodjncbfn.supabase.co";
+        const SUPABASE_ANON_KEY = "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6InNxZnB3anl4bWNkZm9kam5jYmZuIiwicm9sZSI6ImFub24iLCJpYXQiOjE3ODU1NTEzMTAsImV4cCI6MjEwMTEyNzMxMH0.2m38rBmHn1wZ0zK82whefu5-nSPJsODTr2X7mX6o6QA";
+
+        let supabaseClient = supabase.createClient(SUPABASE_URL, SUPABASE_ANON_KEY);
+        let inventorySession = {
+            store: null,
+            user: null,
+            area: null,
+            entries: {}
+        };
+
+let parameters = [
+  { "item": "Pesto Sauce", "type": "Sauce", "validUnits": ["Full Case", "Bag"], "unitValues": { "Full Case": 15, "Bag": 1 } },
+  { "item": "Butter Sauce", "type": "Sauce", "validUnits": ["Full Case", "Each"], "unitValues": { "Full Case": 4, "Each": 1 } },
+  { "item": "Garlic Butter", "type": "Sauce", "validUnits": ["Full Case", "Each"], "unitValues": { "Full Case": 4, "Each": 1 } },
+  { "item": "Medium Hand Tossed Dough 12in", "type": "Dough", "validUnits": ["Full Case",  "Sleeve", "Each"], "unitValues": { "Full Case": 36, "Sleeve": 9, "Each": 1 } },
+  { "item": "Large Hand Tossed Dough 14in", "type": "Dough", "validUnits": ["Full Case", "Sleeve", "Each"], "unitValues": { "Full Case": 32, "Sleeve": 8, "Each": 1 } },
+  { "item": "Hut Dust", "type": "Seasoning", "validUnits": ["Full Case", "Bag"], "unitValues": { "Full Case": 6, "Bag": 1 } },
+  { "item": "Maketable Buffalo", "type": "Sauce", "validUnits": ["Full Case", "Bag"], "unitValues": { "Full Case": 18, "Bag": 1 } },
+  { "item": "Vegetable Oil", "type": "Misc", "validUnits": ["Full Case", "Each"], "unitValues": { "Full Case": 5, "Each": 1 } },
+  { "item": "Medium Pan Dough 12in", "type": "Dough", "validUnits": ["Full Case", "Sleeve", "Each"], "unitValues": { "Full Case": 36, "Sleeve": 9, "Each": 1 } },
+  { "item": "Large Pan Dough 14in", "type": "Dough", "validUnits": ["Full Case", "Sleeve", "Each"], "unitValues": { "Full Case": 27, "Sleeve": 9, "Each": 1 } },
+  { "item": "Personal Pan Dough 6in", "type": "Dough", "validUnits": ["Full Case", "Each"], "unitValues": { "Full Case": 96, "Each": 1 } },
+  { "item": "Pizza Sauce", "type": "Sauce", "validUnits": ["Full Case", "Bag"], "unitValues": { "Full Case": 6, "Bag": 1 } },
+  { "item": "Parmesan Cheese Shaker", "type": "Seasoning", "validUnits": ["Full Case", "Each"], "unitValues": { "Full Case": 48, "Each": 1 } },
+  { "item": "Red Pepper Shaker", "type": "Seasoning", "validUnits": ["Full Case", "Each"], "unitValues": { "Full Case": 48, "Each": 1 } },
+  { "item": "Spicy Marinara Sauce", "type": "Sauce", "validUnits": ["Full Case", "Bag"], "unitValues": { "Full Case": 12, "Bag": 1 } },
+  { "item": "Sweet Sauce", "type": "Sauce", "validUnits": ["Full Case", "Bag"], "unitValues": { "Full Case": 6, "Bag": 1 } },
+  { "item": "Medium Thin Dough 12in", "type": "Dough", "validUnits": ["Full Case","Sleeve", "Each"], "unitValues": { "Full Case": 50, "Sleeve": 10, "Each": 1 } },
+  { "item": "Large Thin Dough 14in", "type": "Dough", "validUnits": ["Full Case","Sleeve", "Each"], "unitValues": { "Full Case": 40, "Sleeve": 10, "Each": 1 } },
+  { "item": "Bacon", "type": "Topping", "validUnits": ["Full Case", "Bag", "Lbs"], "unitValues": { "Full Case": 20, "Bag": 5, "Lbs": 1 } },
+  { "item": "Banana Pepper", "type": "Topping", "validUnits": ["Full Case", "Bag"], "unitValues": { "Full Case": 8, "Bag": 1 } },
+  { "item": "Beef", "type": "Topping", "validUnits": ["Full Case", "Bag", "Lbs"], "unitValues": { "Full Case": 40, "Bag": 5, "Lbs": 1 } },
+  { "item": "Black Olives", "type": "Topping", "validUnits": ["Full Case", "Bag"], "unitValues": { "Full Case": 12, "Bag": 1 } },
+  { "item": "Carmelized Onion", "type": "Topping", "validUnits": ["Full Case", "Bag", "Lbs"], "unitValues": { "Full Case": 15, "Bag": 2.5, "Lbs": 1 } },
+  { "item": "CC Pepperoni", "type": "Topping", "validUnits": ["Full Case", "Lbs"], "unitValues": { "Full Case": 10, "Lbs": 1 } },
+  { "item": "Chicken Strips", "type": "Topping", "validUnits": ["Full Case", "Bag", "Lbs"], "unitValues": { "Full Case": 20, "Bag": 2.5, "Lbs": 1 } },
+  { "item": "Chicken Sausage", "type": "Topping", "validUnits": ["Full Case", "Bag", "Lbs"], "unitValues": { "Full Case": 20, "Bag": 5, "Lbs": 1 } },
+  { "item": "Tomato Diced", "type": "Topping", "validUnits": ["Full Case", "Lbs"], "unitValues": { "Full Case": 2.5, "Lbs": 1 } },
+  { "item": "Green Pepper", "type": "Topping", "validUnits": ["Full Case", "Bag", "Lbs"], "unitValues": { "Full Case": 10, "Bag": 2.5, "Lbs": 1 } },
+  { "item": "Garlic Minced", "type": "Topping", "validUnits": ["Full Case", "Lbs"], "unitValues": { "Full Case": 5, "Lbs": 1 } },
+  { "item": "Ham Julienne", "type": "Topping", "validUnits": ["Full Case", "Bag", "Lbs"], "unitValues": { "Full Case": 20, "Bag": 5, "Lbs": 1 } },
+  { "item": "Italian Sausage", "type": "Topping", "validUnits": ["Full Case", "Bag", "Lbs"], "unitValues": { "Full Case": 40, "Bag": 5, "Lbs": 1 } },
+  { "item": "Jalapeno Pepper", "type": "Topping", "validUnits": ["Full Case", "Bag"], "unitValues": { "Full Case": 10, "Bag": 1 } },
+  { "item": "Mushroom", "type": "Topping", "validUnits": ["Full Case", "Lbs"], "unitValues": { "Full Case": 5, "Lbs": 1 } },
+  { "item": "Onion", "type": "Topping", "validUnits": ["Full Case", "Bag", "Lbs"], "unitValues": { "Full Case": 10, "Bag": 2.5, "Lbs": 1 } },
+  { "item": "Pepperoni", "type": "Topping", "validUnits": ["Full Case", "Bag", "Lbs"], "unitValues": { "Full Case": 25, "Bag": 12.5, "Lbs": 1 } },
+  { "item": "Pineapple", "type": "Topping", "validUnits": ["Full Case", "Bag"], "unitValues": { "Full Case": 12, "Bag": 1 } },
+  { "item": "Pork", "type": "Topping", "validUnits": ["Full Case", "Bag", "Lbs"], "unitValues": { "Full Case": 40, "Bag": 5, "Lbs": 1 } },
+  { "item": "Roasted Pepper", "type": "Topping", "validUnits": ["Full Case", "Bag", "Lbs"], "unitValues": { "Full Case": 15, "Bag": 2.5, "Lbs": 1 } },
+  { "item": "Cheddar Cheese", "type": "Topping", "validUnits": ["Full Case", "Bag"], "unitValues": { "Full Case": 12, "Bag": 1 } },
+  { "item": "Pizza Cheese", "type": "Topping", "validUnits": ["Full Case", "Lbs"], "unitValues": { "Full Case": 20, "Lbs": 1 } },
+  { "item": "String Cheese", "type": "Topping", "validUnits": ["Full Case", "Lbs"], "unitValues": { "Full Case": 20, "Lbs": 1 } },
+  { "item": "Garlic Cups", "type": "Wingstreet", "validUnits": ["Full Case","Full Level", "Each"], "unitValues": { "Full Case": 144,"Full Level":36, "Each": 1 } },
+  { "item": "Breadstick Dough", "type": "Dough", "validUnits": ["Full Case","Sleeve", "Each"], "unitValues": { "Full Case": 36, "Sleeve": 9, "Each": 1 } },
+  { "item": "Breadstick Seasoning", "type": "Seasoning", "validUnits": ["Full Case", "Bag", "Lbs"], "unitValues": { "Full Case": 10, "Bag": 2, "Lbs": 1 } },
+  { "item": "Blue Cheese Cups", "type": "Wingstreet", "validUnits": ["Full Case","Full Level", "Each"], "unitValues": { "Full Case": 180,"Full Level":36, "Each": 1 } },
+  { "item": "Boneless Wings", "type": "Wingstreet", "validUnits": ["Full Case", "Bag"], "unitValues": { "Full Case": 10, "Bag": 1 } },
+  { "item": "Large Wing Bowls", "type": "Wingstreet", "validUnits": ["Full Case", "Bag", "Each"], "unitValues": { "Full Case": 190, "Bag": 95, "Each": 1 } },
+  { "item": "Small Wing Bowls", "type": "Wingstreet", "validUnits": ["Full Case", "Bag", "Each"], "unitValues": { "Full Case": 285, "Bag": 95, "Each": 1 } },
+  { "item": "Buffalo Hot Sauce", "type": "Wingstreet", "validUnits": ["Full Case", "Bag"], "unitValues": { "Full Case": 10, "Bag": 1 } },
+  { "item": "Buffalo Medium Sauce", "type": "Wingstreet", "validUnits": ["Full Case", "Bag"], "unitValues": { "Full Case": 10, "Bag": 1 } },
+  { "item": "Buffalo Mild sauce", "type": "Wingstreet", "validUnits": ["Full Case", "Bag"], "unitValues": { "Full Case": 10, "Bag": 1 } },
+  { "item": "Cajun Seasoning", "type": "Wingstreet", "validUnits": ["Full Case", "Each"], "unitValues": { "Full Case": 10, "Each": 1 } },
+  { "item": "Foil Wrap", "type": "Packaging", "validUnits": ["Case"], "unitValues": { "Case": 1 } },
+  { "item": "French Fries", "type": "Wingstreet", "validUnits": ["Full Case", "Bag"], "unitValues": { "Full Case": 6, "Bag": 1 } },
+  { "item": "Honey BBQ Sauce", "type": "Wingstreet", "validUnits": ["Full Case", "Bag"], "unitValues": { "Full Case": 6, "Bag": 1 } },
+  { "item": "Lemon Pepper Seasoning", "type": "Wingstreet", "validUnits": ["Full Case", "Each"], "unitValues": { "Full Case": 100, "Each": 1 } },
+  { "item": "Soy Oil Fryer", "type": "Wingstreet", "validUnits": ["Full Case", "Lbs"], "unitValues": { "Full Case": 35, "Lbs": 1 } },
+  { "item": "Ranch Cups", "type": "Wingstreet", "validUnits": ["Full Case","Full Level", "Each"], "unitValues": { "Full Case": 180,"Full Level":36, "Each": 1 } },
+  { "item": "Sweet Chili Sauce", "type": "Wingstreet", "validUnits": ["Full Case", "Bag"], "unitValues": { "Full Case": 12, "Bag": 1 } },
+  { "item": "Traditional Wings", "type": "Wingstreet", "validUnits": ["Full Case", "Bag"], "unitValues": { "Full Case": 10, "Bag": 1 } },
+  { "item": "Garlic Parmesan Sauce", "type": "Wingstreet", "validUnits": ["Full Case", "Bag"], "unitValues": { "Full Case": 8, "Bag": 1 } },
+  { "item": "Pasta Tins PP", "type": "Packaging", "validUnits": ["Full Case", "Each"], "unitValues": { "Full Case": 500, "Each": 1 } },
+  { "item": "New Yorker Box 16in", "type": "Packaging", "validUnits": ["Full Case", "Each"], "unitValues": { "Full Case": 60, "Each": 1 } },
+  { "item": "Pasta Box 7in", "type": "Packaging", "validUnits": ["Full Case", "Each"], "unitValues": { "Full Case": 100, "Each": 1 } },
+  { "item": "Cinnabon Box", "type": "Packaging", "validUnits": ["Full Case", "Each"], "unitValues": { "Full Case": 250, "Each": 1 } },
+  { "item": "Large Box 14in", "type": "Packaging", "validUnits": ["Full Case", "Each"], "unitValues": { "Full Case": 50, "Each": 1 } },
+  { "item": "Medium Box 12in", "type": "Packaging", "validUnits": ["Full Case", "Each"], "unitValues": { "Full Case": 100, "Each": 1 } },
+  { "item": "PP MI Box 6in", "type": "Packaging", "validUnits": ["Full Case", "Each"], "unitValues": { "Full Case": 250, "Each": 1 } },
+  { "item": "Sides Melts Box", "type": "Packaging", "validUnits": ["Full Case", "Each"], "unitValues": { "Full Case": 250, "Each": 1 } },
+  { "item": "Breadstick Bags", "type": "Packaging", "validUnits": ["Full Case"], "unitValues": { "Full Case": 1 } },
+  { "item": "Dough Liner", "type": "Misc", "validUnits": ["Full Case", "Each"], "unitValues": { "Full Case": 2000, "Each": 1 } },
+  { "item": "Lids 2oz", "type": "Packaging", "validUnits": ["Full Case", "Bag", "Each"], "unitValues": { "Full Case": 2400, "Bag": 100, "Each": 1 } },
+  { "item": "My Hut Box", "type": "Packaging", "validUnits": ["Full Case", "Each"], "unitValues": { "Full Case": 100, "Each": 1 } },
+  { "item": "My Hut Box Trays", "type": "Packaging", "validUnits": ["Full Case", "Sleeve", "Each"], "unitValues": { "Full Case": 700, "Sleeve": 175, "Each": 1 } },
+  { "item": "Cinnabon Tray", "type": "Packaging", "validUnits": ["Full Case", "Full Stack", "Each"], "unitValues": { "Full Case": 300, "Full Stack":100, "Each": 1 } },
+  { "item": "2L Pepsi", "type": "Drinks", "validUnits": ["Full Case", "Each"], "unitValues": { "Full Case": 8, "Each": 1 } },
+  { "item": "Aquafina Water", "type": "Drinks", "validUnits": ["Full Case", "Each"], "unitValues": { "Full Case": 32, "Each": 1 } },
+  { "item": "20oz Pepsi", "type": "Drinks", "validUnits": ["Full Case", "Each"], "unitValues": { "Full Case": 24, "Each": 1 } },
+  { "item": "Can Strawberry Lemonade Tea", "type": "Drinks", "validUnits": ["Full Case", "Each"], "unitValues": { "Full Case": 12, "Each": 1 } },
+  { "item": "Alfredo Sauce", "type": "Sauce", "validUnits": ["Full Case", "Bag"], "unitValues": { "Full Case": 8, "Bag": 1 } },
+  { "item": "Penne Noodles", "type": "Misc", "validUnits": ["Full Case", "Lbs"], "unitValues": { "Full Case": 30, "Lbs": 1 } },
+  { "item": "Mac and Cheese", "type": "Pasta", "validUnits": ["Full Case","Pouch"], "unitValues": { "Full Case": 4, "Pouch": 1 } },
+  { "item": "Brownie", "type": "Desert", "validUnits": ["Full Case", "Each"], "unitValues": { "Full Case": 24, "Each": 1 } },
+  { "item": "Cinnamon Sugar", "type": "Desert", "validUnits": ["Full Bag", "Lbs"], "unitValues": { "Full Bag": 25, "Lbs": 1 } },
+  { "item": "Cinnabon", "type": "Desert", "validUnits": ["Full Case", "Each"], "unitValues": { "Full Case": 420, "Prepped": 10 ,"Each": 1 } },
+  { "item": "Cookie", "type": "Desert", "validUnits": ["Full Case", "Each"], "unitValues": { "Full Case": 24, "Each": 1 } },
+  { "item": "Frosting", "type": "Desert", "validUnits": ["Full Case", "Bag"], "unitValues": { "Full Case": 24, "Bag": 1 } },
+  { "item": "Icing Cups", "type": "Desert", "validUnits": ["Full Case","Full Level", "Each"], "unitValues": { "Full Case": 180,"Full Level":36, "Each": 1 } },
+  { "item": "Smores Blend", "type": "Desert", "validUnits": ["Full Case"], "unitValues": { "Full Case": 1 } },
+  { "item": "Parmesan Shaved", "type": "Topping", "validUnits": ["Full Case", "Bag"], "unitValues": { "Full Case": 6, "Bag": 1 } },
+  { "item": "Lid PP Pasta Tin", "type": "Packaging", "validUnits": ["Full Case", "Sleeve", "Each"], "unitValues": { "Full Case": 500, "Sleeve": 100, "Each": 1 } },
+  { "item": "Parchment Paper", "type": "Misc", "validUnits": ["Full Case"], "unitValues": { "Full Case": 1 } },
+  { "item": "Sweet Sauce Cups", "type": "Packaging", "validUnits": ["Full Case", "Bag", "Each"], "unitValues": { "Full Case": 2400, "Bag": 200, "Each": 1 } }
+];
+        function showPage(id) {
+            document.querySelectorAll(".page").forEach(p => p.style.display = "none");
+            document.getElementById(id).style.display = "block";
+        }
+
+        window.onload = function() {
+            loadSessionFromLocal();
+            checkAuthSession();
+        };
+
+        function checkAuthSession() {
+            if (!inventorySession.store) {
+                showPage("page-login");
+            } else {
+                document.getElementById("storeDisplay").innerText = "Store: " + inventorySession.store;
+                showPage("page-name");
+            }
+        }
+
+        async function handleLogin() {
+    const userInput = document.getElementById("userInput").value.trim();
+    const passwordInput = document.getElementById("passwordInput").value;
+    const errorText = document.getElementById("loginError");
+
+    errorText.style.display = "none";
+
+    if (!userInput || !passwordInput) {
+        errorText.innerText = "Please enter both username and password.";
+        errorText.style.display = "block";
+        return;
+    }
+
+    try {
+        const {
+            data,
+            error
+        } = await supabaseClient
+            .from('login')
+            .select('id, username, password, area, store')
+            .eq('username', userInput)
+            .eq('password', passwordInput)
+            .maybeSingle();
+
+        if (error) {
+            console.error("Supabase Login Error:", error);
+            errorText.innerText = "Database error: " + error.message;
+            errorText.style.display = "block";
+            return;
+        }
+
+        if (!data) {
+            errorText.innerText = "Invalid username or password.";
+            errorText.style.display = "block";
+            return;
+        }
+
+        // ✅ Reset entries and assign new user session details
+        // ✅ Reset entries and assign new user session details
+inventorySession.user = data.username;
+inventorySession.store = data.store;
+inventorySession.area = data.area;
+inventorySession.entries = {}; 
+saveSessionToLocal();
+
+// 🔥 USER‑SPECIFIC REDIRECTS
+if (data.username === "Emily") {
+    showPage("page-review");
+    return;
+}
+
+if (data.username === "MRondonDO") {
+    window.location.href = "admin.html";
+    return;
+}
+
+// Default login behavior
+document.getElementById("userInput").value = "";
+document.getElementById("passwordInput").value = "";
+document.getElementById("storeDisplay").innerText =
+    "Store: " + inventorySession.store +
+    (inventorySession.area ? " | Area: " + inventorySession.area : "");
+
+        showPage("page-name");
+
+    } catch (err) {
+        console.error("Login exception:", err);
+        errorText.innerText = "An unexpected error occurred.";
+        errorText.style.display = "block";
+    }
+}
+        function handleLogout() {
+            inventorySession.store = null;
+            inventorySession.user = null;
+            inventorySession.area = null;
+            inventorySession.entries = {}; 
+            saveSessionToLocal();
+
+            // ✅ Clear the search input and dropdown only on logout
+            const nameInput = document.getElementById("nameInput");
+            if (nameInput) nameInput.value = "";
+            const dropdown = document.getElementById("customDropdown");
+            if (dropdown) {
+                dropdown.innerHTML = "";
+                dropdown.style.display = "none";
+            }
+
+            showPage("page-login");
+        }
+
+        function goNameSearch() {
+            document.getElementById("nameInput").value = "";
+            document.getElementById("customDropdown").style.display = "none";
+            showPage("page-name");
+        }       
+
+        function backToMenu() {
+            showPage("page-name");
+        }
+
+        function filterNameList() {
+            const input = document.getElementById("nameInput");
+            const filter = input.value.toLowerCase().trim();
+            const dropdown = document.getElementById("customDropdown");
+            if (!filter) {
+                dropdown.innerHTML = "";
+                dropdown.style.display = "none";
+                return;
+            }
+            const startsWith = [],
+                contains = [];
+            parameters.forEach(p => {
+                const itemName = p.item.toLowerCase();
+                if (itemName.startsWith(filter)) startsWith.push(p);
+                else if (itemName.includes(filter)) contains.push(p);
+            });
+            startsWith.sort((a, b) => a.item.localeCompare(b.item));
+            contains.sort((a, b) => a.item.localeCompare(b.item));
+            const filtered = startsWith.concat(contains);
+            dropdown.innerHTML = "";
+            if (filtered.length > 0) {
+                dropdown.style.display = "block";
+                filtered.forEach(p => {
+                    const isStart = startsWith.includes(p);
+                    dropdown.innerHTML += `<div style="padding: 10px; cursor: pointer; border-bottom: 1px solid #eee; ${isStart ? 'font-weight:bold;' : ''}" onclick="openItemEntry('${p.item.replace(/'/g, "\\'")}')">${p.item}</div>`;
+                });
+            } else {
+                dropdown.style.display = "none";
+            }
+        }       
+
+       function openItemEntry(itemName) {
+    const item = parameters.find(p => p.item === itemName);
+    if (!item) return;
+    document.getElementById("entryItemName").innerText = item.item;
+    const container = document.getElementById("unitInputs");
+    container.innerHTML = "";
+    const savedEntry = inventorySession.entries[item.item] || {};
+    item.validUnits.forEach(unit => {
+       const val = savedEntry[unit] ?? "";
+
+        container.innerHTML += `<div style="margin-bottom:8px;"><label style="display:inline-block; width:140px;">${unit}</label><input type="number" id="unit_${unit}" min="0" value="${val}" style="width:80px;" oninput="updateItemTotal()"></div>`;
+    });
+
+    // Set the checkbox state from saved data
+    const checkbox = document.getElementById("flagOrderCheckbox");
+    if (checkbox) {
+        checkbox.checked = !!savedEntry.flaggedForOrder;
+    }
+
+    updateItemTotal();
+    showPage("page-item-entry");
+}
+function saveItemEntry() {
+    const itemName = document.getElementById("entryItemName").innerText;
+    const item = parameters.find(p => p.item === itemName);
+
+    const entry = {};
+    item.validUnits.forEach(unit => {
+        const val = Number(document.getElementById("unit_" + unit).value);
+        if (val > 0) entry[unit] = val;
+    });
+
+    inventorySession.entries[itemName] = entry;
+
+    // Save the checkbox state in a dedicated object so it never touches your number entries
+    if (!inventorySession.orderFlags) {
+        inventorySession.orderFlags = {};
+    }
+    const checkbox = document.getElementById("flagOrderCheckbox");
+    if (checkbox && checkbox.checked) {
+        inventorySession.orderFlags[itemName] = true;
+    } else {
+        delete inventorySession.orderFlags[itemName];
+    }
+
+    const uom = item.validUnits[item.validUnits.length - 1];
+    const total = Object.values(entry).reduce((a, b) => a + b, 0);
+    const displayString = `${itemName} ${total} ${uom}`;
+    inventorySession.displayString = displayString;
+    saveSessionToLocal();
+    backToMenu();
+    saveInventoryToSupabase();
+}
+
+        function displayTypeItems() {
+            const selectedType = document.getElementById("typeSelect").value;
+            if (!selectedType) return;
+            const container = document.getElementById("typeItems");
+            const filtered = parameters.filter(p => p.type === selectedType);
+            container.innerHTML = "";
+            filtered.forEach(item => {
+                container.innerHTML += `<div style="padding:6px; border-bottom:1px solid #ccc; cursor:pointer;" onclick="openItemEntry('${item.item.replace(/'/g, "\\'")}')">${item.item}</div>`;
+            });
+        }
+
+        function updateItemTotal() {
+            const itemName = document.getElementById("entryItemName").innerText;
+            const item = parameters.find(p => p.item === itemName);
+            let total = 0;
+            item.validUnits.forEach(unit => {
+                const qty = Number(document.getElementById("unit_" + unit).value) || 0;
+                total += qty * item.unitValues[unit];
+            });
+            document.getElementById("itemTotal").innerText = "Total: " + total;
+        }
+
+        function goReview() {
+            buildReviewList();
+            showPage("page-review");
+        }
+
+async function buildReviewList() {
+    const container = document.getElementById("reviewList");
+    container.innerHTML = "<p>Loading entries...</p>";
+
+    // Calculate the same 4:00 AM effective business date
+    const now = new Date();
+    if (now.getHours() < 4) {
+        now.setDate(now.getDate() - 1);
+    }
+    const effectiveDate = now.toISOString().split("T")[0];
+
+    console.log("Current Store:", inventorySession.store, "| Target Date:", effectiveDate);
+
+    try {
+        const { data: rows, error } = await supabaseClient
+            .from('reporting')
+            .select('reportjson')
+            .eq('store', inventorySession.store)
+            .eq('timestamp', effectiveDate);
+
+        if (error) {
+            console.error("Error fetching review list:", error);
+            container.innerHTML = "<p>Error loading entries from database.</p>";
+            return;
+        }
+
+        container.innerHTML = "";
+
+        if (!rows || rows.length === 0 || !rows[0].reportjson) {
+            container.innerHTML = "<p>No items entered yet for this shift.</p>";
+            return;
+        }
+
+        // HEADER ROW
+        container.innerHTML += `
+            <div style="display:flex; padding:10px; font-weight:bold; border-bottom:2px solid #000;">
+                <div style="flex:2; text-align:left;">Item</div>
+                <div style="flex:1; text-align:center;">Count</div>
+                <div style="flex:1; text-align:center;">UoM</div>
+            </div>
+        `;
+
+        let hasItems = false;
+
+        rows.forEach(row => {
+            if (!row.reportjson) return;
+
+            const lines = row.reportjson.split('\n');
+
+            lines.forEach(line => {
+                const trimmed = line.trim();
+                if (!trimmed) return;
+
+                const colonIndex = trimmed.indexOf(':');
+                if (colonIndex === -1) return;
+
+                const itemName = trimmed.substring(0, colonIndex).trim();
+                const remainder = trimmed.substring(colonIndex + 1).trim();
+
+                const spaceIndex = remainder.indexOf(' ');
+                let count = remainder;
+                let uom = "";
+
+                if (spaceIndex !== -1) {
+                    count = remainder.substring(0, spaceIndex).trim();
+                    uom = remainder.substring(spaceIndex + 1).trim();
+                }
+
+                hasItems = true;
+
+                container.innerHTML += `
+                    <div style="display:flex; padding:10px; border-bottom:1px solid #ccc; cursor:pointer;"
+                         onclick="openItemEntry('${itemName.replace(/'/g, "\\'")}')">
+
+                        <div style="flex:2; text-align:left; font-weight:bold;">
+                            ${itemName}
+                        </div>
+
+                        <div style="flex:1; text-align:center; font-weight:bold;">
+                            ${count}
+                        </div>
+
+                        <div style="flex:1; text-align:center; font-weight:bold;">
+                            ${uom}
+                        </div>
+
+                    </div>
+                `;
+            });
+        });
+
+        if (!hasItems) {
+            container.innerHTML = "<p>No items entered yet for this shift.</p>";
+            return;
+        }
+
+        // ✅ Check inventorySession.orderFlags and append "Order [Item Name]" to the bottom
+        if (inventorySession.orderFlags) {
+            let flaggedHtml = "";
+            
+            Object.keys(inventorySession.orderFlags).forEach(itemName => {
+                if (inventorySession.orderFlags[itemName]) {
+                    flaggedHtml += `
+                        <div style="padding: 8px 10px; font-weight: bold; border-bottom: 1px dashed #ccc;">
+                            Order ${itemName}
+                        </div>
+                    `;
+                }
+            });
+
+            if (flaggedHtml !== "") {
+                container.innerHTML += `
+                    <div style="margin-top: 20px; border-top: 2px solid #000; padding-top: 10px;">
+                        ${flaggedHtml}
+                    </div>
+                `;
+            }
+        }
+
+    } catch (err) {
+        console.error("Unexpected error building review list:", err);
+        container.innerHTML = "<p>An unexpected error occurred.</p>";
+    }
+}
+
+
+        function saveSessionToLocal() {
+            localStorage.setItem("inventorySession", JSON.stringify(inventorySession));
+        }
+
+        function loadSessionFromLocal() {
+            const saved = localStorage.getItem("inventorySession");
+            if (saved) inventorySession = JSON.parse(saved);
+        }
+
+async function saveInventoryToSupabase() {
+    if (!inventorySession.store) {
+        console.warn("No store session found to save.");
+        return;
+    }
+
+    // ✅ ADJUST DATE FOR PAST-MIDNIGHT ENTRIES (treats entries before 4 AM as previous day)
+    const now = new Date();
+    if (now.getHours() < 4) {
+        now.setDate(now.getDate() - 1);
+    }
+    const effectiveDate = now.toISOString().split("T")[0];
+
+    try {
+        // 1. Fetch existing data for this store and effective date to preserve other items
+        const { data: existingRows, error: fetchError } = await supabaseClient
+            .from('reporting')
+            .select('reportjson')
+            .eq('store', inventorySession.store)
+            .eq('timestamp', effectiveDate);
+
+        if (fetchError) {
+            console.error("Error fetching existing records for merge:", fetchError);
+        }
+
+        // Parse existing text lines into a map { itemName: "total uom" }
+        const currentTallies = {};
+        if (existingRows && existingRows.length > 0 && existingRows[0].reportjson) {
+            existingRows[0].reportjson.split('\n').forEach(line => {
+                const trimmed = line.trim();
+                if (!trimmed) return;
+                const colonIndex = trimmed.indexOf(':');
+                if (colonIndex !== -1) {
+                    const name = trimmed.substring(0, colonIndex).trim();
+                    const value = trimmed.substring(colonIndex + 1).trim();
+                    currentTallies[name] = value;
+                }
+            });
+        }
+
+        // 2. Process current session entries and merge them in
+        parameters.forEach(p => {
+            if (inventorySession.entries[p.item]) {
+                let total = 0;
+                for (const unit in inventorySession.entries[p.item]) {
+                    total += inventorySession.entries[p.item][unit] * p.unitValues[unit];
+                }
+
+                const uom = p.validUnits[p.validUnits.length - 1];
+
+                if (total > 0) {
+                    currentTallies[p.item] = `${total} ${uom}`;
+                } else {
+                    delete currentTallies[p.item];
+                }
+            }
+        });
+
+        // 3. Rebuild the complete plain text block
+        let plainTextTallies = "";
+        for (const itemName in currentTallies) {
+            plainTextTallies += `${itemName}:${currentTallies[itemName]}\n`;
+        }
+
+        const rowToInsert = {
+            store: inventorySession.store,
+            user: inventorySession.user || "Unknown",
+            reportjson: plainTextTallies.trim(),
+            timestamp: effectiveDate
+        };
+
+        const { data, error } = await supabaseClient
+            .from('reporting')
+            .upsert([rowToInsert], { onConflict: 'store,timestamp' })
+            .select();
+
+        if (error) {
+            console.error("Supabase Error Details:", error);
+            alert("Failed to save to database: " + error.message);
+            return false;
+        }
+
+        console.log("Successfully merged and saved to Supabase:", data);
+        return true;
+
+    } catch (err) {
+        console.error("Unexpected error in saveInventoryToSupabase:", err);
+        return false;
+    }
+}        function openSuccessModal() {
+            document.getElementById("successModal").style.display = "flex";
+        }
+
+        function closeSuccessModal() {
+            document.getElementById("successModal").style.display = "none";
+        }
+
+               
+async function handlePasswordChange() {
+    const user = document.getElementById("cpUser").value.trim();
+    const oldPass = document.getElementById("cpOldPassword").value;
+    const newPass = document.getElementById("cpNewPassword").value;
+    const errorEl = document.getElementById("cpError");
+
+    if (!user || !oldPass || !newPass) {
+        errorEl.style.display = "block";
+        errorEl.textContent = "Please fill in all fields.";
+        return;
+    }
+
+    const { data: existingUser, error: fetchError } = await supabaseClient
+        .from('login')
+        .select('*')
+        .eq('username', user)
+        .eq('password', oldPass)
+        .single();
+
+    if (fetchError || !existingUser) {
+        errorEl.style.display = "block";
+        errorEl.textContent = "Incorrect username or old password.";
+        return;
+    }
+
+    const { error: updateError } = await supabaseClient
+        .from('login')
+        .update({ password: newPass })
+        .eq('username', user);
+
+    if (updateError) {
+        errorEl.style.display = "block";
+        errorEl.textContent = "Failed to update password: " + updateError.message;
+        return;
+    }
+
+    errorEl.style.display = "none";
+    alert("Password successfully updated. Please log in.");
+    showLoginPage();
+}
+
+function showChangePasswordModal() {
+    document.getElementById("page-login").style.display = "none";
+    document.getElementById("page-change-password").style.display = "block";
+}
+async function exportReportingToExcel() {
+    // 1. Fetch all rows from your reporting table
+    const { data, error } = await supabaseClient
+        .from('reporting')
+        .select('*');
+
+    if (error) {
+        console.error("Export error:", error);
+        alert("Failed to fetch reporting data: " + error.message);
+        return;
+    }
+
+    if (!data || data.length === 0) {
+        alert("No reporting data found to export.");
+        return;
+    }
+
+    // 2. Flatten or prepare rows for CSV format
+    // (If reportjson is an object, convert it to a string so it fits in a cell)
+    const formattedData = data.map(row => ({
+        id: row.id,
+        store: row.store,
+        user: row.user,
+        timestamp: row.timestamp,
+        reportjson: typeof row.reportjson === 'object' ? JSON.stringify(row.reportjson) : row.reportjson
+    }));
+
+    // 3. Extract headers dynamically
+    const headers = Object.keys(formattedData[0]);
+    
+    // 4. Build CSV content
+    let csvContent = "data:text/csv;charset=utf-8,";
+    
+    // Add header row
+    csvContent += headers.join(",") + "\r\n";
+
+    // Add data rows
+    formattedData.forEach(row => {
+        let values = headers.map(header => {
+            let val = row[header] !== null && row[header] !== undefined ? row[header] : "";
+            // Escape double quotes and wrap strings in quotes to handle commas inside JSON
+            let stringVal = String(val).replace(/"/g, '""');
+            return `"${stringVal}"`;
+        });
+        csvContent += values.join(",") + "\r\n";
+    });
+
+    // 5. Create a download link and trigger it
+    const encodedUri = encodeURI(csvContent);
+    const link = document.createElement("a");
+    link.setAttribute("href", encodedUri);
+    
+    const dateStr = new Date().toISOString().split('T')[0];
+    link.setAttribute("download", `inventory_reporting_${dateStr}.csv`);
+    
+    document.body.appendChild(link);
+    link.click();
+    document.body.removeChild(link);
+}
+function showLoginPage() {
+    document.getElementById("page-change-password").style.display = "none";
+    document.getElementById("page-login").style.display = "block";
+}
+function printReviewList() {
+    const reviewContent = document.getElementById("reviewList").innerHTML;
+    const storeName = inventorySession.store || "Store";
+    
+    const printWindow = window.open('', '_blank', 'height=600,width=800');
+    
+    printWindow.document.write('<html><head><title>Inventory Review - ' + storeName + '</title>');
+    printWindow.document.write('<style>');
+    printWindow.document.write('body { font-family: Arial, sans-serif; padding: 20px; color: #000; }');
+    printWindow.document.write('h2 { border-bottom: 2px solid #000; padding-bottom: 5px; }');
+    printWindow.document.write('div { box-sizing: border-box; }');
+    printWindow.document.write('div[style*="display:flex"] { display: flex !important; width: 100%; }');
+    printWindow.document.write('</style>');
+    printWindow.document.write('</head><body>');
+    printWindow.document.write('<h2>Inventory Review: ' + storeName + '</h2>');
+    printWindow.document.write(reviewContent);
+    printWindow.document.write('</body></html>');
+    
+    printWindow.document.close();
+    printWindow.focus();
+    
+    setTimeout(() => {
+        printWindow.print();
+        printWindow.close();
+    }, 500);
+}
+        if ('serviceWorker' in navigator) navigator.serviceWorker.register('./sw.js');
+    </script>
+</body>
+
+</html>
