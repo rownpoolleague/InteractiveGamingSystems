@@ -147,9 +147,10 @@
    style="display:block; margin:10px; color:#C90014; font-weight:bold; text-decoration:underline; cursor:pointer;">
    INSTRUCTIONS
 </a>
+<a id="adminLink" href="admin.html" style="display: none; margin-top: 10px;">Go to Admin Report Lookup</a>
+      
         </div>
 
-      
         <div id="page-item-entry" class="page">
             <h2 id="entryItemName"></h2>
             <div id="unitInputs"></div>
@@ -390,13 +391,10 @@ inventorySession.entries = {};
 saveSessionToLocal();
 
 // 🔥 USER‑SPECIFIC REDIRECTS
-
-
 if (data.username === "admin") {
-    window.location.href = "admin.html";
+    document.getElementById('adminLink').style.display = 'inline-block';
     return;
 }
-
 // Default login behavior
 document.getElementById("userInput").value = "";
 document.getElementById("passwordInput").value = "";
