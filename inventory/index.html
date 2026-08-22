@@ -393,19 +393,20 @@ async function handleLogin() {
         inventorySession.entries = {}; 
         saveSessionToLocal();
 
-        // 🔥 USER‑SPECIFIC LOGIC
-        if (data.username === "admin") {
-            if (adminLink) adminLink.style.display = 'inline-block';
-            return;
-        }
-
-        // Default login behavior for non-admin users
+        // Clear input fields
         document.getElementById("userInput").value = "";
         document.getElementById("passwordInput").value = "";
+        
         document.getElementById("storeDisplay").innerText =
             "Store: " + inventorySession.store +
             (inventorySession.area ? " | Area: " + inventorySession.area : "");
 
+        // 🔥 USER‑SPECIFIC LOGIC: Unhide link IF admin, but DO NOT return early
+        if (data.username === "admin") {
+            if (adminLink) adminLink.style.display = 'inline-block';
+        }
+
+        // Proceed to show the main page for all valid logins (including admin)
         showPage("page-name");
 
     } catch (err) {
@@ -419,6 +420,8 @@ async function handleLogin() {
             inventorySession.user = null;
             inventorySession.area = null;
             inventorySession.entries = {}; 
+            const adminLink = document.getElementById('adminLink');
+if (adminLink) adminLink.style.display = 'none';
             saveSessionToLocal();
 
             // ✅ Clear the search input and dropdown only on logout
