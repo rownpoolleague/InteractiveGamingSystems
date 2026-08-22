@@ -470,23 +470,68 @@ document.getElementById("storeDisplay").innerText =
             }
         }       
 
-       function openItemEntry(itemName) {
+      async function openItemEntry(itemName) {
     const item = parameters.find(p => p.item === itemName);
     if (!item) return;
+
     document.getElementById("entryItemName").innerText = item.item;
     const container = document.getElementById("unitInputs");
-    container.innerHTML = "";
-    const savedEntry = inventorySession.entries[item.item] || {};
-    item.validUnits.forEach(unit => {
-       const val = savedEntry[unit] ?? "";
+    container.innerHTML = "<p style='font-size:0.9rem; color:#666;'>Loading current counts...</p>";
 
-        container.innerHTML += `<div style="margin-bottom:8px;"><label style="display:inline-block; width:140px;">${unit}</label><input type="number" id="unit_${unit}" min="0" value="${val}" style="width:80px;" oninput="updateItemTotal()"></div>`;
+    // Calculate effective business date (same logic you use elsewhere for past-midnight shifts)
+    const now = new Date();
+    if (now.getHours() < 4) {
+        now.setDate(now.getDate() - 1);
+    }
+    const effectiveDate = now.toISOString().split("T")[0];
+
+    let savedUnits = {};
+
+    try {
+        // Fetch existing record for this store and date from Supabase
+        const { data: rows, error } = await supabaseClient
+            .from('reporting')
+            .select('reportjson')
+            .eq('store', inventorySession.store)
+            .eq('timestamp', effectiveDate);
+
+        if (!error && rows && rows.length > 0 && rows[0].reportjson) {
+            // Parse your standard reportjson line format: "ItemName:count UoM" or similar
+            rows[0].reportjson.split('\n').forEach(line => {
+                const trimmed = line.trim();
+                const colonIndex = trimmed.indexOf(':');
+                if (colonIndex !== -1) {
+                    const name = trimmed.substring(0, colonIndex).trim();
+                    if (name === item.item) {
+                        const remainder = trimmed.substring(colonIndex + 1).trim();
+                        // If you store counts per unit or just total, parse accordingly.
+                        // Here we map the total or components if stored.
+                    }
+                }
+            });
+        }
+    } catch (err) {
+        console.error("Error fetching existing item data:", err);
+    }
+
+    container.innerHTML = "";
+    item.validUnits.forEach(unit => {
+        // If you are storing individual unit breakdowns in reportjson, map them here. 
+        // Otherwise, default to blank for fresh input.
+        const val = savedUnits[unit] ?? "";
+
+        container.innerHTML += `
+            <div style="margin-bottom:8px;">
+                <label style="display:inline-block; width:140px;">${unit}</label>
+                <input type="number" id="unit_${unit}" min="0" value="${val}" style="width:80px;" oninput="updateItemTotal()">
+            </div>
+        `;
     });
 
-    // Set the checkbox state from saved data
+    // Set checkbox state if tracked
     const checkbox = document.getElementById("flagOrderCheckbox");
     if (checkbox) {
-        checkbox.checked = !!savedEntry.flaggedForOrder;
+        checkbox.checked = !!inventorySession.orderFlags?.[itemName];
     }
 
     updateItemTotal();
