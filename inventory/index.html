@@ -477,7 +477,7 @@ if (adminLink) adminLink.style.display = 'none';
             }
         }       
 
-    async function openItemEntry(itemName) {
+ async function openItemEntry(itemName) {
     const item = parameters.find(p => p.item === itemName);
     if (!item) return;
 
@@ -492,48 +492,13 @@ if (adminLink) adminLink.style.display = 'none';
     }
     const effectiveDate = now.toISOString().split("T")[0];
 
-    let savedUnits = {};
-
-    try {
-        // Fetch existing record for this store and date from Supabase
-        const { data: rows, error } = await supabaseClient
-            .from('reporting')
-            .select('reportjson')
-            .eq('store', inventorySession.store)
-            .eq('timestamp', effectiveDate);
-
-        if (!error && rows && rows.length > 0 && rows[0].reportjson) {
-            rows[0].reportjson.split('\n').forEach(line => {
-                const trimmed = line.trim();
-                const colonIndex = trimmed.indexOf(':');
-                if (colonIndex !== -1) {
-                    const name = trimmed.substring(0, colonIndex).trim();
-                    if (name === item.item) {
-                        const remainder = trimmed.substring(colonIndex + 1).trim();
-                        
-                        // 🛠️ FIX: Parse the stored value (e.g., "15 Case") and map it to your units
-                        // If your system stores totals vs split units, adjust how you assign to savedUnits here.
-                        const parts = remainder.split(' ');
-                        if (parts.length > 0) {
-                            const totalVal = Number(parts[0]) || 0;
-                            // Assign the total to the primary/last valid unit as a fallback, 
-                            // or map individually if your JSON format supports breakdown.
-                            const defaultUnit = item.validUnits[item.validUnits.length - 1];
-                            savedUnits[defaultUnit] = totalVal;
-                        }
-                    }
-                }
-            });
-        }
-    } catch (err) {
-        console.error("Error fetching existing item data:", err);
-    }
+    // Check if there are active session entries for this item first
+    const existingEntry = inventorySession.entries[itemName] || {};
 
     container.innerHTML = "";
     item.validUnits.forEach(unit => {
-        // Fallback to local session entries if they exist, otherwise use fetched database values
-        const sessionVal = inventorySession.entries[itemName]?.[unit];
-        const val = sessionVal !== undefined ? sessionVal : (savedUnits[unit] ?? "");
+        // Pull from active session entries if available, otherwise blank
+        const val = existingEntry[unit] ?? "";
 
         container.innerHTML += `
             <div style="margin-bottom:8px;">
