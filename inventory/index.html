@@ -485,7 +485,7 @@ if (adminLink) adminLink.style.display = 'none';
     const container = document.getElementById("unitInputs");
     container.innerHTML = "<p style='font-size:0.9rem; color:#666;'>Loading current counts...</p>";
 
-    // Calculate effective business date (same logic you use elsewhere for past-midnight shifts)
+    // Calculate effective business date
     const now = new Date();
     if (now.getHours() < 4) {
         now.setDate(now.getDate() - 1);
@@ -503,7 +503,6 @@ if (adminLink) adminLink.style.display = 'none';
             .eq('timestamp', effectiveDate);
 
         if (!error && rows && rows.length > 0 && rows[0].reportjson) {
-            // Parse your standard reportjson line format: "ItemName:count UoM" or similar
             rows[0].reportjson.split('\n').forEach(line => {
                 const trimmed = line.trim();
                 const colonIndex = trimmed.indexOf(':');
@@ -511,8 +510,17 @@ if (adminLink) adminLink.style.display = 'none';
                     const name = trimmed.substring(0, colonIndex).trim();
                     if (name === item.item) {
                         const remainder = trimmed.substring(colonIndex + 1).trim();
-                        // If you store counts per unit or just total, parse accordingly.
-                        // Here we map the total or components if stored.
+                        
+                        // 🛠️ FIX: Parse the stored value (e.g., "15 Case") and map it to your units
+                        // If your system stores totals vs split units, adjust how you assign to savedUnits here.
+                        const parts = remainder.split(' ');
+                        if (parts.length > 0) {
+                            const totalVal = Number(parts[0]) || 0;
+                            // Assign the total to the primary/last valid unit as a fallback, 
+                            // or map individually if your JSON format supports breakdown.
+                            const defaultUnit = item.validUnits[item.validUnits.length - 1];
+                            savedUnits[defaultUnit] = totalVal;
+                        }
                     }
                 }
             });
@@ -523,9 +531,9 @@ if (adminLink) adminLink.style.display = 'none';
 
     container.innerHTML = "";
     item.validUnits.forEach(unit => {
-        // If you are storing individual unit breakdowns in reportjson, map them here. 
-        // Otherwise, default to blank for fresh input.
-        const val = savedUnits[unit] ?? "";
+        // Fallback to local session entries if they exist, otherwise use fetched database values
+        const sessionVal = inventorySession.entries[itemName]?.[unit];
+        const val = sessionVal !== undefined ? sessionVal : (savedUnits[unit] ?? "");
 
         container.innerHTML += `
             <div style="margin-bottom:8px;">
