@@ -172,6 +172,8 @@
             <br><br>
 <button onclick="printReviewList()" style="margin-bottom: 15px; padding: 8px 16px; cursor: pointer;">Print List</button>
          <br><br>
+           <button onclick="clearOrderFlags()">Clear Order Flags</button>
+             <br><br>
              <button onclick="handleLogout()" style="background-color: #000; color: #C90014; ">Log Out</button>
         </div>
 
@@ -516,6 +518,18 @@ if (adminLink) adminLink.style.display = 'none';
 
     updateItemTotal();
     showPage("page-item-entry");
+}
+        function clearOrderFlags() {
+    // 1. Clear the order flags object
+    inventorySession.orderFlags = {};
+
+    // 2. Save the updated session back to localStorage
+    saveSessionToLocal();
+
+    // 3. Optional: If you want to immediately refresh the review screen if they are looking at it
+    if (typeof buildReviewList === "function") {
+        buildReviewList();
+    }
 }
 function saveItemEntry() {
     const itemName = document.getElementById("entryItemName").innerText;
