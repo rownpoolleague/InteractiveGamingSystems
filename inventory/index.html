@@ -726,7 +726,6 @@ async function saveInventoryToSupabase() {
         return;
     }
 
-    // ✅ ADJUST DATE FOR PAST-MIDNIGHT ENTRIES (treats entries before 4 AM as previous day)
     const now = new Date();
     if (now.getHours() < 4) {
         now.setDate(now.getDate() - 1);
@@ -734,7 +733,7 @@ async function saveInventoryToSupabase() {
     const effectiveDate = now.toISOString().split("T")[0];
 
     try {
-        // 1. Fetch existing data for this store and effective date to preserve other items
+        // 1. Fetch existing data to preserve any items not currently in local session memory
         const { data: existingRows, error: fetchError } = await supabaseClient
             .from('reporting')
             .select('reportjson')
@@ -745,7 +744,6 @@ async function saveInventoryToSupabase() {
             console.error("Error fetching existing records for merge:", fetchError);
         }
 
-        // Parse existing text lines into a map { itemName: "total uom" }
         const currentTallies = {};
         if (existingRows && existingRows.length > 0 && existingRows[0].reportjson) {
             existingRows[0].reportjson.split('\n').forEach(line => {
@@ -760,7 +758,7 @@ async function saveInventoryToSupabase() {
             });
         }
 
-        // 2. Process current session entries and merge them in
+        // 2. Process current session entries and update tallies
         parameters.forEach(p => {
             if (inventorySession.entries[p.item]) {
                 let total = 0;
@@ -778,11 +776,13 @@ async function saveInventoryToSupabase() {
             }
         });
 
-        // 3. Rebuild the complete plain text block
+        // 3. Rebuild plain text block strictly in the order of the parameters array
         let plainTextTallies = "";
-        for (const itemName in currentTallies) {
-            plainTextTallies += `${itemName}:${currentTallies[itemName]}\n`;
-        }
+        parameters.forEach(p => {
+            if (currentTallies[p.item]) {
+                plainTextTallies += `${p.item}:${currentTallies[p.item]}\n`;
+            }
+        });
 
         const rowToInsert = {
             store: inventorySession.store,
@@ -809,7 +809,8 @@ async function saveInventoryToSupabase() {
         console.error("Unexpected error in saveInventoryToSupabase:", err);
         return false;
     }
-}        function openSuccessModal() {
+}
+function openSuccessModal() {
             document.getElementById("successModal").style.display = "flex";
         }
 
