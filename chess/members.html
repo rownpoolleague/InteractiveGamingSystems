@@ -106,22 +106,22 @@
             color: #888;
             text-align: right;
         }
-.modal-content {
-    background: #1a1a1a;
-    padding: 20px;
-    border-radius: 12px;
-    border: 1px solid #444;
-    width: 95%;
-    max-height: 85vh; 
-    margin: 7vh auto; 
-    color: white;
-    display: flex;
-    flex-direction: column;
-   overflow-y: auto;
-    position: relative;
-    -webkit-overflow-scrolling: touch; */
-}
 
+        .modal-content {
+            background: #1a1a1a;
+            padding: 20px;
+            border-radius: 12px;
+            border: 1px solid #444;
+            width: 95%;
+            max-height: 85vh; 
+            margin: 7vh auto; 
+            color: white;
+            display: flex;
+            flex-direction: column;
+            overflow-y: auto;
+            position: relative;
+            -webkit-overflow-scrolling: touch;
+        }
 
         .filter-select {
             background: #111;
@@ -164,25 +164,23 @@
 
 <body>
 
-    <!-- Ensure your HTML looks exactly like this -->
-<div id="profile-modal" style="display:none; position:fixed; inset:0; background:rgba(0,0,0,0.95); z-index:100;">
-    <div class="modal-content">
-        <!-- Everything else inside stays the same -->
-        <h2 id="modal-player-name" style="color:var(--accent); margin-top:0;"></h2>
-        <div id="modal-ratings" style="margin-bottom:15px; font-size: 1rem; color: #aaa;"></div>
-        
-        <select id="f-opening" class="filter-select" onchange="applyFilters()"><option value="">All Openings</option></select>
-        <select id="f-opponent" class="filter-select" onchange="applyFilters()"><option value="">All Opponents</option></select>
-        <select id="f-color" class="filter-select" onchange="applyFilters()">
-            <option value="">All Colors</option>
-            <option value="White">White</option>
-            <option value="Black">Black</option>
-        </select>
+    <div id="profile-modal" style="display:none; position:fixed; inset:0; background:rgba(0,0,0,0.95); z-index:100;">
+        <div class="modal-content">
+            <h2 id="modal-player-name" style="color:var(--accent); margin-top:0;"></h2>
+            <div id="modal-ratings" style="margin-bottom:15px; font-size: 1rem; color: #aaa;"></div>
+            
+            <select id="f-opening" class="filter-select" onchange="applyFilters()"><option value="">All Openings</option></select>
+            <select id="f-opponent" class="filter-select" onchange="applyFilters()"><option value="">All Opponents</option></select>
+            <select id="f-color" class="filter-select" onchange="applyFilters()">
+                <option value="">All Colors</option>
+                <option value="White">White</option>
+                <option value="Black">Black</option>
+            </select>
 
-        <div id="stats-insert"></div>
-        <button onclick="closeModal()">Close</button>
+            <div id="stats-insert"></div>
+            <button onclick="closeModal()">Close</button>
+        </div>
     </div>
-</div>
 
     <div class="form-wrapper">
         <div class="engine-box">
@@ -191,8 +189,8 @@
                 <a class="nav-button" href="index.html">Main Menu</a>
             </header>
             <a style="color: gold; display: block; text-align: center; margin: 10px auto;">
-  Click a Player to View Club Stats
-</a>
+                Click a Player to View Club Stats
+            </a>
             <div id="player-list-container">
                 <div style="text-align:center; color:#555; margin-top:50px;">Loading...</div>
             </div>
@@ -208,47 +206,67 @@
 
         async function loadData() {
             const [resp, mResp] = await Promise.all([fetch(CSV_URL), fetch(MATCH_URL)]);
-            const players = (await resp.text()).split('\n').slice(1).map(l => {
-    const row = l.match(/(".*?"|[^",]+)(?=\s*,|\s*$)/g)?.map(s => s.replace(/"/g, '').trim());
-    return row ? {
-        name: row[0] || '',
-        reg: row[1] || '',
-        quick: row[2] || '',
-        blitz: row[3] || ''
-    } : null;
-}).filter(n => n);
+            const text = await resp.text();
+            const lines = text.split(/\r?\n/);
+            
+            const players = lines.slice(1).map(l => {
+                if (!l.trim()) return null;
+                const row = l.match(/(".*?"|[^",]+)(?=\s*,|\s*$)/g)?.map(s => s.replace(/^"|"$/g, '').trim()) || [];
+                const val = (index) => {
+                    const v = row[index];
+                    return (v && v.toLowerCase() !== 'undefined') ? v : '';
+                };
+                return {
+                    name: val(0),
+                    reg: val(1),
+                    quick: val(2),
+                    blitz: val(3)
+                };
+            }).filter(n => n && n.name);
 
             const regex = /,(?=(?:(?:[^"]*"){2})*[^"]*$)/;
-            matchData = (await mResp.text()).split('\n').slice(1).map(r => r.split(regex).map(c => c.replace(/^"|"$/g, '').trim()));
+            matchData = (await mResp.text()).split(/\r?\n/).slice(1).map(r => r.trim() ? r.split(regex).map(c => c.replace(/^"|"$/g, '').trim()) : null).filter(r => r);
 
-            document.getElementById('player-list-container').innerHTML = players.map(p => `
-        <div class="player-row" onclick="showProfile('${p.name.replace(/'/g, "\\'")}', '${p.reg}', '${p.quick}', '${p.blitz}')">
-            <div class="player-name"><img src="photos/${p.name.replace(',', '').trim()}.jpg" onerror="this.style.display='none'" style="width:40px; height:40px; border-radius:50%; margin-right:15px;">${p.name}</div>
-            <div class="player-stats">Reg: ${p.reg} | Q: ${p.quick} | B: ${p.blitz}</div>
-        </div>`).join('');
+            document.getElementById('player-list-container').innerHTML = players.map(p => {
+                const stats = [
+                    p.reg ? `Reg: ${p.reg}` : '',
+                    p.quick ? `Q: ${p.quick}` : '',
+                    p.blitz ? `B: ${p.blitz}` : ''
+                ].filter(Boolean).join(' | ');
+
+                return `
+                <div class="player-row" onclick="showProfile('${p.name.replace(/'/g, "\\'")}', '${p.reg}', '${p.quick}', '${p.blitz}')">
+                    <div class="player-name"><img src="photos/${p.name.replace(',', '').trim()}.jpg" onerror="this.style.display='none'" style="width:40px; height:40px; border-radius:50%; margin-right:15px;">${p.name}</div>
+                    <div class="player-stats">${stats}</div>
+                </div>`;
+            }).join('');
         }
 
         function showProfile(name, reg, quick, blitz) {
-    currentName = name;
-    document.getElementById('modal-player-name').innerText = name;
-    document.getElementById('modal-ratings').innerText = `Reg: ${reg} | Quick: ${quick} | Blitz: ${blitz}`;
+            currentName = name;
+            document.getElementById('modal-player-name').innerText = name;
+            
+            const cleanReg = (reg && reg !== 'undefined') ? `Reg: ${reg}` : '';
+            const cleanQuick = (quick && quick !== 'undefined') ? `Quick: ${quick}` : '';
+            const cleanBlitz = (blitz && blitz !== 'undefined') ? `Blitz: ${blitz}` : '';
+            
+            document.getElementById('modal-ratings').innerText = [cleanReg, cleanQuick, cleanBlitz].filter(Boolean).join(' | ');
 
-    // Get unique, sorted lists for filters
-    const openings = Array.from(new Set(matchData.map(r => r[6]).filter(n => n))).sort();
-    const opponents = Array.from(new Set(matchData
-        .filter(r => r[4] === name || r[5] === name)
-        .map(r => r[4] === name ? r[5] : r[4])
-        .filter(n => n))).sort();
+            const openings = Array.from(new Set(matchData.map(r => r[6]).filter(n => n))).sort();
+            const opponents = Array.from(new Set(matchData
+                .filter(r => r[4] === name || r[5] === name)
+                .map(r => r[4] === name ? r[5] : r[4])
+                .filter(n => n))).sort();
 
-    document.getElementById('f-opening').innerHTML = '<option value="">All Openings</option>' + 
-        openings.map(o => `<option value="${o}">${o}</option>`).join('');
-    
-    document.getElementById('f-opponent').innerHTML = '<option value="">All Opponents</option>' + 
-        opponents.map(o => `<option value="${o}">${o}</option>`).join('');
+            document.getElementById('f-opening').innerHTML = '<option value="">All Openings</option>' + 
+                openings.map(o => `<option value="${o}">${o}</option>`).join('');
+            
+            document.getElementById('f-opponent').innerHTML = '<option value="">All Opponents</option>' + 
+                opponents.map(o => `<option value="${o}">${o}</option>`).join('');
 
-    applyFilters();
-    document.getElementById('profile-modal').style.display = 'block';
-}
+            applyFilters();
+            document.getElementById('profile-modal').style.display = 'block';
+        }
 
         function applyFilters() {
             const p = currentName,
@@ -265,16 +283,20 @@
                     result = row[7];
                 if (((c === "" || c === "White") && white === p) || ((c === "" || c === "Black") && black === p)) {
                     if ((o === "" || opening === o) && (opp === "" || (white === p ? black === opp : white === opp))) {
-                        if (result === "1-0")(white === p ? wins++ : losses++);
-                        else if (result === "0-1")(black === p ? wins++ : losses++);
-                        else draws++;
+                        if (result === "1-0") {
+                            if (white === p) wins++; else losses++;
+                        } else if (result === "0-1") {
+                            if (black === p) wins++; else losses++;
+                        } else {
+                            draws++;
+                        }
                     }
                 }
             });
             const total = wins + losses + draws;
             document.getElementById('stats-insert').innerHTML = `
-        <div class="stat-box">Total <span class="stat-value">${total}</span></div>
-        <div class="stat-box">W/L/D <span class="stat-value">${wins}/${losses}/${draws}</span></div>`;
+                <div class="stat-box">Total <span class="stat-value">${total}</span></div>
+                <div class="stat-box">W/L/D <span class="stat-value">${wins}/${losses}/${draws}</span></div>`;
         }
 
         function closeModal() {
