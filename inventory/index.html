@@ -733,7 +733,7 @@ async function saveInventoryToSupabase() {
     const effectiveDate = now.toISOString().split("T")[0];
 
     try {
-        // 1. Fetch existing data to preserve any items not currently in local session memory
+        // 1. Fetch existing data to preserve items already saved in Supabase
         const { data: existingRows, error: fetchError } = await supabaseClient
             .from('reporting')
             .select('reportjson')
@@ -758,23 +758,25 @@ async function saveInventoryToSupabase() {
             });
         }
 
-        // 2. Process current session entries and update tallies
-        parameters.forEach(p => {
-            if (inventorySession.entries[p.item]) {
-                let total = 0;
-                for (const unit in inventorySession.entries[p.item]) {
-                    total += inventorySession.entries[p.item][unit] * p.unitValues[unit];
-                }
+        // 2. ONLY update the specific item currently being saved, 
+        // instead of looping through all historical session entries.
+        const activeItemName = document.getElementById("entryItemName").innerText;
+        const activeItem = parameters.find(p => p.item === activeItemName);
 
-                const uom = p.validUnits[p.validUnits.length - 1];
-
-                if (total > 0) {
-                    currentTallies[p.item] = `${total} ${uom}`;
-                } else {
-                    delete currentTallies[p.item];
-                }
+        if (activeItem && inventorySession.entries[activeItemName]) {
+            let total = 0;
+            for (const unit in inventorySession.entries[activeItemName]) {
+                total += inventorySession.entries[activeItemName][unit] * activeItem.unitValues[unit];
             }
-        });
+
+            const uom = activeItem.validUnits[activeItem.validUnits.length - 1];
+
+            if (total > 0) {
+                currentTallies[activeItem.item] = `${total} ${uom}`;
+            } else {
+                delete currentTallies[activeItem.item];
+            }
+        }
 
         // 3. Rebuild plain text block strictly in the order of the parameters array
         let plainTextTallies = "";
@@ -802,7 +804,7 @@ async function saveInventoryToSupabase() {
             return false;
         }
 
-        console.log("Successfully merged and saved to Supabase:", data);
+        console.log("Successfully saved single item to Supabase:", data);
         return true;
 
     } catch (err) {
