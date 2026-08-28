@@ -209,14 +209,14 @@
         async function loadData() {
             const [resp, mResp] = await Promise.all([fetch(CSV_URL), fetch(MATCH_URL)]);
             const players = (await resp.text()).split('\n').slice(1).map(l => {
-                const row = l.match(/(".*?"|[^",]+)(?=\s*,|\s*$)/g)?.map(s => s.replace(/"/g, '').trim());
-                return row ? {
-                    name: row[0],
-                    reg: row[1],
-                    quick: row[2],
-                    blitz: row[3]
-                } : null;
-            }).filter(n => n);
+    const row = l.match(/(".*?"|[^",]+)(?=\s*,|\s*$)/g)?.map(s => s.replace(/"/g, '').trim());
+    return row ? {
+        name: row[0] || '',
+        reg: row[1] || '',
+        quick: row[2] || '',
+        blitz: row[3] || ''
+    } : null;
+}).filter(n => n);
 
             const regex = /,(?=(?:(?:[^"]*"){2})*[^"]*$)/;
             matchData = (await mResp.text()).split('\n').slice(1).map(r => r.split(regex).map(c => c.replace(/^"|"$/g, '').trim()));
