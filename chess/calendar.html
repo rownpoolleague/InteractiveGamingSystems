@@ -105,12 +105,22 @@
 <script>
 const CSV_URL = "https://docs.google.com/spreadsheets/d/e/2PACX-1vRKWq0iNE4_nidRdNK0iYR_iEIn77wjygZa4k_YzwsDR_9yO2nz9BCMnjgjaijwV69pG-rA_ANttdor/pub?gid=445927535&single=true&output=csv";
 function parseEventDate(monthWord, dayWord) {
-    const month = new Date(`${monthWord} 1, 2024`).getMonth(); 
+    const currentYear = new Date().getFullYear();
+    const month = new Date(`${monthWord} 1, ${currentYear}`).getMonth(); 
     const day = parseInt(dayWord.replace(/\D/g, "")); 
-    const year = new Date().getFullYear();
-    return new Date(year, month, day);
-}
+    
+    let eventDate = new Date(currentYear, month, day);
+    const today = new Date();
+    today.setHours(0,0,0,0);
 
+    // If the event date is more than a month in the past relative to today, 
+    // it's likely an event for early next year (e.g., January 2027 viewed in December 2026)
+    if (eventDate < today && (today - eventDate) > 30 * 24 * 60 * 60 * 1000) {
+        eventDate.setFullYear(currentYear + 1);
+    }
+    
+    return eventDate;
+}
 fetch(CSV_URL)
     .then(r => r.text())
     .then(text => {
