@@ -134,10 +134,10 @@
     <button onclick="showLoginPage()" style="background-color: #000;">Back</button>
     <p id="cpError" style="color: #C23B7A; font-weight: bold; display: none; margin-top: 15px;"></p>
 </div>      
-
+<div id="storeDisplay" style="font-weight: bold; margin-bottom: 15px; font-size: 20px; color: #C90014;"></div>
         <div id="page-name" class="page">
             <h2>Search by Name</h2>
-<div id="storeDisplay" style="font-weight: bold; margin-bottom: 15px; font-size: 20px; color: #C90014;"></div><br><br>
+
             <input id="nameInput" style="width:280px;" type="text" placeholder="Start typing..." oninput="filterNameList()" autocomplete="off"><br><br>
             <div id="customDropdown" style="max-height: 200px; overflow-y: auto; border: 1px solid #ccc; display: none; text-align: left; width: 80%; margin: 0 auto;"></div>
             <br><br>
@@ -210,7 +210,7 @@
 <p>1. Choose the WiFi icon on your Brother printer.</p>
 <p>2. Choose "Setup Wizard".</p>
 <p>3. Choose "Pizza Hut Guest wifi".</p>
-<p>4. Make sure your phone is also connected to guest wifi.</p>
+<p>4. Make sure your phone is also connected to guest wifi and click Print List</p>
       
     <button onclick="document.getElementById('instructionModal').style.display='none'" 
             style="background:#C90014; color:white; border: 2px solid #000000; padding:10px; width:100%; max-width:200px; display:block; margin:15px auto; border-radius:6px; font-weight:bold;">
@@ -396,8 +396,9 @@ async function handleLogin() {
         document.getElementById("passwordInput").value = "";
         
         document.getElementById("storeDisplay").innerText =
-            "Store: " + inventorySession.store +
-            (inventorySession.area ? " | Area: " + inventorySession.area : "");
+    inventorySession.store +
+    (inventorySession.area ? " " + inventorySession.area : "");
+
 
         // 🔥 USER‑SPECIFIC LOGIC: Unhide link IF admin, but DO NOT return early
         if (data.username === "admin") {
