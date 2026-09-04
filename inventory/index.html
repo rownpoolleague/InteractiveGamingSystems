@@ -146,8 +146,8 @@
             <a href="#" onclick="document.getElementById('instructionModal').style.display='flex'; return false;" 
    style="display:block; margin:10px; color:#C90014; font-weight:bold; text-decoration:underline; cursor:pointer;">
    INSTRUCTIONS
-</a>
-<a id="adminLink" href="admin.html" style="display: none; margin-top: 10px;">Go to Admin Report Lookup</a>
+</a><br><br>
+<a id="adminLink" href="admin.html" style="display: none; margin-top: 10px;font-size: 26px;">Reports</a>
       
         </div>
 
@@ -396,8 +396,7 @@ async function handleLogin() {
         document.getElementById("passwordInput").value = "";
         
         document.getElementById("storeDisplay").innerText =
-    inventorySession.store +
-    (inventorySession.area ? " " + inventorySession.area : "");
+   inventorySession.area;
 
 
         // 🔥 USER‑SPECIFIC LOGIC: Unhide link IF admin, but DO NOT return early
