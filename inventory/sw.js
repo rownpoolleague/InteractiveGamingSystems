@@ -1,4 +1,4 @@
-const version = 'v1.5'; // INCREMENT THIS
+const version = 'v1.6'; // INCREMENT THIS
 const cacheName = `inventory-${version}`;
 const assets = [
   './',
