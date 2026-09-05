@@ -1,4 +1,4 @@
-const version = 'v1.55555'; // INCREMENT THIS (v3, v4, etc.) whenever you update your code
+const version = 'v1.456'; // INCREMENT THIS
 const cacheName = `inventory-${version}`;
 const assets = [
   './',
@@ -7,7 +7,7 @@ const assets = [
 ];
 
 self.addEventListener('install', e => {
-  self.skipWaiting(); // Forces the waiting service worker to become the active one immediately
+  self.skipWaiting();
   e.waitUntil(caches.open(cacheName).then(cache => cache.addAll(assets)));
 });
 
@@ -17,15 +17,36 @@ self.addEventListener('activate', e => {
       return Promise.all(
         keys.filter(key => key !== cacheName).map(key => caches.delete(key))
       );
+    }).then(() => {
+      return clients.claim(); // Immediately take control of open pages
     })
   );
 });
 
+// ✅ FIXED FETCH STRATEGY: Network first for HTML/main requests, fallback to cache
 self.addEventListener('fetch', e => {
-  e.respondWith(
-    caches.match(e.request).then(res => {
-      // Return cached version if found, otherwise fetch from network
-      return res || fetch(e.request);
-    })
-  );
+  // For navigation or HTML files, try the network first so updates show instantly
+  if (e.request.mode === 'navigate' || e.request.url.endsWith('.html') || e.request.url.endsWith('/')) {
+    e.respondWith(
+      fetch(e.request)
+        .then(response => {
+          // Update cache with the fresh version
+          return caches.open(cacheName).then(cache => {
+            cache.put(e.request, response.clone());
+            return response;
+          });
+        })
+        .catch(() => {
+          // Fallback to cache if offline
+          return caches.match(e.request);
+        })
+    );
+  } else {
+    // Standard cache-first for other static assets (images, icons, etc.)
+    e.respondWith(
+      caches.match(e.request).then(res => {
+        return res || fetch(e.request);
+      })
+    );
+  }
 });
