@@ -175,6 +175,7 @@
             <br><br>
 <button onclick="printReviewList()" style="margin-bottom: 15px; padding: 8px 16px; cursor: pointer;">Print List</button>
          <br><br>
+<button onclick="emailReviewList()" style="margin-bottom: 15px; padding: 8px 16px; background-color: #000; cursor: pointer;">Email Report</button><br><br>
            <button onclick="clearOrderFlags()">Clear Order Flags</button>
              <br><br>
              <a href="#" onclick="handleLogout(); return false;" style="color: #C90014; text-decoration: underline; cursor: pointer; font-weight: bold;">Log Out</a>
@@ -214,8 +215,8 @@
 <p>2. Choose "Setup Wizard".</p>
 <p>3. Choose "Pizza Hut Guest wifi".</p>
 <p>4. Make sure your phone is also connected to guest wifi and click Print List</p>
-      
-    <button onclick="document.getElementById('instructionModal').style.display='none'" 
+      <br>
+<p><span class="step-title">Changes Needed?:</span> Is an item not on the list? Out of FMS order? Has a Unit of Measure changed? Please email suggestions to <a href="mailto:support@interactivegamingsystems.app" style="color: #C23B7A; text-decoration: underline;">support@interactivegamingsystems.app</a>.</p>    <button onclick="document.getElementById('instructionModal').style.display='none'" 
             style="background:#C90014; color:white; border: 2px solid #000000; padding:10px; width:100%; max-width:200px; display:block; margin:15px auto; border-radius:6px; font-weight:bold;">
       Close
     </button>
@@ -967,8 +968,63 @@ function printReviewList() {
         printWindow.close();
     }, 500);
 }
+
+  function emailReviewList() {
+    const rawStore = inventorySession.store;
+    if (!rawStore) {
+        alert("Store number not found. Please log in again.");
+        return;
+    }
+
+    const storeNumber = String(rawStore).padStart(6, '0');
+    const recipient = `rs${storeNumber}@pizzahut.com`;
+    const subject = encodeURIComponent(`Inventory Report - Store ${storeNumber}`);
+    
+    let bodyText = `Inventory Report - Store ${storeNumber}\n`;
+    bodyText += `=========================================\n\n`;
+    
+    const reviewContainer = document.getElementById("reviewList");
+    const itemRows = reviewContainer ? reviewContainer.querySelectorAll('div[style*="display:flex"]') : [];
+    
+    let hasItems = false;
+    if (itemRows.length > 0) {
+        itemRows.forEach((row, index) => {
+            const cols = row.querySelectorAll('div');
+            if (cols.length >= 3) {
+                const itemName = cols[0].innerText.trim();
+                const count = cols[1].innerText.trim();
+                const uom = cols[2].innerText.trim();
+                
+                if (index === 0 && itemName.toLowerCase() === 'item') return;
+                
+                bodyText += `• ${itemName}: ${count} ${uom}\n`;
+                hasItems = true;
+            }
+        });
+    }
+    
+    if (!hasItems) {
+        bodyText += "No items entered yet for this shift.\n";
+    }
+
+    // Pull directly from memory orderFlags
+    if (inventorySession.orderFlags && Object.keys(inventorySession.orderFlags).length > 0) {
+        bodyText += `\n-----------------------------------------\n`;
+        bodyText += `ITEMS TO ORDER:\n`;
+        Object.keys(inventorySession.orderFlags).forEach(itemName => {
+            if (inventorySession.orderFlags[itemName]) {
+                bodyText += `• ${itemName}\n`;
+            }
+        });
+    }
+
+    const encodedBody = encodeURIComponent(bodyText);
+    window.location.href = `mailto:${recipient}?subject=${subject}&body=${encodedBody}`;
+}
+
         if ('serviceWorker' in navigator) navigator.serviceWorker.register('./sw.js');
     </script>
 </body>
 
 </html>
+
