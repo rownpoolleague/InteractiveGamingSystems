@@ -718,14 +718,36 @@ const effectiveDate = `${year}-${month}-${day}`;
 }
 
 
-        function saveSessionToLocal() {
+       function saveSessionToLocal() {
+            const now = new Date();
+            if (now.getHours() < 4) {
+                now.setDate(now.getDate() - 1);
+            }
+            inventorySession.date = `${now.getFullYear()}-${String(now.getMonth() + 1).padStart(2, '0')}-${String(now.getDate()).padStart(2, '0')}`;
             localStorage.setItem("inventorySession", JSON.stringify(inventorySession));
         }
 
         function loadSessionFromLocal() {
             const saved = localStorage.getItem("inventorySession");
-            if (saved) inventorySession = JSON.parse(saved);
+            if (saved) {
+                inventorySession = JSON.parse(saved);
+
+                // Calculate current 4:00 AM effective business date
+                const now = new Date();
+                if (now.getHours() < 4) {
+                    now.setDate(now.getDate() - 1);
+                }
+                const effectiveDate = `${now.getFullYear()}-${String(now.getMonth() + 1).padStart(2, '0')}-${String(now.getDate()).padStart(2, '0')}`;
+
+                // If saved session is from a previous day, clear local entries for the new day
+                if (inventorySession.date !== effectiveDate) {
+                    inventorySession.entries = {};
+                    inventorySession.date = effectiveDate;
+                    saveSessionToLocal();
+                }
+            }
         }
+
 
 async function saveInventoryToSupabase() {
     if (!inventorySession.store) {
