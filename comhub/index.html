@@ -1,0 +1,1267 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>WorkDispatch (Supabase Synced)</title>
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&display=swap" rel="stylesheet">
+<!-- PWA Manifest & Theme -->
+<link rel="manifest" href="manifest.json">
+<meta name="theme-color" content="#4f46e5">
+<meta name="apple-mobile-web-app-capable" content="yes">
+<meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
+<meta name="apple-mobile-web-app-title" content="WorkDispatch">
+    <!-- Supabase JS Client Library -->
+    <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
+    <style>
+        :root {
+            --primary: #4f46e5;
+            --primary-hover: #4338ca;
+            --bg-main: #f8fafc;
+            --bg-card: #ffffff;
+            --text-main: #0f172a;
+            --text-muted: #64748b;
+            --border: #e2e8f0;
+            --success: #10b981;
+            --danger: #ef4444;
+        }
+
+        * {
+            box-sizing: border-box;
+            margin: 0;
+            padding: 0;
+            font-family: 'Inter', sans-serif;
+            -webkit-tap-highlight-color: transparent;
+        }
+
+        body {
+            background-color: var(--bg-main);
+            color: var(--text-main);
+            display: flex;
+            height: 100vh;
+            overflow: hidden;
+        }
+
+        aside {
+            width: 260px;
+            background: var(--bg-card);
+            border-right: 1px solid var(--border);
+            display: flex;
+            flex-direction: column;
+            padding: 1.5rem;
+            flex-shrink: 0;
+        }
+
+        .logo {
+            font-size: 1.25rem;
+            font-weight: 700;
+            color: var(--primary);
+            margin-bottom: 1.5rem;
+            display: flex;
+            align-items: center;
+            gap: 0.5rem;
+        }
+
+        .user-bar {
+            background: #f1f5f9;
+            border: 1px solid var(--border);
+            border-radius: 0.5rem;
+            padding: 0.625rem 0.75rem;
+            margin-bottom: 1.5rem;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            font-size: 0.85rem;
+            gap: 0.5rem;
+        }
+
+        .user-bar button {
+            padding: 0.25rem 0.5rem;
+            font-size: 0.75rem;
+            min-height: 28px;
+        }
+
+        .nav-section-title {
+            font-size: 0.75rem;
+            font-weight: 700;
+            text-transform: uppercase;
+            color: var(--text-muted);
+            margin-top: 1rem;
+            margin-bottom: 0.5rem;
+            letter-spacing: 0.05em;
+        }
+
+        .nav-links {
+            list-style: none;
+            display: flex;
+            flex-direction: column;
+            gap: 0.35rem;
+        }
+
+        .nav-link {
+            display: flex;
+            align-items: center;
+            gap: 0.75rem;
+            padding: 0.65rem 0.875rem;
+            border-radius: 0.5rem;
+            color: var(--text-muted);
+            text-decoration: none;
+            font-weight: 500;
+            cursor: pointer;
+            transition: all 0.2s;
+            font-size: 0.9rem;
+        }
+
+        .nav-link:hover, .nav-link.active {
+            background: #eef2ff;
+            color: var(--primary);
+        }
+
+        main {
+            flex: 1;
+            display: flex;
+            flex-direction: column;
+            overflow-y: auto;
+            padding: 2rem;
+        }
+
+        .view {
+            display: none;
+            max-width: 1000px;
+            width: 100%;
+            margin: 0 auto;
+        }
+
+        .view.active {
+            display: block;
+        }
+
+        header {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            margin-bottom: 2rem;
+            flex-wrap: wrap;
+            gap: 1rem;
+        }
+
+        h1 {
+            font-size: 1.75rem;
+            font-weight: 700;
+        }
+
+        button {
+            background: var(--primary);
+            color: white;
+            border: none;
+            padding: 0.625rem 1.25rem;
+            border-radius: 0.5rem;
+            font-weight: 600;
+            cursor: pointer;
+            transition: background 0.2s;
+            display: inline-flex;
+            align-items: center;
+            justify-content: center;
+            gap: 0.5rem;
+            min-height: 42px;
+        }
+
+        button:hover {
+            background: var(--primary-hover);
+        }
+
+        button.secondary {
+            background: #f1f5f9;
+            color: var(--text-main);
+            border: 1px solid var(--border);
+        }
+
+        button.secondary:hover {
+            background: #e2e8f0;
+        }
+
+        button.danger {
+            background: var(--danger);
+        }
+
+        input, select, textarea {
+            width: 100%;
+            padding: 0.75rem;
+            border: 1px solid var(--border);
+            border-radius: 0.5rem;
+            font-size: 0.95rem;
+            outline: none;
+            transition: border-color 0.2s;
+            background: var(--bg-card);
+            color: var(--text-main);
+            appearance: none;
+        }
+
+        input:focus, select:focus, textarea:focus {
+            border-color: var(--primary);
+        }
+
+        .card {
+            background: var(--bg-card);
+            border: 1px solid var(--border);
+            border-radius: 0.75rem;
+            padding: 1.5rem;
+            margin-bottom: 1.5rem;
+            box-shadow: 0 1px 3px rgba(0,0,0,0.05);
+        }
+
+        .table-responsive {
+            width: 100%;
+            overflow-x: auto;
+            -webkit-overflow-scrolling: touch;
+        }
+
+        table {
+            width: 100%;
+            border-collapse: collapse;
+            text-align: left;
+            min-width: 500px;
+        }
+
+        th, td {
+            padding: 0.875rem 1rem;
+            border-bottom: 1px solid var(--border);
+        }
+
+        th {
+            font-weight: 600;
+            color: var(--text-muted);
+            font-size: 0.85rem;
+            text-transform: uppercase;
+        }
+
+        .form-grid {
+            display: grid;
+            grid-template-columns: 1fr 1fr;
+            gap: 1rem;
+            margin-bottom: 1rem;
+        }
+
+        .form-group {
+            margin-bottom: 1rem;
+        }
+
+        .form-group label {
+            display: block;
+            font-size: 0.875rem;
+            font-weight: 500;
+            margin-bottom: 0.375rem;
+            color: var(--text-muted);
+        }
+
+        .badge {
+            background: #eef2ff;
+            color: var(--primary);
+            padding: 0.25rem 0.625rem;
+            border-radius: 1rem;
+            font-size: 0.75rem;
+            font-weight: 600;
+            display: inline-block;
+            margin-right: 0.25rem;
+            margin-bottom: 0.25rem;
+        }
+
+        .checkbox-group {
+            display: flex;
+            flex-wrap: wrap;
+            gap: 1rem;
+            margin-top: 0.5rem;
+        }
+
+        .checkbox-label {
+            display: flex;
+            align-items: center;
+            gap: 0.625rem;
+            font-size: 0.95rem;
+            cursor: pointer;
+            background: #f8fafc;
+            border: 1px solid var(--border);
+            padding: 0.75rem 1rem;
+            border-radius: 0.5rem;
+            transition: all 0.2s;
+            user-select: none;
+        }
+
+        .checkbox-label:hover {
+            border-color: var(--primary);
+        }
+
+        .checkbox-label.checked {
+            background: #eef2ff;
+            border-color: var(--primary);
+            color: var(--primary);
+            font-weight: 600;
+        }
+
+        .checkbox-label input[type="checkbox"] {
+            -webkit-appearance: checkbox;
+            appearance: checkbox;
+            width: 20px;
+            height: 20px;
+            accent-color: var(--primary);
+            cursor: pointer;
+            margin: 0;
+        }
+
+        .action-box {
+            background: #f8fafc;
+            border: 1px dashed var(--border);
+            border-radius: 0.5rem;
+            padding: 1rem;
+            margin-top: 1rem;
+        }
+
+        .recipient-chips {
+            display: flex;
+            flex-wrap: wrap;
+            gap: 0.5rem;
+            margin: 0.5rem 0;
+            max-height: 120px;
+            overflow-y: auto;
+        }
+
+        .chip {
+            background: #e2e8f0;
+            padding: 0.25rem 0.5rem;
+            border-radius: 0.25rem;
+            font-size: 0.8rem;
+            display: inline-flex;
+            align-items: center;
+            gap: 0.25rem;
+        }
+
+        .sync-status {
+            font-size: 0.75rem;
+            color: var(--text-muted);
+            margin-top: auto;
+            padding-top: 1rem;
+            border-top: 1px solid var(--border);
+        }
+
+        .contact-clickable {
+            color: var(--primary);
+            cursor: pointer;
+            text-decoration: underline;
+            font-weight: 600;
+        }
+
+        .contact-clickable:hover {
+            color: var(--primary-hover);
+        }
+
+        /* Modal Overlay */
+        .modal-overlay {
+            position: fixed;
+            inset: 0;
+            background: rgba(15, 23, 42, 0.6);
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            padding: 1rem;
+            z-index: 999;
+        }
+
+        .modal-box {
+            background: var(--bg-card);
+            border-radius: 0.75rem;
+            padding: 1.75rem;
+            width: 100%;
+            max-width: 480px;
+            box-shadow: 0 10px 25px rgba(0,0,0,0.15);
+        }
+
+        /* Login Screen Overlay */
+        #login-screen {
+            position: fixed;
+            inset: 0;
+            background: var(--bg-main);
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            padding: 1rem;
+            z-index: 1000;
+        }
+
+        .login-box {
+            background: var(--bg-card);
+            border: 1px solid var(--border);
+            border-radius: 0.75rem;
+            padding: 2rem;
+            width: 100%;
+            max-width: 400px;
+            box-shadow: 0 10px 25px rgba(0,0,0,0.08);
+        }
+
+        .login-error {
+            color: var(--danger);
+            font-size: 0.85rem;
+            margin-bottom: 1rem;
+            display: none;
+        }
+
+        .mobile-logout-btn {
+            display: none;
+        }
+
+        @media (max-width: 768px) {
+            body {
+                flex-direction: column;
+                height: 100vh;
+                overflow: auto;
+            }
+
+            aside {
+                width: 100%;
+                padding: 0.75rem 1rem;
+                flex-direction: row;
+                align-items: center;
+                justify-content: space-between;
+                border-right: none;
+                border-bottom: 1px solid var(--border);
+                flex-shrink: 0;
+                position: sticky;
+                top: 0;
+                z-index: 100;
+                background: var(--bg-card);
+            }
+
+            .logo {
+                margin-bottom: 0;
+                font-size: 1rem;
+            }
+
+            .user-bar {
+                display: none;
+            }
+
+            .mobile-logout-btn {
+                display: inline-flex;
+                padding: 0.4rem 0.75rem;
+                font-size: 0.8rem;
+                min-height: 34px;
+            }
+
+            .nav-links {
+                flex-direction: row;
+                gap: 0.25rem;
+            }
+
+            .nav-link {
+                padding: 0.5rem 0.65rem;
+                font-size: 0.82rem;
+            }
+
+            .nav-section-title {
+                display: none;
+            }
+
+            main {
+                padding: 1rem;
+                overflow-y: visible;
+            }
+
+            .form-grid {
+                grid-template-columns: 1fr;
+                gap: 0;
+            }
+
+            h1 {
+                font-size: 1.35rem;
+            }
+
+            .card {
+                padding: 1rem;
+            }
+
+            .sync-status {
+                display: none;
+            }
+        }
+    </style>
+</head>
+<body>
+
+    <!-- LOGIN SCREEN -->
+    <div id="login-screen">
+        <div class="login-box">
+            <div class="logo" style="margin-bottom: 0.5rem; font-size: 1.4rem;">⚡ Master Dashboard</div>
+            <p style="font-size: 0.875rem; color: var(--text-muted); margin-bottom: 1.5rem;">
+                Sign in to access your apps, communications, and sheets.
+            </p>
+            <div id="login-error" class="login-error"></div>
+            <div class="form-group">
+                <label>Username</label>
+                <input type="text" id="login-name" placeholder="Enter your name" autocomplete="username">
+            </div>
+            <div class="form-group">
+                <label>Password</label>
+                <input type="password" id="login-password" placeholder="Enter password" autocomplete="current-password" onkeydown="if(event.key==='Enter') handleLogin()">
+            </div>
+            <div style="display: flex; flex-direction: column; gap: 0.625rem; margin-top: 1.25rem;">
+                <button id="login-btn" onclick="handleLogin()" style="width: 100%;">Sign In</button>
+                <button id="register-btn" class="secondary" onclick="handleRegister()" style="width: 100%;">Create New Account</button>
+            </div>
+        </div>
+    </div>
+
+    <!-- INDIVIDUAL CONTACT ACTION MODAL -->
+    <div id="individual-modal" class="modal-overlay" style="display:none;">
+        <div class="modal-box">
+            <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 1rem;">
+                <h3 id="modal-contact-name">Engage Contact</h3>
+                <button class="secondary" onclick="closeIndividualModal()" style="padding: 0.25rem 0.5rem; font-size: 0.8rem; min-height: 30px;">✕</button>
+            </div>
+            <p id="modal-contact-info" style="font-size: 0.85rem; color: var(--text-muted); margin-bottom: 1.25rem;"></p>
+            
+            <div class="form-group">
+                <label>Direct Message / Note</label>
+                <textarea id="modal-msg-body" rows="4" placeholder="Type direct message here..."></textarea>
+            </div>
+
+            <div style="display: flex; flex-direction: column; gap: 0.5rem;">
+                <button onclick="sendIndividualSMS()" id="modal-sms-btn" style="width: 100%;">💬 Send Direct Text (SMS)</button>
+                <button onclick="sendIndividualEmail()" id="modal-email-btn" class="secondary" style="width: 100%;">✉️ Send Direct Email</button>
+                <button onclick="makeIndividualCall()" id="modal-call-btn" class="secondary" style="width: 100%;">📞 Call Direct</button>
+            </div>
+        </div>
+    </div>
+
+    <!-- ADD/EDIT CONTACT MODAL -->
+    <div id="contact-modal" class="modal-overlay" style="display:none;">
+        <div class="modal-box">
+            <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 1.25rem;">
+                <h3 id="contact-form-title">Add Contact</h3>
+                <button class="secondary" onclick="closeContactModal()" style="padding: 0.25rem 0.5rem; font-size: 0.8rem; min-height: 30px;">✕</button>
+            </div>
+            <input type="hidden" id="contact-id">
+            <div class="form-group">
+                <label>Full Name</label>
+                <input type="text" id="contact-name" placeholder="John Doe">
+            </div>
+            <div class="form-group">
+                <label>Phone Number</label>
+                <input type="text" id="contact-phone" placeholder="875-555-0192">
+            </div>
+            <div class="form-group">
+                <label>Email Address</label>
+                <input type="email" id="contact-email" placeholder="john@company.com">
+            </div>
+            <div class="form-group">
+                <label>Groups (Select all that apply)</label>
+                <div id="contact-groups-checkboxes" class="checkbox-group" style="max-height: 140px; overflow-y: auto; padding: 0.5rem; border: 1px solid var(--border); border-radius: 0.5rem; background: var(--bg-card);"></div>
+            </div>
+            <div style="display: flex; gap: 0.5rem; margin-top: 1.5rem;">
+                <button onclick="saveContact()" style="flex: 1;">Save Contact</button>
+                <button class="secondary" onclick="closeContactModal()" style="flex: 1;">Cancel</button>
+            </div>
+        </div>
+    </div>
+
+    <aside>
+        <div style="width: 100%;">
+            <div class="logo">
+                ⚡ Dashboard
+            </div>
+            <div class="user-bar">
+                <span style="overflow: hidden; text-overflow: ellipsis; white-space: nowrap;">👤 <strong id="desktop-user-label">User</strong></span>
+                <button class="secondary" onclick="handleLogout()">Logout</button>
+            </div>
+
+            <!-- COMMUNICATIONS SECTION (WorkDispatch nested) -->
+            <div class="nav-section-title">Communications</div>
+            <ul class="nav-links">
+                <li><a class="nav-link active" onclick="switchView('broadcast', this)">📢 Broadcast Hub</a></li>
+                <li><a class="nav-link" onclick="switchView('contacts', this)">📇 Contacts</a></li>
+                <li><a class="nav-link" onclick="switchView('groups', this)">🏷️ Groups</a></li>
+            </ul>
+
+            <!-- TOOLS / EXTERNAL APPS SECTION -->
+            <div class="nav-section-title">External Tools</div>
+            <ul class="nav-links">
+                <li><a class="nav-link" href="https://office.live.com/start/Excel.aspx" target="_blank" rel="noopener noreferrer">📊 Excel App</a></li>
+                <li><a class="nav-link" href="https://sheets.google.com" target="_blank">📈 Google Sheets App</a></li>
+                <li><a class="nav-link" href="https://hutlink.yum.com" target="_blank">Hut Link</a></li>
+            </ul>
+        </div>
+        <div id="sync-status" class="sync-status">🔄 Connecting to Supabase...</div>
+    </aside>
+
+    <main>
+        <!-- BROADCAST VIEW -->
+        <div id="broadcast-view" class="view active">
+            <header>
+                <h1>Broadcast Hub</h1>
+                <button class="secondary mobile-logout-btn" onclick="handleLogout()">👤 <span id="mobile-user-label">Logout</span></button>
+            </header>
+
+            <div class="card">
+                <h3 style="margin-bottom: 1rem;">1. Select Target Groups</h3>
+                <div class="form-group">
+                    <label>Groups to Include:</label>
+                    <div id="broadcast-groups-list" class="checkbox-group"></div>
+                </div>
+                
+                <div class="action-box">
+                    <label style="font-size: 0.85rem; font-weight: 600; color: var(--text-muted);">Auto-Resolved Recipients (<span id="recipient-count">0</span> total):</label>
+                    <div id="recipient-chips" class="recipient-chips">
+                        <span style="color: var(--text-muted); font-size: 0.85rem;">No groups selected</span>
+                    </div>
+                </div>
+            </div>
+
+            <div class="card">
+                <h3 style="margin-bottom: 1rem;">2. Choose Action & Compose</h3>
+                
+                <div class="form-group">
+                    <label>Communication Channel</label>
+                    <select id="comm-channel" onchange="toggleCommFields()">
+                        <option value="sms">Text Message</option>
+                        <option value="email">Email</option>
+                        <option value="call">Call</option>
+                    </select>
+                </div>
+
+                <div id="message-fields">
+                    <div class="form-group" id="subject-group" style="display:none;">
+                        <label>Email Subject</label>
+                        <input type="text" id="comm-subject" placeholder="Important Work Update">
+                    </div>
+                    <div class="form-group">
+                        <label>Message Content</label>
+                        <textarea id="comm-body" rows="5" placeholder="Type your message here..."></textarea>
+                    </div>
+                </div>
+
+                <button onclick="executeBroadcast()" style="width: 100%;">🚀 Trigger Actions</button>
+            </div>
+        </div>
+
+        <!-- CONTACTS VIEW -->
+        <div id="contacts-view" class="view">
+            <header>
+                <h1>Manage Contacts</h1>
+                <div style="display: flex; gap: 0.5rem; flex-wrap: wrap;">
+                    <button class="secondary" id="import-contacts-btn" onclick="importPhoneContacts()">📇 Import from Phone</button>
+                    <input type="file" id="vcf-file-input" accept=".vcf,.csv" style="display:none;" onchange="handleContactFile(event)">
+                    <button onclick="openContactModal()">+ Add Contact</button>
+                </div>
+            </header>
+
+            <div class="card">
+                <div class="form-group" style="margin-bottom: 1rem;">
+                    <input type="text" id="contact-search-input" placeholder="🔍 Search contacts by name, phone, email, or group..." oninput="renderContacts()">
+                </div>
+                <div class="table-responsive">
+                    <table>
+                        <thead>
+                            <tr>
+                                <th>Name</th>
+                                <th>Phone</th>
+                                <th>Email</th>
+                                <th>Groups</th>
+                                <th>Actions</th>
+                            </tr>
+                        </thead>
+                        <tbody id="contacts-table-body"></tbody>
+                    </table>
+                </div>
+            </div>
+        </div>
+
+        <!-- GROUPS VIEW -->
+        <div id="groups-view" class="view">
+            <header>
+                <h1>Manage Groups</h1>
+            </header>
+
+            <div class="card">
+                <div style="display: flex; gap: 0.5rem; margin-bottom: 1.5rem; flex-wrap: wrap;">
+                    <input type="text" id="new-group-name" placeholder="New Group Name" style="flex: 1; min-width: 180px;">
+                    <button onclick="addGroup()">Add Group</button>
+                </div>
+                <div class="table-responsive">
+                    <table>
+                        <thead>
+                            <tr>
+                                <th>Group Name</th>
+                                <th>Members</th>
+                                <th>Actions</th>
+                            </tr>
+                        </thead>
+                        <tbody id="groups-table-body"></tbody>
+                    </table>
+                </div>
+            </div>
+        </div>
+    </main>
+
+    <script>
+        // --- SUPABASE CONFIGURATION ---
+        const SUPABASE_URL = 'https://sqfpwjyxmcdfodjncbfn.supabase.co';
+        const SUPABASE_ANON_KEY = 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6InNxZnB3anl4bWNkZm9kam5jYmZuIiwicm9sZSI6ImFub24iLCJpYXQiOjE3ODU1NTEzMTAsImV4cCI6MjEwMTEyNzMxMH0.2m38rBmHn1wZ0zK82whefu5-nSPJsODTr2X7mX6o6QA';
+
+        const supabaseClient = window.supabase.createClient(SUPABASE_URL, SUPABASE_ANON_KEY);
+        let currentUser = localStorage.getItem('workdispatch_user') || '';
+        let activeContact = null;
+
+        let state = {
+            contacts: [],
+            groups: ['General', 'Team', 'Clients']
+        };
+
+        function showLoginError(msg) {
+            const errEl = document.getElementById('login-error');
+            errEl.innerText = msg;
+            errEl.style.display = msg ? 'block' : 'none';
+        }
+
+        function setAuthLoading(isLoading) {
+            document.getElementById('login-btn').disabled = isLoading;
+            document.getElementById('register-btn').disabled = isLoading;
+        }
+
+        async function handleLogin() {
+            const nameInput = document.getElementById('login-name').value.trim();
+            const passwordInput = document.getElementById('login-password').value;
+            showLoginError('');
+
+            if (!nameInput || !passwordInput) {
+                return showLoginError('Please enter both a username and password.');
+            }
+
+            setAuthLoading(true);
+            try {
+                const { data, error } = await supabaseClient
+                    .from('worklogin')
+                    .select('name, password')
+                    .ilike('name', nameInput)
+                    .maybeSingle();
+
+                if (error) throw error;
+
+                if (!data) {
+                    showLoginError('Account not found. Click "Create New Account" to register.');
+                } else if (data.password !== passwordInput) {
+                    showLoginError('Incorrect password.');
+                } else {
+                    completeSignIn(data.name);
+                }
+            } catch (err) {
+                console.error('Login error:', err);
+                showLoginError('Login error: ' + (err.message || 'Check connection and table permissions.'));
+            } finally {
+                setAuthLoading(false);
+            }
+        }
+
+        async function handleRegister() {
+            const nameInput = document.getElementById('login-name').value.trim();
+            const passwordInput = document.getElementById('login-password').value;
+            showLoginError('');
+
+            if (!nameInput || !passwordInput) {
+                return showLoginError('Please enter a username and password to create an account.');
+            }
+
+            setAuthLoading(true);
+            try {
+                const { data: existing, error: checkError } = await supabaseClient
+                    .from('worklogin')
+                    .select('name')
+                    .ilike('name', nameInput)
+                    .maybeSingle();
+
+                if (checkError) throw checkError;
+
+                if (existing) {
+                    showLoginError('That username is already taken. Try another or sign in.');
+                    return;
+                }
+
+                const { error: insertError } = await supabaseClient
+                    .from('worklogin')
+                    .insert({ name: nameInput, password: passwordInput });
+
+                if (insertError) throw insertError;
+
+                state = {
+                    contacts: [],
+                    groups: ['General', 'Team', 'Clients']
+                };
+                currentUser = nameInput;
+                await saveDataToSupabase();
+                completeSignIn(nameInput);
+            } catch (err) {
+                console.error('Register error:', err);
+                showLoginError('Could not create account: ' + (err.message || 'Check worklogin permissions.'));
+            } finally {
+                setAuthLoading(false);
+            }
+        }
+
+        async function completeSignIn(username) {
+            currentUser = username;
+            localStorage.setItem('workdispatch_user', username);
+            document.getElementById('login-screen').style.display = 'none';
+            document.getElementById('desktop-user-label').innerText = username;
+            document.getElementById('mobile-user-label').innerText = `${username} (Logout)`;
+            await loadData();
+        }
+
+        function handleLogout() {
+            currentUser = '';
+            localStorage.removeItem('workdispatch_user');
+            document.getElementById('login-password').value = '';
+            showLoginError('');
+            document.getElementById('login-screen').style.display = 'flex';
+        }
+
+        function getUserRecordId() {
+            return currentUser.trim().toLowerCase();
+        }
+
+        async function loadData() {
+            if (!currentUser) {
+                document.getElementById('login-screen').style.display = 'flex';
+                return;
+            }
+
+            document.getElementById('login-screen').style.display = 'none';
+            document.getElementById('desktop-user-label').innerText = currentUser;
+            document.getElementById('mobile-user-label').innerText = `${currentUser} (Logout)`;
+            document.getElementById('sync-status').innerText = '🔄 Loading your list...';
+
+            try {
+                const { data, error } = await supabaseClient
+                    .from('work_dispatch_data')
+                    .select('data')
+                    .eq('id', getUserRecordId())
+                    .maybeSingle();
+
+                if (error) throw error;
+
+                if (data && data.data) {
+                    state = data.data;
+                    state.contacts.forEach(c => {
+                        if (!c.groups && c.group) {
+                            c.groups = [c.group];
+                        } else if (!c.groups) {
+                            c.groups = [];
+                        }
+                    });
+                } else {
+                    state = {
+                        contacts: [],
+                        groups: ['General', 'Team', 'Clients']
+                    };
+                    await saveDataToSupabase();
+                }
+                document.getElementById('sync-status').innerText = `🟢 Synced (${currentUser})`;
+                refreshUI();
+            } catch (err) {
+                console.error('Supabase load error:', err);
+                document.getElementById('sync-status').innerText = '🔴 Supabase sync failed';
+                refreshUI();
+            }
+        }
+
+        async function saveDataToSupabase() {
+            if (!currentUser) return;
+            document.getElementById('sync-status').innerText = '💾 Saving...';
+            try {
+                const { error } = await supabaseClient
+                    .from('work_dispatch_data')
+                    .upsert({ id: getUserRecordId(), data: state, updated_at: new Date() });
+
+                if (error) throw error;
+                document.getElementById('sync-status').innerText = `🟢 Synced (${currentUser})`;
+            } catch (err) {
+                console.error('Supabase save error:', err);
+                document.getElementById('sync-status').innerText = '🔴 Save failed';
+            }
+            refreshUI();
+        }
+
+        async function importPhoneContacts() {
+            const isTopFrame = window.self === window.top;
+            const hasContactPicker = ('contacts' in navigator && 'select' in navigator.contacts);
+
+            if (hasContactPicker && isTopFrame) {
+                try {
+                    const contacts = await navigator.contacts.select(['name', 'email', 'tel'], { multiple: true });
+                    if (contacts.length === 0) return;
+
+                    const defaultGroup = state.groups[0] || 'General';
+                    contacts.forEach(c => {
+                        state.contacts.push({
+                            id: Date.now() + Math.random(),
+                            name: c.name ? c.name[0] : 'Imported Contact',
+                            phone: c.tel ? c.tel[0] : '',
+                            email: c.email ? c.email[0] : '',
+                            groups: [defaultGroup]
+                        });
+                    });
+
+                    await saveDataToSupabase();
+                    alert(`Successfully imported ${contacts.length} contact(s)!`);
+                    return;
+                } catch (ex) {
+                    console.warn('Native picker fallback:', ex);
+                }
+            }
+            document.getElementById('vcf-file-input').click();
+        }
+
+        async function handleContactFile(event) {
+            const file = event.target.files[0];
+            if (!file) return;
+
+            const reader = new FileReader();
+            reader.onload = async function(e) {
+                const content = e.target.result;
+                const defaultGroup = state.groups[0] || 'General';
+                let count = 0;
+
+                if (file.name.toLowerCase().endsWith('.vcf')) {
+                    content.split('BEGIN:VCARD').forEach(card => {
+                        if (!card.trim()) return;
+                        const fn = card.match(/^FN(?:;[^:]*)?:(.*)$/m);
+                        const tel = card.match(/^TEL(?:;[^:]*)?:(.*)$/m);
+                        const email = card.match(/^EMAIL(?:;[^:]*)?:(.*)$/m);
+
+                        if (fn || tel || email) {
+                            state.contacts.push({
+                                id: Date.now() + Math.random(),
+                                name: fn ? fn[1].trim() : 'Imported',
+                                phone: tel ? tel[1].trim() : '',
+                                email: email ? email[1].trim() : '',
+                                groups: [defaultGroup]
+                            });
+                            count++;
+                        }
+                    });
+                } else {
+                    content.split(/\r?\n/).forEach((line, idx) => {
+                        if (!line.trim()) return;
+                        const parts = line.split(',').map(p => p.trim().replace(/^"|"$/g, ''));
+                        if (idx === 0 && parts[0].toLowerCase() === 'name') return;
+                        if (parts[0]) {
+                            state.contacts.push({
+                                id: Date.now() + Math.random(),
+                                name: parts[0],
+                                phone: parts[1] || '',
+                                email: parts[2] || '',
+                                groups: parts[3] && state.groups.includes(parts[3]) ? [parts[3]] : [defaultGroup]
+                            });
+                            count++;
+                        }
+                    });
+                }
+                event.target.value = '';
+                if (count > 0) {
+                    await saveDataToSupabase();
+                    alert(`Imported ${count} contacts!`);
+                } else {
+                    alert('No valid contacts found in file.');
+                }
+            };
+            reader.readAsText(file);
+        }
+
+        function switchView(viewName, linkEl) {
+            document.querySelectorAll('.view').forEach(v => v.classList.remove('active'));
+            document.querySelectorAll('.nav-link').forEach(l => l.classList.remove('active'));
+            document.getElementById(`${viewName}-view`).classList.add('active');
+            if (linkEl) linkEl.classList.add('active');
+        }
+
+        function refreshUI() {
+            renderContacts();
+            renderGroups();
+            renderBroadcastGroups();
+            updateResolvedRecipients();
+        }
+
+        function renderContacts() {
+            const tbody = document.getElementById('contacts-table-body');
+            const searchInput = document.getElementById('contact-search-input');
+            const query = searchInput ? searchInput.value.toLowerCase().trim() : '';
+
+            let filteredContacts = state.contacts;
+            if (query) {
+                filteredContacts = state.contacts.filter(c => 
+                    (c.name && c.name.toLowerCase().includes(query)) ||
+                    (c.phone && c.phone.toLowerCase().includes(query)) ||
+                    (c.email && c.email.toLowerCase().includes(query)) ||
+                    (c.groups && c.groups.some(g => g.toLowerCase().includes(query)))
+                );
+            }
+
+            if (filteredContacts.length === 0) {
+                tbody.innerHTML = `<tr><td colspan="5" style="text-align:center; color:var(--text-muted);">${state.contacts.length === 0 ? 'No contacts yet. Click "+ Add Contact" or "Import from Phone".' : 'No matching contacts found.'}</td></tr>`;
+            } else {
+                tbody.innerHTML = filteredContacts.map(c => {
+                    const groupsHtml = (c.groups && c.groups.length > 0) 
+                        ? c.groups.map(g => `<span class="badge">${g}</span>`).join('') 
+                        : '<span style="color:var(--text-muted); font-size:0.8rem;">Unassigned</span>';
+                    
+                    return `
+                        <tr>
+                            <td><span class="contact-clickable" onclick="openIndividualModal(${c.id})" title="Click to engage individually">${c.name}</span></td>
+                            <td>${c.phone || '-'}</td>
+                            <td>${c.email || '-'}</td>
+                            <td>${groupsHtml}</td>
+                            <td>
+                                <div style="display: flex; gap: 0.25rem;">
+                                    <button class="secondary" style="padding: 0.25rem 0.5rem; font-size: 0.8rem; min-height: 30px;" onclick="editContact(${c.id})">Edit</button>
+                                    <button class="danger" style="padding: 0.25rem 0.5rem; font-size: 0.8rem; min-height: 30px;" onclick="deleteContact(${c.id})">Del</button>
+                                </div>
+                            </td>
+                        </tr>
+                    `;
+                }).join('');
+            }
+        }
+
+        function renderContactGroupCheckboxes(selectedGroups = []) {
+            const container = document.getElementById('contact-groups-checkboxes');
+            if (state.groups.length === 0) {
+                container.innerHTML = '<span style="color:var(--text-muted); font-size:0.85rem;">No groups available. Create groups first.</span>';
+                return;
+            }
+            container.innerHTML = state.groups.map(g => {
+                const isChecked = selectedGroups.includes(g);
+                return `
+                    <label class="checkbox-label ${isChecked ? 'checked' : ''}" style="padding: 0.5rem 0.75rem; font-size:0.85rem;">
+                        <input type="checkbox" value="${g}" ${isChecked ? 'checked' : ''} onchange="this.closest('.checkbox-label').classList.toggle('checked', this.checked)">
+                        ${g}
+                    </label>
+                `;
+            }).join('');
+        }
+
+        function openIndividualModal(contactId) {
+            activeContact = state.contacts.find(c => c.id === contactId);
+            if (!activeContact) return;
+
+            const groupsStr = activeContact.groups && activeContact.groups.length > 0 ? activeContact.groups.join(', ') : 'None';
+            document.getElementById('modal-contact-name').innerText = activeContact.name;
+            document.getElementById('modal-contact-info').innerText = `Phone: ${activeContact.phone || 'None'} | Email: ${activeContact.email || 'None'} | Groups: ${groupsStr}`;
+            document.getElementById('modal-msg-body').value = '';
+            
+            document.getElementById('modal-sms-btn').style.display = activeContact.phone ? 'inline-flex' : 'none';
+            document.getElementById('modal-call-btn').style.display = activeContact.phone ? 'inline-flex' : 'none';
+            document.getElementById('modal-email-btn').style.display = activeContact.email ? 'inline-flex' : 'none';
+
+            document.getElementById('individual-modal').style.display = 'flex';
+        }
+
+        function closeIndividualModal() {
+            document.getElementById('individual-modal').style.display = 'none';
+            activeContact = null;
+        }
+
+        function sendIndividualSMS() {
+            if (!activeContact || !activeContact.phone) return alert('No phone number available for this contact.');
+            const msg = document.getElementById('modal-msg-body').value;
+            window.location.href = `sms:${activeContact.phone}?body=${encodeURIComponent(msg)}`;
+            closeIndividualModal();
+        }
+
+        function sendIndividualEmail() {
+            if (!activeContact || !activeContact.email) return alert('No email address available for this contact.');
+            const msg = document.getElementById('modal-msg-body').value;
+            window.location.href = `mailto:${activeContact.email}?subject=${encodeURIComponent('Work Update')}&body=${encodeURIComponent(msg)}`;
+            closeIndividualModal();
+        }
+
+        function makeIndividualCall() {
+            if (!activeContact || !activeContact.phone) return alert('No phone number available for this contact.');
+            window.location.href = `tel:${activeContact.phone}`;
+            closeIndividualModal();
+        }
+
+        function openContactModal() {
+            document.getElementById('contact-form-title').innerText = 'Add Contact';
+            document.getElementById('contact-id').value = '';
+            document.getElementById('contact-name').value = '';
+            document.getElementById('contact-phone').value = '';
+            document.getElementById('contact-email').value = '';
+            renderContactGroupCheckboxes();
+            document.getElementById('contact-modal').style.display = 'flex';
+        }
+
+        function editContact(id) {
+            const c = state.contacts.find(x => x.id === id);
+            if (!c) return;
+            document.getElementById('contact-form-title').innerText = 'Edit Contact';
+            document.getElementById('contact-id').value = c.id;
+            document.getElementById('contact-name').value = c.name;
+            document.getElementById('contact-phone').value = c.phone;
+            document.getElementById('contact-email').value = c.email;
+            renderContactGroupCheckboxes(c.groups || []);
+            document.getElementById('contact-modal').style.display = 'flex';
+        }
+
+        function closeContactModal() {
+            document.getElementById('contact-modal').style.display = 'none';
+        }
+
+        async function saveContact() {
+            const id = document.getElementById('contact-id').value;
+            const name = document.getElementById('contact-name').value;
+            const phone = document.getElementById('contact-phone').value;
+            const email = document.getElementById('contact-email').value;
+            
+            const selectedGroups = Array.from(document.querySelectorAll('#contact-groups-checkboxes input:checked')).map(el => el.value);
+
+            if (!name) return alert('Name is required');
+
+            if (id) {
+                const c = state.contacts.find(x => x.id == id);
+                c.name = name; c.phone = phone; c.email = email; c.groups = selectedGroups;
+            } else {
+                state.contacts.push({ id: Date.now(), name, phone, email, groups: selectedGroups });
+            }
+
+            closeContactModal();
+            await saveDataToSupabase();
+        }
+
+        async function deleteContact(id) {
+            if(confirm('Delete this contact?')) {
+                state.contacts = state.contacts.filter(c => c.id !== id);
+                await saveDataToSupabase();
+            }
+        }
+
+        function renderGroups() {
+            const tbody = document.getElementById('groups-table-body');
+            tbody.innerHTML = state.groups.map(g => {
+                const count = state.contacts.filter(c => c.groups && c.groups.includes(g)).length;
+                return `
+                    <tr>
+                        <td><strong>${g}</strong></td>
+                        <td>${count} members</td>
+                        <td>
+                            <button class="danger" style="padding: 0.25rem 0.5rem; font-size: 0.8rem; min-height: 30px;" onclick="deleteGroup('${g}')">Del</button>
+                        </td>
+                    </tr>
+                `;
+            }).join('');
+        }
+
+        async function addGroup() {
+            const nameInput = document.getElementById('new-group-name');
+            const name = nameInput.value.trim();
+            if(!name) return;
+            if(state.groups.includes(name)) return alert('Group already exists');
+            
+            state.groups.push(name);
+            nameInput.value = '';
+            await saveDataToSupabase();
+        }
+
+        async function deleteGroup(name) {
+            if(confirm(`Delete group "${name}"?`)) {
+                state.groups = state.groups.filter(g => g !== name);
+                state.contacts.forEach(c => { 
+                    if (c.groups) {
+                        c.groups = c.groups.filter(g => g !== name);
+                    }
+                });
+                await saveDataToSupabase();
+            }
+        }
+
+        function renderBroadcastGroups() {
+            const container = document.getElementById('broadcast-groups-list');
+            container.innerHTML = state.groups.map(g => `
+                <label class="checkbox-label" id="label-${g}">
+                    <input type="checkbox" value="${g}" onchange="handleCheckboxChange(this)">
+                    ${g} (${state.contacts.filter(c => c.groups && c.groups.includes(g)).length})
+                </label>
+            `).join('');
+            updateResolvedRecipients();
+        }
+
+        function handleCheckboxChange(checkbox) {
+            const label = checkbox.closest('.checkbox-label');
+            if (checkbox.checked) {
+                label.classList.add('checked');
+            } else {
+                label.classList.remove('checked');
+            }
+            updateResolvedRecipients();
+        }
+
+        function getSelectedRecipients() {
+            const checkedGroups = Array.from(document.querySelectorAll('#broadcast-groups-list input:checked')).map(el => el.value);
+            const matched = state.contacts.filter(c => c.groups && c.groups.some(g => checkedGroups.includes(g)));
+            const uniqueMap = new Map();
+            matched.forEach(c => uniqueMap.set(c.id, c));
+            return Array.from(uniqueMap.values());
+        }
+
+        function updateResolvedRecipients() {
+            const recipients = getSelectedRecipients();
+            document.getElementById('recipient-count').innerText = recipients.length;
+            const chipsContainer = document.getElementById('recipient-chips');
+            
+            if(recipients.length === 0) {
+                chipsContainer.innerHTML = `<span style="color: var(--text-muted); font-size: 0.85rem;">No groups selected</span>`;
+                return;
+            }
+
+            chipsContainer.innerHTML = recipients.map(r => `
+                <span class="chip">${r.name} (${r.phone || r.email || 'No details'})</span>
+            `).join('');
+        }
+
+        function toggleCommFields() {
+            const channel = document.getElementById('comm-channel').value;
+            document.getElementById('subject-group').style.display = channel === 'email' ? 'block' : 'none';
+        }
+
+        function executeBroadcast() {
+            const recipients = getSelectedRecipients();
+            if(recipients.length === 0) return alert('Please select at least one group with members.');
+            
+            const channel = document.getElementById('comm-channel').value;
+            const body = document.getElementById('comm-body').value;
+            const subject = document.getElementById('comm-subject').value;
+
+            if(channel === 'sms') {
+                const phones = recipients.map(r => r.phone).filter(Boolean).join(',');
+                if(!phones) return alert('Selected contacts lack phone numbers.');
+                window.location.href = `sms:${phones}?body=${encodeURIComponent(body)}`;
+            } else if(channel === 'email') {
+                const emails = recipients.map(r => r.email).filter(Boolean).join(',');
+                if(!emails) return alert('Selected contacts lack email addresses.');
+                window.location.href = `mailto:${emails}?subject=${encodeURIComponent(subject)}&body=${encodeURIComponent(body)}`;
+            } else if(channel === 'call') {
+                const firstWithPhone = recipients.find(r => r.phone);
+                if(!firstWithPhone) return alert('No phone numbers available.');
+                window.location.href = `tel:${firstWithPhone.phone}`;
+            }
+        }
+
+        // Initialize App
+        loadData();
+    </script>
+<script>
+    if ('serviceWorker' in navigator) {
+        window.addEventListener('load', () => {
+            navigator.serviceWorker.register('sw.js')
+                .then(reg => console.log('Service Worker registered! Scope:', reg.scope))
+                .catch(err => console.log('Service Worker registration failed:', err));
+        });
+    }
+</script>
+</body>
+</html>
