@@ -581,14 +581,16 @@
                 min-height: 34px;
             }
 
-            .menu-dropdown-content {
-                position: absolute;
-                right: 0;
-                top: 100%;
-                min-width: 220px;
-                z-index: 200;
-                box-shadow: 0 10px 15px -3px rgba(0, 0, 0, 0.1);
-            }
+           .menu-dropdown-content {
+        position: absolute;
+        left: auto;   /* Prevent left-edge anchoring */
+        right: 0;     /* Align to the right edge of the container */
+        top: 100%;
+        min-width: 220px;
+        z-index: 200;
+        box-shadow: 0 10px 15px -3px rgba(0, 0, 0, 0.1);
+    }
+}
 
             .menu-dropdown-content .nav-links {
                 flex-direction: column;
