@@ -999,60 +999,46 @@
         }
 
         async function loadData() {
-            if (!currentUser) {
-                document.getElementById('login-screen').style.display = 'flex';
-                return;
-            }
+    if (!currentUser) {
+        document.getElementById('login-screen').style.display = 'flex';
+        return;
+    }
 
-            document.getElementById('login-screen').style.display = 'none';
-            document.getElementById('desktop-user-label').innerText = currentUser;
-            document.getElementById('mobile-user-label').innerText = `${currentUser} (Logout)`;
-            document.getElementById('sync-status').innerText = '🔄 Loading your list...';
+    document.getElementById('login-screen').style.display = 'none';
+    document.getElementById('desktop-user-label').innerText = currentUser;
+    document.getElementById('mobile-user-label').innerText = `${currentUser} (Logout)`;
+    document.getElementById('sync-status').innerText = '🔄 Loading...';
 
-            try {
-                const { data, error } = await supabaseClient
-                    .from('work_dispatch_data')
-                    .select('data')
-                    .eq('id', getUserRecordId())
-                    .maybeSingle();
+    try {
+        const { data, error } = await supabaseClient
+            .from('work_dispatch_data')
+            .select('data')
+            .eq('id', getUserRecordId())
+            .maybeSingle();
 
-                if (error) throw error;
+        if (error) throw error;
 
-                if (data && data.data) {
-                    state = data.data;
-                    // Ensure shortcuts array exists in the loaded JSON object
-                    if (!Array.isArray(state.shortcuts)) {
-                        state.shortcuts = [];
-                    }
-                    if (!Array.isArray(state.contacts)) {
-                        state.contacts = [];
-                    }
-                    if (!Array.isArray(state.groups)) {
-                        state.groups = ['General', 'Team', 'Clients'];
-                    }
-                    state.contacts.forEach(c => {
-                        if (!c.groups && c.group) {
-                            c.groups = [c.group];
-                        } else if (!c.groups) {
-                            c.groups = [];
-                        }
-                    });
-                } else {
-                    state = {
-                        contacts: [],
-                        groups: ['General', 'Team', 'Clients'],
-                        shortcuts: []
-                    };
-                    await saveDataToSupabase();
-                }
-                document.getElementById('sync-status').innerText = `🟢 Synced (${currentUser})`;
-                refreshUI();
-            } catch (err) {
-                console.error('Supabase load error:', err);
-                document.getElementById('sync-status').innerText = '🔴 Supabase sync failed';
-                refreshUI();
-            }
+        if (data && data.data) {
+            state = data.data;
+            if (!Array.isArray(state.shortcuts)) state.shortcuts = [];
+            if (!Array.isArray(state.contacts)) state.contacts = [];
+            if (!Array.isArray(state.groups)) state.groups = ['General', 'Team', 'Clients'];
+        } else {
+            state = {
+                contacts: [],
+                groups: ['General', 'Team', 'Clients'],
+                shortcuts: []
+            };
+            await saveDataToSupabase();
         }
+        document.getElementById('sync-status').innerText = `🟢 Synced (${currentUser})`;
+        refreshUI();
+    } catch (err) {
+        console.error('Supabase load error:', err);
+        document.getElementById('sync-status').innerText = '🔴 Sync failed';
+        refreshUI();
+    }
+}
 
         async function saveDataToSupabase() {
             if (!currentUser) return;
