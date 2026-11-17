@@ -1017,8 +1017,15 @@
 
                 if (data && data.data) {
                     state = data.data;
+                    // Ensure shortcuts array exists in the loaded JSON object
                     if (!Array.isArray(state.shortcuts)) {
                         state.shortcuts = [];
+                    }
+                    if (!Array.isArray(state.contacts)) {
+                        state.contacts = [];
+                    }
+                    if (!Array.isArray(state.groups)) {
+                        state.groups = ['General', 'Team', 'Clients'];
                     }
                     state.contacts.forEach(c => {
                         if (!c.groups && c.group) {
@@ -1154,14 +1161,6 @@
             if (linkEl) linkEl.classList.add('active');
         }
 
-        function refreshUI() {
-            renderContacts();
-            renderGroups();
-            renderBroadcastGroups();
-            renderShortcuts();
-            updateResolvedRecipients();
-        }
-
         function toggleShortcutsDropdown() {
             isShortcutsDropdownOpen = !isShortcutsDropdownOpen;
             const contentEl = document.getElementById('shortcuts-dropdown-content');
@@ -1236,12 +1235,14 @@
             });
 
             closeShortcutModal();
+            // --- PERSIST TO SUPABASE JSON ---
             await saveDataToSupabase();
         }
 
         async function deleteShortcut(id) {
             if (confirm('Remove this link?')) {
                 state.shortcuts = state.shortcuts.filter(s => s.id !== id);
+                // --- PERSIST TO SUPABASE JSON ---
                 await saveDataToSupabase();
             }
         }
@@ -1533,6 +1534,14 @@
                 if(!firstWithPhone) return alert('No phone numbers available.');
                 window.location.href = `tel:${firstWithPhone.phone}`;
             }
+        }
+
+        function refreshUI() {
+            renderContacts();
+            renderGroups();
+            renderBroadcastGroups();
+            renderShortcuts();
+            updateResolvedRecipients();
         }
 
         // Initialize App
