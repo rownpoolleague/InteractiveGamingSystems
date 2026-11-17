@@ -10,15 +10,9 @@
   "icons": [
     {
       "src": "comhub.jpg",
-      "sizes": "192x192",
-      "type": "image/jpg",
-      "purpose": "any maskable"
-    },
-    {
-      "src": "comhub.jpg",
-      "sizes": "512x512",
-      "type": "image/jpg",
-      "purpose": "any maskable"
+      "sizes": "1024x1024",
+      "type": "image/jpeg",
+      "purpose": "any"
     }
   ]
 }
