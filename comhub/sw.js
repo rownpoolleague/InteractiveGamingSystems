@@ -1,4 +1,4 @@
-const version = 'v1.9';
+const version = 'v2.0';
 const CACHE_NAME = 'workdispatch-v1';
 const ASSETS_TO_CACHE = [
     './',
