@@ -30,17 +30,29 @@ self.addEventListener('activate', event => {
 });
 
 // Fetch Event (Network first, falling back to cache)
-self.addEventListener('fetch', event => {
-    event.respondWith(
-        fetch(event.request)
-            .then(response => {
-                // If online, cache a fresh copy
-                const resClone = response.clone();
-                caches.open(CACHE_NAME).then(cache => {
-                    cache.put(event.request, resClone);
-                });
-                return response;
-            })
-            .catch(() => caches.match(event.request))
+self.addEventListener('fetch', e => {
+  // For navigation or HTML files, try the network first so updates show instantly
+  if (e.request.mode === 'navigate' || e.request.url.endsWith('.html') || e.request.url.endsWith('/')) {
+    e.respondWith(
+      fetch(e.request)
+        .then(response => {
+          // Update cache with the fresh version
+          return caches.open(CACHE_NAME).then(cache => {
+            cache.put(e.request, response.clone());
+            return response;
+          });
+        })
+        .catch(() => {
+          // Fallback to cache if offline
+          return caches.match(e.request);
+        })
     );
+  } else {
+    // Standard cache-first for other static assets (images, icons, etc.)
+    e.respondWith(
+      caches.match(e.request).then(res => {
+        return res || fetch(e.request);
+      })
+    );
+  }
 });
