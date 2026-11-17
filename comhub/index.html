@@ -736,7 +736,7 @@
             <ul class="nav-links">
                 <li><a class="nav-link active" onclick="switchView('broadcast', this)"><span class="nav-link-content">📢 Broadcast Hub</span></a></li>
                 <li><a class="nav-link" onclick="switchView('contacts', this)"><span class="nav-link-content">📇 Contacts</span></a></li>
-                <li><a class="nav-link" onclick="switchView('groups', this)"><span class="nav-link-content">🏷️ Groups</span></a></li>
+                <li><a class="nav-link" onclick="switchView('groups', this)"><span class="nav-link-content">👥 Groups</span></a></li>
             </ul>
 
             <!-- 3-LINE MENU DROP DOWN FOR SAVED LINKS -->
@@ -882,7 +882,7 @@
 
         let state = {
             contacts: [],
-            groups: ['General', 'Team', 'Clients'],
+            groups: ['Work', 'Team', 'Clients'],
             shortcuts: []
         };
 
@@ -963,7 +963,7 @@
 
                 state = {
                     contacts: [],
-                    groups: ['General', 'Team', 'Clients'],
+                    groups: ['Family', 'Friends', 'Work'],
                     shortcuts: []
                 };
                 currentUser = nameInput;
@@ -1022,11 +1022,11 @@
             state = data.data;
             if (!Array.isArray(state.shortcuts)) state.shortcuts = [];
             if (!Array.isArray(state.contacts)) state.contacts = [];
-            if (!Array.isArray(state.groups)) state.groups = ['General', 'Team', 'Clients'];
+            if (!Array.isArray(state.groups)) state.groups = ['Family', 'Friends', 'Work'];
         } else {
             state = {
                 contacts: [],
-                groups: ['General', 'Team', 'Clients'],
+                groups: ['Family', 'Friends', 'Work'],
                 shortcuts: []
             };
             await saveDataToSupabase();
@@ -1419,7 +1419,7 @@
                 return `
                     <tr class="group-row-toggle" onclick="toggleGroupMembers('${escapedGroup}')">
                         <td><span style="display:inline-block; width: 1rem; color: var(--text-muted); font-size: 0.75rem;">${isExpanded ? '▼' : '▶'}</span> <strong>${g}</strong></td>
-                        <td>${members.length} members</td>
+                        <td>${members.length}</td>
                         <td onclick="event.stopPropagation()">
                             <button class="danger" style="padding: 0.25rem 0.5rem; font-size: 0.8rem; min-height: 30px;" onclick="deleteGroup('${escapedGroup}')">Del</button>
                         </td>
