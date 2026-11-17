@@ -354,6 +354,26 @@
             color: var(--primary-hover);
         }
 
+        .group-row-toggle {
+            cursor: pointer;
+            transition: background 0.15s;
+        }
+
+        .group-row-toggle:hover {
+            background: #f8fafc;
+        }
+
+        .group-members-dropdown {
+            background: #f8fafc;
+        }
+
+        .group-members-list {
+            display: flex;
+            flex-wrap: wrap;
+            gap: 0.4rem;
+            padding: 0.25rem 0;
+        }
+
         /* Modal Overlay */
         .modal-overlay {
             position: fixed;
@@ -601,13 +621,12 @@
 
             <div class="card">
                 <h3 style="margin-bottom: 1rem;">1. Select Target Groups</h3>
-                <div class="form-group">
-                    <label>Groups to Include:</label>
+                <div class="form-group">                    
                     <div id="broadcast-groups-list" class="checkbox-group"></div>
                 </div>
                 
                 <div class="action-box">
-                    <label style="font-size: 0.85rem; font-weight: 600; color: var(--text-muted);">Auto-Resolved Recipients (<span id="recipient-count">0</span> total):</label>
+                    <label style="font-size: 0.85rem; font-weight: 600; color: var(--text-muted);">Recipients (<span id="recipient-count">0</span> total):</label>
                     <div id="recipient-chips" class="recipient-chips">
                         <span style="color: var(--text-muted); font-size: 0.85rem;">No groups selected</span>
                     </div>
@@ -617,8 +636,7 @@
             <div class="card">
                 <h3 style="margin-bottom: 1rem;">2. Choose Action & Compose</h3>
                 
-                <div class="form-group">
-                    <label>Communication Channel</label>
+                <div class="form-group">                    
                     <select id="comm-channel" onchange="toggleCommFields()">
                         <option value="sms">Text Message</option>
                         <option value="email">Email</option>
@@ -708,6 +726,7 @@
         const supabaseClient = window.supabase.createClient(SUPABASE_URL, SUPABASE_ANON_KEY);
         let currentUser = localStorage.getItem('workdispatch_user') || '';
         let activeContact = null;
+        let expandedGroups = new Set();
 
         let state = {
             contacts: [],
@@ -1140,18 +1159,42 @@
             }
         }
 
+        function toggleGroupMembers(groupName) {
+            if (expandedGroups.has(groupName)) {
+                expandedGroups.delete(groupName);
+            } else {
+                expandedGroups.add(groupName);
+            }
+            renderGroups();
+        }
+
         function renderGroups() {
             const tbody = document.getElementById('groups-table-body');
             tbody.innerHTML = state.groups.map(g => {
-                const count = state.contacts.filter(c => c.groups && c.groups.includes(g)).length;
-                return `
-                    <tr>
-                        <td><strong>${g}</strong></td>
-                        <td>${count} members</td>
-                        <td>
-                            <button class="danger" style="padding: 0.25rem 0.5rem; font-size: 0.8rem; min-height: 30px;" onclick="deleteGroup('${g}')">Del</button>
+                const members = state.contacts.filter(c => c.groups && c.groups.includes(g));
+                const isExpanded = expandedGroups.has(g);
+                const escapedGroup = g.replace(/\\/g, '\\\\').replace(/'/g, "\\'");
+
+                const membersDropdownHtml = isExpanded ? `
+                    <tr class="group-members-dropdown">
+                        <td colspan="3">
+                            ${members.length > 0 
+                                ? `<div class="group-members-list">${members.map(m => `<span class="chip">${m.name}</span>`).join('')}</div>`
+                                : `<span style="color: var(--text-muted); font-size: 0.85rem;">No members in this group.</span>`
+                            }
                         </td>
                     </tr>
+                ` : '';
+
+                return `
+                    <tr class="group-row-toggle" onclick="toggleGroupMembers('${escapedGroup}')">
+                        <td><span style="display:inline-block; width: 1rem; color: var(--text-muted); font-size: 0.75rem;">${isExpanded ? '▼' : '▶'}</span> <strong>${g}</strong></td>
+                        <td>${members.length} members</td>
+                        <td onclick="event.stopPropagation()">
+                            <button class="danger" style="padding: 0.25rem 0.5rem; font-size: 0.8rem; min-height: 30px;" onclick="deleteGroup('${escapedGroup}')">Del</button>
+                        </td>
+                    </tr>
+                    ${membersDropdownHtml}
                 `;
             }).join('');
         }
@@ -1169,6 +1212,7 @@
 
         async function deleteGroup(name) {
             if(confirm(`Delete group "${name}"?`)) {
+                expandedGroups.delete(name);
                 state.groups = state.groups.filter(g => g !== name);
                 state.contacts.forEach(c => { 
                     if (c.groups) {
