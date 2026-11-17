@@ -581,12 +581,12 @@
                 min-height: 34px;
             }
 
-           .menu-dropdown-content {
+          .menu-dropdown-content {
         position: absolute;
-        left: auto;   /* Prevent left-edge anchoring */
-        right: 0;     /* Align to the right edge of the container */
-        top: 100%;
-        min-width: 220px;
+        right: 0;                   /* Anchors right edge to the button/screen boundary */
+        left: auto;                 /* Prevents left-side stretching */
+        width: 220px;               /* Fixed width so it doesn't overflow portrait screens */
+        max-width: calc(100vw - 2rem); /* Never wider than the phone screen minus margins */
         z-index: 200;
         box-shadow: 0 10px 15px -3px rgba(0, 0, 0, 0.1);
     }
@@ -744,7 +744,7 @@
                 <button class="menu-toggle-btn" onclick="toggleShortcutsDropdown()">
                     <span style="display: flex; align-items: right; gap: 0.5rem;">
                         <span style="font-size: 1.1rem; line-height: 0.5;">≡</span>
-                        <span>Links1</span>
+                        <span>Links</span>
                     </span>
                     <span id="shortcuts-dropdown-arrow" style="font-size: 0.75rem;">▼</span>
                 </button>
