@@ -1,4 +1,5 @@
 {
+  "id": "/comhub/",
   "name": "WorkDispatch",
   "short_name": "WorkDispatch",
   "description": "Master Dashboard and Communications Hub",
@@ -9,9 +10,9 @@
   "theme_color": "#4f46e5",
   "icons": [
     {
-      "src": "comhub.jpg",
+      "src": "comhub.png",
       "sizes": "1024x1024",
-      "type": "image/jpeg",
+      "type": "image/png",
       "purpose": "any"
     }
   ]
