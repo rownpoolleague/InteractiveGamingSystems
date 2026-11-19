@@ -661,9 +661,9 @@
             </div>
 
             <div style="display: flex; flex-direction: column; gap: 0.5rem;">
-                <button onclick="sendIndividualSMS()" id="modal-sms-btn" style="width: 100%;">💬 Send Direct Text (SMS)</button>
-                <button onclick="sendIndividualEmail()" id="modal-email-btn" class="secondary" style="width: 100%;">✉️ Send Direct Email</button>
-                <button onclick="makeIndividualCall()" id="modal-call-btn" class="secondary" style="width: 100%;">📞 Call Direct</button>
+                <button onclick="sendIndividualSMS()" id="modal-sms-btn" style="width: 100%;">💬 Send Text (SMS)</button>
+                <button onclick="sendIndividualEmail()" id="modal-email-btn" class="secondary" style="width: 100%;">✉️ Send Email</button>
+                <button onclick="makeIndividualCall()" id="modal-call-btn" class="secondary" style="width: 100%;">📞 Call</button>
             </div>
         </div>
     </div>
@@ -677,7 +677,7 @@
             </div>
             <input type="hidden" id="contact-id">
             <div class="form-group">
-                <label>Full Name</label>
+                <label>Name</label>
                 <input type="text" id="contact-name" placeholder="John Doe">
             </div>
             <div class="form-group">
@@ -724,7 +724,7 @@
     <aside>
         <div style="width: 100%;">
             <div class="logo">
-                ⚡ Dashboard
+                ⚡ Dashboard ⚡
             </div>
             <div class="user-bar">
                 <span style="overflow: hidden; text-overflow: ellipsis; white-space: nowrap;">👤 <strong id="desktop-user-label">User</strong></span>
@@ -735,7 +735,7 @@
             <div class="nav-section-title">Communications</div>
             <ul class="nav-links">
                 <li><a class="nav-link active" onclick="switchView('broadcast', this)"><span class="nav-link-content">📢 Broadcast Hub</span></a></li>
-                <li><a class="nav-link" onclick="switchView('contacts', this)"><span class="nav-link-content">📇 Contacts</span></a></li>
+                <li><a class="nav-link" onclick="switchView('contacts', this)"><span class="nav-link-content">👤 Contacts</span></a></li>
                 <li><a class="nav-link" onclick="switchView('groups', this)"><span class="nav-link-content">👥 Groups</span></a></li>
             </ul>
 
